@@ -1,0 +1,24 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/",               "destination": "/templates/index.html" },
+    { "source": "/login",          "destination": "/templates/login.html" },
+    { "source": "/register",       "destination": "/templates/register.html" },
+    { "source": "/booking",        "destination": "/templates/booking.html" },
+    { "source": "/cargo",          "destination": "/templates/cargo.html" },
+    { "source": "/tracking",       "destination": "/templates/tracking.html" },
+    { "source": "/admin",          "destination": "/templates/admin.html" },
+    { "source": "/dashboard",      "destination": "/templates/user-dashboard.html" }
+  ],
+  "headers": [
+    {
+      "source": "/js/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+    }
+  ]
+}

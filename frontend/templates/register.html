@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="../css/style.css" rel="stylesheet" />
+  <script src="../js/auth-guard.js"></script>
+  <script>AuthGuard.requireGuest();</script>
+</head>
+<body class="inner-page">
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" data-page="index.html" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="booking.html" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="cargo.html" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="tracking.html" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="register-page-main">
+  <div class="container">
+    <div class="register-card">
+          <div class="register-card-header">
+            <span class="section-eyebrow">Create Account</span>
+            <h1 class="section-title mt-2">Join Mideye</h1>
+            <p class="register-card-sub">Register with your real details to book flights and track cargo.</p>
+          </div>
+
+          <div class="register-card-body">
+            <form id="registerForm" novalidate aria-label="Registration form">
+              <div class="input-group-custom">
+                <label for="regFullName" class="input-label-custom">Full Name <span class="text-danger" aria-hidden="true">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-id-card input-prefix-icon" aria-hidden="true"></i>
+                  <input
+                    type="text"
+                    id="regFullName"
+                    name="full_name"
+                    class="form-control-custom"
+                    placeholder="e.g. Ayuub Abdirzak Jama"
+                    autocomplete="name"
+                    required
+                    minlength="2"
+                    maxlength="100"
+                    aria-describedby="fullNameHelp fullNameError fullNameSuccess"
+                  />
+                </div>
+                <p class="input-hint" id="fullNameHelp">Enter your legal full name exactly as it appears on your ID or passport.</p>
+                <div class="invalid-feedback-custom" id="fullNameError" role="alert"></div>
+                <div class="valid-feedback-custom" id="fullNameSuccess"></div>
+              </div>
+
+              <div class="input-group-custom">
+                <label for="regEmail" class="input-label-custom">Email Address <span class="text-danger" aria-hidden="true">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-envelope input-prefix-icon" aria-hidden="true"></i>
+                  <input
+                    type="email"
+                    id="regEmail"
+                    name="email"
+                    class="form-control-custom"
+                    placeholder="e.g. ayuub.Abdirzak@gmail.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                    aria-describedby="emailHelp emailError emailSuccess"
+                  />
+                </div>
+                <p class="input-hint" id="emailHelp">Use a personal email you check regularly. Temporary emails are not accepted.</p>
+                <div class="invalid-feedback-custom" id="emailError" role="alert"></div>
+                <div class="valid-feedback-custom" id="emailSuccess"></div>
+              </div>
+
+              <div class="input-group-custom">
+                <label for="regPhone" class="input-label-custom">Phone Number <span class="text-danger" aria-hidden="true">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-phone input-prefix-icon" aria-hidden="true"></i>
+                  <input
+                    type="tel"
+                    id="regPhone"
+                    name="phone"
+                    class="form-control-custom"
+                    placeholder="+252 61 1234567"
+                    autocomplete="tel"
+                    inputmode="tel"
+                    required
+                    aria-describedby="phoneHelp phoneError phoneSuccess"
+                  />
+                </div>
+                <p class="input-hint" id="phoneHelp">Somali mobile number (e.g. +252 61 1234567 or 0611234567).</p>
+                <div class="invalid-feedback-custom" id="phoneError" role="alert"></div>
+                <div class="valid-feedback-custom" id="phoneSuccess"></div>
+              </div>
+
+              <div class="input-group-custom">
+                <label for="regPassword" class="input-label-custom">Password <span class="text-danger" aria-hidden="true">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-lock input-prefix-icon" aria-hidden="true"></i>
+                  <input
+                    type="password"
+                    id="regPassword"
+                    name="password"
+                    class="form-control-custom has-pass-toggle"
+                    placeholder="Create a strong password"
+                    autocomplete="new-password"
+                    required
+                    aria-describedby="passwordRequirements passwordError passwordSuccess"
+                  />
+                  <button type="button" class="pass-toggle-btn" id="toggleRegPassword" aria-label="Show password">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="password-strength-wrap" aria-live="polite">
+                  <div class="password-strength-track">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                  </div>
+                  <span class="password-strength-label" id="passwordStrengthLabel"></span>
+                </div>
+                <ul class="password-requirements" id="passwordRequirements" aria-label="Password requirements">
+                  <li id="req-length"><i class="fas fa-circle" aria-hidden="true"></i> At least 8 characters</li>
+                  <li id="req-upper"><i class="fas fa-circle" aria-hidden="true"></i> Uppercase letter (A–Z)</li>
+                  <li id="req-lower"><i class="fas fa-circle" aria-hidden="true"></i> Lowercase letter (a–z)</li>
+                  <li id="req-number"><i class="fas fa-circle" aria-hidden="true"></i> Number (0–9)</li>
+                  <li id="req-special"><i class="fas fa-circle" aria-hidden="true"></i> Special character (# @ ! $ % …)</li>
+                </ul>
+                <div class="invalid-feedback-custom" id="passwordError" role="alert"></div>
+                <div class="valid-feedback-custom" id="passwordSuccess"></div>
+              </div>
+
+              <div class="input-group-custom">
+                <label for="regConfirm" class="input-label-custom">Confirm Password <span class="text-danger" aria-hidden="true">*</span></label>
+                <div class="input-wrap">
+                  <i class="fas fa-shield-alt input-prefix-icon" aria-hidden="true"></i>
+                  <input
+                    type="password"
+                    id="regConfirm"
+                    name="confirm_password"
+                    class="form-control-custom has-pass-toggle"
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password"
+                    required
+                    aria-describedby="confirmError confirmSuccess"
+                  />
+                  <button type="button" class="pass-toggle-btn" id="toggleRegConfirm" aria-label="Show password">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback-custom" id="confirmError" role="alert"></div>
+                <div class="valid-feedback-custom" id="confirmSuccess"></div>
+              </div>
+
+              <button type="submit" class="btn-primary-custom w-100 register-submit-btn" id="registerSubmitBtn" disabled>
+                <span><i class="fas fa-user-plus me-2" aria-hidden="true"></i>Create Account</span>
+              </button>
+
+              <p class="auth-switch-text mb-0">
+                Already a member? <a href="login.html">Sign in here</a>
+              </p>
+            </form>
+          </div>
+        </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/register.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+  });
+</script>
+</body>
+</html>

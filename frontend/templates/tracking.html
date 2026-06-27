@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Cargo | Mideye Travel Agency</title>
+  <meta name="description" content="Track your cargo shipment in real-time with Mideye Travel Agency."/>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="/css/style.css" rel="stylesheet"/>
+  <link href="/css/service-pages.css" rel="stylesheet"/>
+  <link href="/css/tracking.css" rel="stylesheet"/>
+  <link href="/css/cargo-status.css" rel="stylesheet"/>
+
+  <!-- Public page; login required when searching a shipment -->
+  <script src="/js/auth-guard.js"></script>
+</head>
+<body class="inner-page service-dashboard-page">
+
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mideye<span> Travel</span></div>
+    </a>
+
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom active" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+        <li class="nav-item" id="navDashboardItem" style="display:none;">
+          <a class="nav-link-custom" id="navDashboardLink" href="#"><i class="fas fa-th-large me-1"></i>Dashboard</a>
+        </li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0" id="navAuthButtons">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom nav-register-btn" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="service-dashboard">
+  <div class="service-page-header page-header">
+    <span class="section-badge"><i class="fas fa-map-pin" aria-hidden="true"></i> Cargo Tracking</span>
+    <h1 class="section-title">Track Your Shipment</h1>
+    <p class="section-desc mx-auto page-subtitle">Enter your tracking number to see real-time updates on your cargo location and delivery status.</p>
+  </div>
+
+  <div class="service-dashboard__inner service-dashboard__inner--single service-dashboard__inner--narrow">
+    <section class="service-panel page-card">
+      <div class="service-panel__head">
+        <i class="fas fa-search service-panel__icon" aria-hidden="true"></i>
+        <h2>Track Shipment</h2>
+      </div>
+      <div class="service-panel__body">
+        <form id="trackingForm" class="service-track-form" novalidate>
+          <div class="service-form-field">
+            <label for="trackingNumber" class="form-label">Tracking Number</label>
+            <input
+              type="text"
+              class="form-control-custom"
+              placeholder="Enter your tracking ID (e.g. MDY-0001)"
+              id="trackingNumber"
+              required
+              autocomplete="off"
+            />
+          </div>
+          <button class="primary-button service-btn-primary" type="submit">
+            <i class="fas fa-search" aria-hidden="true"></i> Track
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <div id="trackingNotFound" class="track-not-found" aria-live="polite">
+      <div class="track-not-found__icon"><i class="fas fa-box-open" aria-hidden="true"></i></div>
+      <h3>No Shipment Found</h3>
+      <p>We couldn't find a shipment with ID <strong class="track-not-found__id"></strong>. Please check the number and try again.</p>
+      <button type="button" class="secondary-button service-btn-secondary" onclick="document.getElementById('trackingNumber').focus()">
+        <i class="fas fa-redo me-2" aria-hidden="true"></i>Try Again
+      </button>
+    </div>
+
+    <div id="trackingResult" class="track-results" aria-live="polite"></div>
+  </div>
+</main>
+
+<footer class="booking-footer service-footer">
+  <div class="container">
+    <p class="mb-2">© 2026 Mideye Travel Agency. All rights reserved.</p>
+    <p class="small">Galkacyo, Somalia | info@mideye.so</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/cargo-status.js"></script>
+<script src="/js/tracking.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+
+    const navbar = document.getElementById('mainNavbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+    }, { passive: true });
+  });
+</script>
+</body>
+</html>

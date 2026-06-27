@@ -1,0 +1,160 @@
+/* Notifications, Support, Settings */
+
+.ops-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.ops-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ops-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ops-form-group--full {
+  grid-column: 1 / -1;
+}
+
+.ops-form-group label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+
+.ops-form-group input,
+.ops-form-group select,
+.ops-form-group textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--brown);
+  background: var(--white);
+}
+
+.ops-form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.ops-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #25d366;
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s ease;
+}
+
+.btn-whatsapp:hover {
+  background: #1da851;
+  color: #fff;
+}
+
+.btn-sms {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--brown);
+  color: var(--gold);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-sms:hover {
+  background: var(--brown-mid);
+}
+
+.badge-support-open { background: rgba(255, 193, 7, 0.2); color: #a07a00; }
+.badge-support-progress { background: rgba(13, 102, 64, 0.12); color: #0d6640; }
+.badge-support-resolved { background: rgba(68, 19, 6, 0.1); color: var(--brown); }
+
+.badge-notif-ticket { background: rgba(107, 30, 13, 0.1); color: var(--brown-mid); }
+.badge-notif-delay { background: rgba(220, 53, 69, 0.12); color: #b02a37; }
+.badge-notif-cargo { background: rgba(254, 230, 133, 0.45); color: #a07a00; }
+.badge-notif-payment { background: rgba(13, 102, 64, 0.12); color: #0d6640; }
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.settings-nav {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 0.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--brown);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--r-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.settings-nav-btn:hover {
+  background: rgba(68, 19, 6, 0.05);
+}
+
+.settings-nav-btn.active {
+  background: rgba(254, 230, 133, 0.45);
+  color: var(--brown);
+}
+
+.permissions-table td,
+.permissions-table th {
+  font-size: 0.85rem;
+}
+
+.perm-yes { color: #0d6640; font-weight: 700; }
+.perm-no { color: rgba(68, 19, 6, 0.35); }
+
+@media (max-width: 900px) {
+  .ops-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .ops-form-grid { grid-template-columns: 1fr; }
+  .settings-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .ops-stats-row { grid-template-columns: 1fr; }
+}

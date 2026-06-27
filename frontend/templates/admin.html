@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="../css/admin-users.css" rel="stylesheet" />
+  <link href="../css/admin-receipts.css" rel="stylesheet" />
+  <link href="../css/admin-dashboard.css" rel="stylesheet" />
+  <link href="../css/admin-flights.css" rel="stylesheet" />
+  <link href="../css/admin-finance.css" rel="stylesheet" />
+  <link href="../css/admin-ops.css" rel="stylesheet" />
+  <link href="../css/cargo-status.css" rel="stylesheet" />
+
+  <!-- ── Auth guard: admin only ── -->
+  <script src="../js/auth-guard.js"></script>
+  <script>AuthGuard.requireStaffPanel();</script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon"><i class="fas fa-plane"></i></div>
+    <div>
+      <div class="sidebar-brand-text">Mideye<span> Travel </span></div>
+      <div class="sidebar-subtitle">Admin Panel</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Main</div>
+    <a class="nav-item-link active" data-section="dashboard" onclick="navigate('dashboard', this)">
+      <span class="nav-icon"><i class="fas fa-th-large"></i></span>
+      Dashboard
+    </a>
+
+    <div class="sidebar-section-label">Management</div>
+    <a class="nav-item-link nav-admin-only" data-section="users" onclick="navigate('users', this)">
+      <span class="nav-icon"><i class="fas fa-users"></i></span>
+      Users
+      <span class="nav-badge" id="badge-users">–</span>
+    </a>
+    <a class="nav-item-link" data-section="bookings" onclick="navigate('bookings', this)">
+      <span class="nav-icon"><i class="fas fa-plane-departure"></i></span>
+      Bookings
+      <span class="nav-badge" id="badge-bookings">–</span>
+    </a>
+    <a class="nav-item-link" data-section="cargo" onclick="navigate('cargo', this)">
+      <span class="nav-icon"><i class="fas fa-box"></i></span>
+      Cargo
+      <span class="nav-badge" id="badge-cargo">–</span>
+    </a>
+    <a class="nav-item-link" data-section="flights" onclick="navigate('flights', this)">
+      <span class="nav-icon"><i class="fas fa-plane"></i></span>
+      Flights
+      <span class="nav-badge" id="badge-flights">–</span>
+    </a>
+    <a class="nav-item-link" data-section="cities" onclick="navigate('cities', this)">
+      <span class="nav-icon"><i class="fas fa-city"></i></span>
+      Cities
+      <span class="nav-badge" id="badge-cities">–</span>
+    </a>
+
+    <div class="sidebar-section-label">Finance</div>
+    <a class="nav-item-link" data-section="payments" onclick="navigate('payments', this)">
+      <span class="nav-icon"><i class="fas fa-credit-card"></i></span>
+      Payments
+    </a>
+
+    <div class="sidebar-section-label">Analytics</div>
+    <a class="nav-item-link nav-admin-only" data-section="reports" onclick="navigate('reports', this)">
+      <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+      Reports
+    </a>
+
+    <div class="sidebar-section-label">Communication</div>
+    <a class="nav-item-link" data-section="notifications" onclick="navigate('notifications', this)">
+      <span class="nav-icon"><i class="fab fa-whatsapp"></i></span>
+      Notifications
+    </a>
+    <a class="nav-item-link" data-section="support" onclick="navigate('support', this)">
+      <span class="nav-icon"><i class="fas fa-headset"></i></span>
+      Support
+      <span class="nav-badge" id="badge-support">–</span>
+    </a>
+
+    <div class="sidebar-section-label">System</div>
+    <a class="nav-item-link nav-admin-only" data-section="settings" onclick="navigate('settings', this)">
+      <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+      Settings
+    </a>
+
+    <div class="sidebar-section-label">Site</div>
+    <a class="nav-item-link" href="index.html">
+      <span class="nav-icon"><i class="fas fa-globe"></i></span>
+      View Website
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
+      <div>
+        <div class="sidebar-user-name" id="sidebarName">Admin</div>
+        <div class="sidebar-user-role">Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════
+     MAIN WRAP
+══════════════════════════════════════════ -->
+<div id="mainWrap">
+
+  <!-- Top Bar -->
+  <header id="topBar">
+    <div class="topbar-left">
+      <button id="sidebarToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-subtitle" id="pageSubtitle">Control panel</div>
+      </div>
+    </div>
+    <div class="topbar-search-wrap">
+      <input type="search" class="topbar-search" id="topbarSearch" placeholder="Search dashboard…" aria-label="Search" />
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-dropdown-wrap">
+        <button type="button" class="medi-icon-btn" id="btnNotifications" title="Notifications" aria-expanded="false" aria-haspopup="true">
+          <i class="far fa-bell"></i>
+          <span class="topbar-badge" id="notifBadge" hidden>0</span>
+        </button>
+        <div class="topbar-dropdown" id="dropdownNotifications" hidden>
+          <div class="topbar-dropdown__head">Notifications</div>
+          <div class="topbar-dropdown__body" id="notifList"></div>
+          <button type="button" class="topbar-dropdown__foot" onclick="navigate('notifications', document.querySelector('[data-section=notifications]')); closeTopbarDropdowns();">Send WhatsApp updates</button>
+        </div>
+      </div>
+      <div class="topbar-dropdown-wrap">
+        <button type="button" class="medi-icon-btn" id="btnMessages" title="Messages" aria-expanded="false" aria-haspopup="true">
+          <i class="far fa-comment-alt"></i>
+        </button>
+        <div class="topbar-dropdown" id="dropdownMessages" hidden>
+          <div class="topbar-dropdown__head">Recent Activity</div>
+          <div class="topbar-dropdown__body" id="messagesList"></div>
+        </div>
+      </div>
+      <div class="topbar-dropdown-wrap">
+        <button type="button" class="medi-icon-btn" id="btnSettings" title="Settings" aria-expanded="false" aria-haspopup="true">
+          <i class="fas fa-cog"></i>
+        </button>
+        <div class="topbar-dropdown" id="dropdownSettings" hidden>
+          <div class="topbar-dropdown__head">Quick Settings</div>
+          <div class="topbar-dropdown__body topbar-dropdown__menu">
+            <button type="button" class="topbar-menu-item" onclick="navigate('settings', document.querySelector('[data-section=settings]')); closeTopbarDropdowns();"><i class="fas fa-shield-alt"></i> Settings &amp; Security</button>
+            <button type="button" class="topbar-menu-item" onclick="navigate('support', document.querySelector('[data-section=support]')); closeTopbarDropdowns();"><i class="fas fa-headset"></i> Support requests</button>
+            <button type="button" class="topbar-menu-item" onclick="refreshAll(); closeTopbarDropdowns();"><i class="fas fa-sync-alt"></i> Refresh dashboard data</button>
+            <button type="button" class="topbar-menu-item" onclick="navigate('users', document.querySelector('[data-section=users]')); closeTopbarDropdowns();"><i class="fas fa-users"></i> Manage users</button>
+            <a href="index.html" class="topbar-menu-item"><i class="fas fa-globe"></i> View website</a>
+            <button type="button" class="topbar-menu-item" onclick="toggleFullscreen(); closeTopbarDropdowns();"><i class="fas fa-expand"></i> Full screen</button>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-dropdown-wrap">
+        <button type="button" class="topbar-user-chip" id="btnProfile" title="Admin profile" aria-expanded="false" aria-haspopup="true">
+          <div class="topbar-user-chip__avatar" id="topbarAvatar">A</div>
+        </button>
+        <div class="topbar-dropdown topbar-dropdown--profile" id="dropdownProfile" hidden>
+          <div class="topbar-profile-head">
+            <div class="topbar-user-chip__avatar topbar-user-chip__avatar--lg" id="profileDropdownAvatar">A</div>
+            <div>
+              <div class="topbar-profile-name" id="profileDropdownName">Admin</div>
+              <div class="topbar-profile-email" id="profileDropdownEmail">admin@mideye.com</div>
+            </div>
+          </div>
+          <div class="topbar-dropdown__body topbar-dropdown__menu">
+            <span class="topbar-menu-label">Role: Administrator</span>
+            <button type="button" class="topbar-menu-item topbar-menu-item--danger" onclick="AuthGuard.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-time"><i class="far fa-clock"></i><span id="clockDisplay"></span></div>
+      <button id="refreshBtn" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button class="topbar-logout" onclick="AuthGuard.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+    <div class="medi-breadcrumb"><a href="index.html">Home</a> <span>›</span> <span id="breadcrumbCurrent">Dashboard</span></div>
+  </header>
+
+  <!-- Content -->
+  <main id="content">
+
+    <!-- ══ SECTION: DASHBOARD ══ -->
+    <section id="sec-dashboard" class="section active">
+      
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="medi-stat-card medi-stat-card--teal">
+          <div>
+            <div class="medi-stat-card__value loading-pulse" id="stat-users">–</div>
+            <div class="medi-stat-card__label">Total Users</div>
+            <div class="medi-stat-card__sub">Registered accounts</div>
+          </div>
+          <div class="medi-stat-card__icon"><i class="fas fa-users"></i></div>
+        </div>
+        <div class="medi-stat-card medi-stat-card--green">
+          <div>
+            <div class="medi-stat-card__value loading-pulse" id="stat-bookings">–</div>
+            <div class="medi-stat-card__label">Total Bookings</div>
+            <div class="medi-stat-card__sub">Flight booking requests</div>
+          </div>
+          <div class="medi-stat-card__icon"><i class="fas fa-plane-departure"></i></div>
+        </div>
+        <div class="medi-stat-card medi-stat-card--blue">
+          <div>
+            <div class="medi-stat-card__value loading-pulse" id="stat-cargo">–</div>
+            <div class="medi-stat-card__label">Total Cargo</div>
+            <div class="medi-stat-card__sub">Shipment requests</div>
+          </div>
+          <div class="medi-stat-card__icon"><i class="fas fa-box-open"></i></div>
+        </div>
+        <div class="medi-stat-card medi-stat-card--orange">
+          <div>
+            <div class="medi-stat-card__value loading-pulse" id="stat-pending">–</div>
+            <div class="medi-stat-card__label">Pending</div>
+            <div class="medi-stat-card__sub">Bookings awaiting action</div>
+          </div>
+          <div class="medi-stat-card__icon"><i class="fas fa-hourglass-half"></i></div>
+        </div>
+        <div class="medi-stat-card medi-stat-card--purple medi-stat-card--clickable" onclick="navigate('payments', document.querySelector('[data-section=payments]'))" title="Open Payment Management">
+          <div>
+            <div class="medi-stat-card__value loading-pulse" id="stat-payment">–</div>
+            <div class="medi-stat-card__label">Payment</div>
+            <div class="medi-stat-card__sub" id="stat-payment-sub">Received payments</div>
+          </div>
+          <div class="medi-stat-card__icon"><i class="fas fa-credit-card"></i></div>
+        </div>
+        <div class="medi-stat-card medi-stat-card--gold medi-stat-card--clickable" onclick="navigate('reports', document.querySelector('[data-section=reports]')); setReportTab('revenue')" title="Open Revenue Report">
+          <div>
+            <div class="medi-stat-card__value loading-pulse" id="stat-revenue">–</div>
+            <div class="medi-stat-card__label">Revenue</div>
+            <div class="medi-stat-card__sub">Estimated earnings</div>
+          </div>
+          <div class="medi-stat-card__icon"><i class="fas fa-dollar-sign"></i></div>
+        </div>
+      </div>
+
+      <!-- Overview + Activity -->
+      <div class="medi-overview-grid">
+        <div class="medi-panel">
+          <div class="medi-panel__header">Overview</div>
+          <div class="medi-gauges">
+            <div class="medi-gauge">
+              <div class="medi-gauge__ring" id="ring-confirmed" style="--gauge-color:#0d6640;--gauge-pct:0">
+                <div class="medi-gauge__inner" id="gauge-confirmed">0%</div>
+              </div>
+              <div class="medi-gauge__icon"><i class="fas fa-check-circle"></i></div>
+              <div class="medi-gauge__label">Completed</div>
+              <div class="medi-gauge__sub">Flight bookings</div>
+            </div>
+            <div class="medi-gauge">
+              <div class="medi-gauge__ring" id="ring-transit" style="--gauge-color:#dc8f00;--gauge-pct:0">
+                <div class="medi-gauge__inner" id="gauge-transit">0%</div>
+              </div>
+              <div class="medi-gauge__icon"><i class="fas fa-shipping-fast"></i></div>
+              <div class="medi-gauge__label">In Transit</div>
+              <div class="medi-gauge__sub">Cargo shipments</div>
+            </div>
+            <div class="medi-gauge">
+              <div class="medi-gauge__ring" id="ring-arrived" style="--gauge-color:#6b1e0d;--gauge-pct:0">
+                <div class="medi-gauge__inner" id="gauge-arrived">0%</div>
+              </div>
+              <div class="medi-gauge__icon"><i class="fas fa-box"></i></div>
+              <div class="medi-gauge__label">Arrived</div>
+              <div class="medi-gauge__sub">Delivered cargo</div>
+            </div>
+          </div>
+        </div>
+        <div class="medi-panel">
+          <div class="medi-panel__header">Activity Statistics</div>
+          <div class="medi-chart" id="activityChart"></div>
+          <div class="medi-chart-legend">
+            <span><i class="leg-bookings"></i> Bookings</span>
+            <span><i class="leg-cargo"></i> Cargo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick view mini tables -->
+      <div class="dash-grid">
+        <div class="data-card">
+          <div class="data-card-header">
+            <div class="data-card-title"><i class="fas fa-plane-departure"></i> Recent Bookings</div>
+            <a class="btn-action btn-action-brown" onclick="navigate('bookings', document.querySelector('[data-section=bookings]'))">View all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Passenger</th><th>Route</th><th>Status</th></tr>
+              </thead>
+              <tbody id="dash-bookings-body">
+                <tr><td colspan="3"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="data-card">
+          <div class="data-card-header">
+            <div class="data-card-title"><i class="fas fa-box"></i> Recent Cargo</div>
+            <a class="btn-action btn-action-brown" onclick="navigate('cargo', document.querySelector('[data-section=cargo]'))">View all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Tracking ID</th><th>Destination</th><th>Status</th></tr>
+              </thead>
+              <tbody id="dash-cargo-body">
+                <tr><td colspan="3"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: USERS ══ -->
+    <section id="sec-users" class="section">
+      <div class="section-header">
+        
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-users"></i> Users</div>
+          <span class="td-muted" id="users-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table admin-table--wide">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Role</th>
+                <th>Bookings</th>
+                <th>Cargo</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-body">
+              <tr><td colspan="10"><div class="table-loading"><div class="spinner"></div>Loading users…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: BOOKINGS ══ -->
+    <section id="sec-bookings" class="section">
+      <div class="section-header">
+     
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-plane-departure"></i> Bookings List</div>
+          <span class="td-muted" id="bookings-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Passenger</th>
+                <th>Route</th>
+                <th>Travel Date</th>
+                <th>Class</th>
+                <th>Passengers</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-body">
+              <tr><td colspan="8"><div class="table-loading"><div class="spinner"></div>Loading bookings…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: FLIGHTS ══ -->
+    <section id="sec-flights" class="section">
+      <div class="section-header">
+         
+        <div class="flight-section-actions">
+          <button type="button" class="btn-action btn-action-brown" onclick="openFlightModal()">
+            <i class="fas fa-plus"></i> Add Flight
+          </button>
+        </div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-plane"></i> Flights Management</div>
+          <span class="td-muted" id="flights-count"></span>
+        </div>
+         
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Airline</th>
+                <th>Route</th>
+                <th>Date</th>
+                <th>Departure</th>
+                <th>Duration</th>
+                <th>Economy</th>
+                <th>Business</th>
+                <th>Seats</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="flights-body">
+              <tr><td colspan="11"><div class="table-loading"><div class="spinner"></div>Loading flights…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: CITIES ══ -->
+    <section id="sec-cities" class="section">
+      <div class="section-header">
+        
+        <div class="flight-section-actions">
+          <button type="button" class="btn-action btn-action-brown" onclick="openCityModal()">
+            <i class="fas fa-plus"></i> Add City
+          </button>
+        </div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-city"></i> Cities Management</div>
+          <span class="td-muted" id="cities-count"></span>
+        </div>
+        
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Code</th>
+                <th>City Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cities-body">
+              <tr><td colspan="5"><div class="table-loading"><div class="spinner"></div>Loading cities…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: CARGO ══ -->
+    <section id="sec-cargo" class="section">
+      <div class="section-header">
+        
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-box"></i> Cargo List</div>
+          <span class="td-muted" id="cargo-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Sender</th>
+                <th>Recipient</th>
+                <th>Route</th>
+                <th>Type</th>
+                <th>Weight</th>
+                <th>Speed</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cargo-body">
+              <tr><td colspan="9"><div class="table-loading"><div class="spinner"></div>Loading cargo…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: PAYMENTS ══ -->
+    <section id="sec-payments" class="section">
+      <div class="finance-stats-row">
+        <div class="finance-mini-stat">
+          <div class="finance-mini-stat__value" id="pay-stat-paid">–</div>
+          <div class="finance-mini-stat__label">Paid Invoices</div>
+        </div>
+        <div class="finance-mini-stat">
+          <div class="finance-mini-stat__value" id="pay-stat-unpaid">–</div>
+          <div class="finance-mini-stat__label">Unpaid Invoices</div>
+        </div>
+        <div class="finance-mini-stat">
+          <div class="finance-mini-stat__value" id="pay-stat-refunds">–</div>
+          <div class="finance-mini-stat__label">Refunds</div>
+        </div>
+        <div class="finance-mini-stat">
+          <div class="finance-mini-stat__value" id="pay-stat-total">–</div>
+          <div class="finance-mini-stat__label">Total Received</div>
+        </div>
+      </div>
+
+      <div class="finance-tabs">
+        <button type="button" class="finance-tab active" data-pay-tab="invoices" onclick="setPaymentTab('invoices')">
+          <i class="fas fa-file-invoice-dollar"></i> Invoices
+        </button>
+        <button type="button" class="finance-tab" data-pay-tab="receipts" onclick="setPaymentTab('receipts')">
+          <i class="fas fa-receipt"></i> Receipts
+        </button>
+        <button type="button" class="finance-tab" data-pay-tab="methods" onclick="setPaymentTab('methods')">
+          <i class="fas fa-wallet"></i> Payment Methods
+        </button>
+      </div>
+
+      <div id="pay-panel-invoices" class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-file-invoice-dollar"></i> Invoice Management</div>
+          <span class="td-muted" id="payments-count"></span>
+        </div>
+        <div style="padding:0 1.25rem 1rem">
+          <div class="finance-filter-row">
+            <span class="td-muted" style="font-size:var(--fs-base);margin-right:0.25rem">Filter:</span>
+            <button type="button" class="finance-filter-btn active" data-pay-filter="all">All</button>
+            <button type="button" class="finance-filter-btn" data-pay-filter="paid">Paid</button>
+            <button type="button" class="finance-filter-btn" data-pay-filter="unpaid">Unpaid</button>
+            <button type="button" class="finance-filter-btn" data-pay-filter="refund">Refunds</button>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Invoice</th>
+                  <th>Type</th>
+                  <th>Customer</th>
+                  <th>Method</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payments-invoices-body">
+                <tr><td colspan="8"><div class="table-loading"><div class="spinner"></div>Loading invoices…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="pay-panel-receipts" class="data-card hidden">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-receipt"></i> Paid Receipts</div>
+        </div>
+        <p class="td-muted" style="padding:0 1.25rem 0.75rem;margin:0;font-size:var(--fs-base)">
+          Receipts for confirmed bookings and delivered cargo. Click the receipt icon to view or print.
+        </p>
+        <div style="padding:0 1.25rem 1rem">
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Invoice</th>
+                  <th>Type</th>
+                  <th>Customer</th>
+                  <th>Method</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="payments-receipts-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="pay-panel-methods" class="data-card hidden">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-wallet"></i> Payment Methods</div>
+        </div>
+        <p class="td-muted" style="padding:0 1.25rem 0.75rem;margin:0;font-size:var(--fs-base)">
+          EVC Plus, Hormuud Pay, Zaad, Sahal, Cash, and Bank Transfer usage summary.
+        </p>
+        <div style="padding:0 1.25rem 1.25rem">
+          <div class="payment-methods-grid" id="payment-methods-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: REPORTS ══ -->
+    <section id="sec-reports" class="section">
+      <div class="report-tabs">
+        <button type="button" class="report-tab active" data-report-tab="flights" onclick="setReportTab('flights')">
+          <i class="fas fa-plane"></i> Flight Reports
+        </button>
+        <button type="button" class="report-tab" data-report-tab="cargo" onclick="setReportTab('cargo')">
+          <i class="fas fa-box"></i> Cargo Reports
+        </button>
+        <button type="button" class="report-tab" data-report-tab="revenue" onclick="setReportTab('revenue')">
+          <i class="fas fa-dollar-sign"></i> Revenue Reports
+        </button>
+        <button type="button" class="report-tab" data-report-tab="customers" onclick="setReportTab('customers')">
+          <i class="fas fa-users"></i> Customer Reports
+        </button>
+      </div>
+
+      <div id="report-panel-flights">
+        <div class="report-summary-grid">
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-flight-total">–</div><div class="finance-mini-stat__label">Total Flights</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-flight-active">–</div><div class="finance-mini-stat__label">Active Flights</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-flight-routes">–</div><div class="finance-mini-stat__label">Routes</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-flight-bookings">–</div><div class="finance-mini-stat__label">Bookings</div></div>
+        </div>
+        <div class="report-panel-grid">
+          <div class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-chart-bar"></i> Flights by Route</div></div>
+            <div style="padding:0 1.25rem 1.25rem"><div class="report-bar-chart" id="report-flights-chart"></div></div>
+          </div>
+          <div class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-list"></i> Flight Status</div></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Status</th><th>Type</th><th>Count</th><th>Share</th></tr></thead>
+                <tbody id="report-flights-status-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="data-card" style="margin-top:1.25rem">
+          <div class="data-card-header"><div class="data-card-title"><i class="fas fa-route"></i> Bookings by Route</div></div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Route</th><th>Type</th><th>—</th><th>Bookings</th></tr></thead>
+              <tbody id="report-flights-routes-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="report-panel-cargo" class="hidden">
+        <div class="report-summary-grid">
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cargo-total">–</div><div class="finance-mini-stat__label">Total Shipments</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cargo-transit">–</div><div class="finance-mini-stat__label">In Transit</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cargo-delivered">–</div><div class="finance-mini-stat__label">Delivered</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cargo-weight">–</div><div class="finance-mini-stat__label">Total Weight</div></div>
+        </div>
+        <div class="report-panel-grid">
+          <div class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-chart-bar"></i> Cargo by Destination</div></div>
+            <div style="padding:0 1.25rem 1.25rem"><div class="report-bar-chart" id="report-cargo-chart"></div></div>
+          </div>
+          <div class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-list"></i> Cargo Status</div></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Status</th><th>Type</th><th>Badge</th><th>Count</th></tr></thead>
+                <tbody id="report-cargo-status-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="data-card" style="margin-top:1.25rem">
+          <div class="data-card-header"><div class="data-card-title"><i class="fas fa-map-marker-alt"></i> Top Destinations</div></div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Destination</th><th>Type</th><th>—</th><th>Shipments</th></tr></thead>
+              <tbody id="report-cargo-dest-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="report-panel-revenue" class="hidden">
+        <div class="report-summary-grid">
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-rev-total">–</div><div class="finance-mini-stat__label">Total Revenue</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-rev-bookings">–</div><div class="finance-mini-stat__label">Flight Revenue</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-rev-cargo">–</div><div class="finance-mini-stat__label">Cargo Revenue</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-rev-paid">–</div><div class="finance-mini-stat__label">Paid Invoices</div></div>
+        </div>
+        <div class="report-panel-grid">
+          <div class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-chart-line"></i> Revenue (6 months)</div></div>
+            <div style="padding:0 1.25rem 1.25rem"><div class="report-bar-chart" id="report-revenue-chart"></div></div>
+          </div>
+          <div class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-calendar-alt"></i> Monthly Breakdown</div></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>Month</th><th>Payments</th><th>—</th><th>Revenue</th></tr></thead>
+                <tbody id="report-revenue-month-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="report-panel-customers" class="hidden">
+        <div class="report-summary-grid">
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cust-total">–</div><div class="finance-mini-stat__label">Customers</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cust-active">–</div><div class="finance-mini-stat__label">Active Accounts</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cust-booking">–</div><div class="finance-mini-stat__label">Total Bookings</div></div>
+          <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="rep-cust-cargo">–</div><div class="finance-mini-stat__label">Total Cargo</div></div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-header"><div class="data-card-title"><i class="fas fa-user-chart"></i> Top Customers by Spend</div></div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Activity</th><th>Total Spent</th></tr></thead>
+              <tbody id="report-customers-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: NOTIFICATIONS ══ -->
+    <section id="sec-notifications" class="section">
+      <div class="ops-stats-row">
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-total">–</div><div class="finance-mini-stat__label">WhatsApp Sent</div></div>
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-today">–</div><div class="finance-mini-stat__label">Sent Today</div></div>
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-ticket">–</div><div class="finance-mini-stat__label">Ticket Alerts</div></div>
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-cargo">–</div><div class="finance-mini-stat__label">Cargo Alerts</div></div>
+      </div>
+
+      <div class="report-panel-grid">
+        <div class="data-card">
+          <div class="data-card-header"><div class="data-card-title"><i class="fab fa-whatsapp"></i> Send WhatsApp Update</div></div>
+          <div style="padding:0 1.25rem 1.25rem">
+            <div class="ops-form-grid">
+              <div class="ops-form-group">
+                <label for="notif-type">Notification Type</label>
+                <select id="notif-type">
+                  <option value="ticket">E-Ticket Ready</option>
+                  <option value="delay">Flight Updates</option>
+                  <option value="cargo">Cargo Updates</option>
+                  <option value="payment">Payments</option>
+                </select>
+              </div>
+              <div class="ops-form-group">
+                <label for="notif-recipient">Customer</label>
+                <select id="notif-recipient">
+                  <option value="">— Select customer —</option>
+                </select>
+              </div>
+              <div class="ops-form-group">
+                <label for="notif-phone">WhatsApp Number</label>
+                <input type="tel" id="notif-phone" placeholder="252 90 1234567" />
+              </div>
+              <div class="ops-form-group ops-form-group--full">
+                <label for="notif-message">Message</label>
+                <textarea id="notif-message" placeholder="WhatsApp message…"></textarea>
+              </div>
+            </div>
+            <div class="ops-actions">
+              <button type="button" class="btn-whatsapp" onclick="sendWhatsAppNotification()"><i class="fab fa-whatsapp"></i> Send WhatsApp</button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+
+      <div class="data-card" style="margin-top:1.25rem">
+        <div class="data-card-header"><div class="data-card-title"><i class="fas fa-history"></i> WhatsApp History</div></div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Type</th><th>Recipient</th><th>Message</th><th>Sent</th><th>Status</th></tr></thead>
+            <tbody id="notif-log-body">
+              <tr><td colspan="6"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: SUPPORT ══ -->
+    <section id="sec-support" class="section">
+      <div class="ops-stats-row">
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="support-stat-open">–</div><div class="finance-mini-stat__label">Open</div></div>
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="support-stat-progress">–</div><div class="finance-mini-stat__label">In Progress</div></div>
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="support-stat-resolved">–</div><div class="finance-mini-stat__label">Resolved</div></div>
+        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="support-stat-total">–</div><div class="finance-mini-stat__label">Total Tickets</div></div>
+      </div>
+
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-headset"></i> Support Requests</div>
+        </div>
+        <div style="padding:0 1.25rem 1rem">
+          <div class="finance-filter-row">
+            <span class="td-muted" style="font-size:var(--fs-base);margin-right:0.25rem">Filter:</span>
+            <button type="button" class="finance-filter-btn support-filter-btn active" data-support-filter="all">All</button>
+            <button type="button" class="finance-filter-btn support-filter-btn" data-support-filter="Open">Open</button>
+            <button type="button" class="finance-filter-btn support-filter-btn" data-support-filter="In Progress">In Progress</button>
+            <button type="button" class="finance-filter-btn support-filter-btn" data-support-filter="Resolved">Resolved</button>
+          </div>
+          <p class="td-muted" style="font-size:var(--fs-base);margin:0 0 1rem">Reply to customers using the <strong>WhatsApp</strong> button — opens chat with a pre-filled support message.</p>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Ticket</th>
+                  <th>Customer</th>
+                  <th>Subject</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="support-body">
+                <tr><td colspan="8"><div class="table-loading"><div class="spinner"></div>Loading tickets…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION: SETTINGS ══ -->
+    <section id="sec-settings" class="section">
+      <div class="settings-layout">
+        <nav class="settings-nav">
+          <button type="button" class="settings-nav-btn active" data-settings-tab="company" onclick="setSettingsTab('company')"><i class="fas fa-building"></i> Company Info</button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="admins" onclick="setSettingsTab('admins')"><i class="fas fa-user-shield"></i> Admin Users</button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="roles" onclick="setSettingsTab('roles')"><i class="fas fa-key"></i> Roles &amp; Permissions</button>
+          <button type="button" class="settings-nav-btn" data-settings-tab="security" onclick="setSettingsTab('security')"><i class="fas fa-lock"></i> Security</button>
+        </nav>
+
+        <div>
+          <div id="settings-panel-company" class="data-card">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-building"></i> Company Information</div></div>
+            <div style="padding:0 1.25rem 1.25rem">
+              <div class="ops-form-grid">
+                <div class="ops-form-group"><label for="set-company-name">Company Name</label><input type="text" id="set-company-name" /></div>
+                <div class="ops-form-group"><label for="set-tagline">Tagline</label><input type="text" id="set-tagline" /></div>
+                <div class="ops-form-group"><label for="set-phone">Phone</label><input type="tel" id="set-phone" /></div>
+                <div class="ops-form-group"><label for="set-whatsapp">WhatsApp</label><input type="tel" id="set-whatsapp" /></div>
+                <div class="ops-form-group"><label for="set-email">Email</label><input type="email" id="set-email" /></div>
+                <div class="ops-form-group"><label for="set-currency">Currency</label><select id="set-currency"><option value="USD">USD ($)</option><option value="SOS">SOS (Sh)</option></select></div>
+                <div class="ops-form-group ops-form-group--full"><label for="set-address">Office Address</label><input type="text" id="set-address" /></div>
+                <div class="ops-form-group ops-form-group--full"><label for="set-hours">Office Hours</label><input type="text" id="set-hours" /></div>
+                <div class="ops-form-group"><label><input type="checkbox" id="set-sms-enabled" /> Enable WhatsApp notifications</label></div>
+                <div class="ops-form-group"><label><input type="checkbox" id="set-email-alerts" /> Enable email alerts</label></div>
+              </div>
+              <div class="ops-actions">
+                <button type="button" class="btn-action btn-action-brown" onclick="saveCompanySettings()"><i class="fas fa-save"></i> Save Settings</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="settings-panel-admins" class="data-card hidden">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-user-shield"></i> Admin Users</div></div>
+            <div class="table-wrap">
+              <table class="admin-table">
+                <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
+                <tbody id="settings-admins-body"></tbody>
+              </table>
+            </div>
+            <p class="td-muted" style="padding:0 1.25rem 1rem;font-size:var(--fs-base)">Manage all users in the <a href="#" onclick="navigate('users', document.querySelector('[data-section=users]'));return false;">Users</a> section.</p>
+          </div>
+
+          <div id="settings-panel-roles" class="data-card hidden">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-key"></i> Roles &amp; Permissions</div></div>
+            <div class="table-wrap">
+              <table class="admin-table permissions-table">
+                <thead><tr><th>Module</th><th>Admin</th><th>Staff</th><th>Users</th></tr></thead>
+                <tbody id="settings-permissions-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="settings-panel-security" class="data-card hidden">
+            <div class="data-card-header"><div class="data-card-title"><i class="fas fa-lock"></i> Security</div></div>
+            <div style="padding:1.25rem">
+              <div class="ops-form-grid">
+                <div class="ops-form-group"><label>Logged in as</label><div class="td-bold" id="sec-current-user">—</div></div>
+                <div class="ops-form-group"><label>Email</label><div class="td-muted" id="sec-current-email">—</div></div>
+                <div class="ops-form-group"><label>Role</label><div class="td-bold" id="sec-current-role">—</div></div>
+                <div class="ops-form-group"><label>Session</label><div class="td-muted" id="sec-session">—</div></div>
+                <div class="ops-form-group"><label>Last activity</label><div class="td-muted" id="sec-last-login">—</div></div>
+              </div>
+              <p class="td-muted" style="font-size:var(--fs-base);margin-top:1rem">Authentication uses JWT tokens. Always log out on shared devices.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /mainWrap -->
+
+<!-- ══ Flight Add/Edit Modal ══ -->
+<div id="flightModal" role="dialog" aria-modal="true" aria-labelledby="flightModalTitle">
+  <div class="flight-modal">
+    <div class="flight-modal__header">
+      <h2 id="flightModalTitle">Add New Flight</h2>
+      <button type="button" class="flight-modal__close" onclick="closeFlightModal()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="flight-modal__body">
+      <div class="flight-form-grid">
+        <div class="flight-form-group">
+          <label for="flightCode">Flight Code</label>
+          <input type="text" id="flightCode" placeholder="Auto-generated if empty" />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightAirline">Airline *</label>
+          <input type="text" id="flightAirline" placeholder="e.g. Daallo Airlines" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightOrigin">Origin *</label>
+          <select id="flightOrigin" required></select>
+        </div>
+        <div class="flight-form-group">
+          <label for="flightDestination">Destination *</label>
+          <select id="flightDestination" required></select>
+        </div>
+        <div class="flight-form-group">
+          <label for="flightScheduleDate">Schedule Date *</label>
+          <input type="date" id="flightScheduleDate" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightDeparture">Departure Time *</label>
+          <input type="text" id="flightDeparture" placeholder="08:00 AM" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightArrival">Arrival Time</label>
+          <input type="text" id="flightArrival" placeholder="09:30 AM" />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightDuration">Duration *</label>
+          <input type="text" id="flightDuration" placeholder="1h 30m" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightPriceEconomy">Economy Price ($) *</label>
+          <input type="number" id="flightPriceEconomy" min="0" step="0.01" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightPriceBusiness">Business Price ($)</label>
+          <input type="number" id="flightPriceBusiness" min="0" step="0.01" />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightPriceFirst">First Class Price ($)</label>
+          <input type="number" id="flightPriceFirst" min="0" step="0.01" />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightTotalSeats">Total Seats *</label>
+          <input type="number" id="flightTotalSeats" min="1" value="120" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightAvailableSeats">Available Seats *</label>
+          <input type="number" id="flightAvailableSeats" min="0" value="120" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="flightStatus">Status *</label>
+          <select id="flightStatus" required></select>
+        </div>
+      </div>
+    </div>
+    <div class="flight-modal__footer">
+      <button type="button" class="modal-btn-cancel" onclick="closeFlightModal()">Cancel</button>
+      <button type="button" class="modal-btn-save" onclick="saveFlight()">Save Flight</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ City Add/Edit Modal ══ -->
+<div id="cityModal" role="dialog" aria-modal="true" aria-labelledby="cityModalTitle">
+  <div class="flight-modal">
+    <div class="flight-modal__header">
+      <h2 id="cityModalTitle">Add New City</h2>
+      <button type="button" class="flight-modal__close" onclick="closeCityModal()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="flight-modal__body">
+      <div class="flight-form-grid">
+        <div class="flight-form-group">
+          <label for="cityCode">City Code *</label>
+          <input type="text" id="cityCode" placeholder="e.g. MGQ" maxlength="10" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="cityName">City Name *</label>
+          <input type="text" id="cityName" placeholder="e.g. Mogadishu" required />
+        </div>
+        <div class="flight-form-group">
+          <label for="cityActive">Status *</label>
+          <select id="cityActive" required>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="flight-modal__footer">
+      <button type="button" class="modal-btn-cancel" onclick="closeCityModal()">Cancel</button>
+      <button type="button" class="modal-btn-save" onclick="saveCity()">Save City</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ User Profile Modal ══ -->
+<div id="userProfileModal" role="dialog" aria-modal="true" aria-labelledby="userModalName">
+  <div class="user-modal">
+    <div class="user-modal__header">
+      <div class="user-modal__avatar" id="userModalAvatar">U</div>
+      <div class="user-modal__header-info">
+        <h2 id="userModalName">User Name</h2>
+        <p id="userModalEmail">user@email.com</p>
+      </div>
+      <button type="button" class="user-modal__close" onclick="closeUserProfileModal()" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="user-modal__body" id="userProfileBody"></div>
+  </div>
+</div>
+
+<!-- ══ Receipt Modal ══ -->
+<div id="receiptModal" role="dialog" aria-modal="true" aria-labelledby="receiptModalTitle">
+  <div class="receipt-modal-wrap">
+    <div class="receipt-toolbar">
+      <div class="receipt-toolbar__title">
+        <i class="fas fa-receipt"></i>
+        <span id="receiptModalTitle">Official Receipt</span>
+      </div>
+      <div class="receipt-toolbar__actions">
+        <button type="button" class="receipt-tool-btn receipt-tool-btn--print" onclick="printReceipt()">
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button type="button" class="receipt-tool-btn receipt-tool-btn--pdf" onclick="downloadReceiptPdf()">
+          <i class="fas fa-file-pdf"></i> Save PDF
+        </button>
+        <button type="button" class="receipt-tool-btn receipt-tool-btn--close" onclick="closeReceiptModal()" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+    <div class="receipt-scroll" id="receiptModalBody"></div>
+  </div>
+</div>
+
+<!-- ══ Status Update Modal ══ -->
+<div id="statusModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">Update Status</div>
+    <select class="modal-select" id="modalSelect"></select>
+    <div id="modalCancelReasonWrap" class="modal-field-wrap is-hidden">
+      <label for="modalCancelReason" class="modal-label">Cancellation Reason <span class="modal-required">*</span></label>
+      <textarea id="modalCancelReason" class="modal-textarea" rows="3" placeholder="Enter why this shipment was cancelled…"></textarea>
+      <div id="modalCancelReasonError" class="modal-field-error is-hidden">Cancellation reason is required.</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn-save"   onclick="saveStatus()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Toast ══ -->
+<div id="toast"></div>
+
+<!-- ══ Overlay for mobile sidebar ══ -->
+<div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:99;" onclick="toggleSidebar()"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="../js/cargo-status.js"></script>
+<script src="../js/admin-users.js"></script>
+<script src="../js/admin-receipts.js"></script>
+<script src="../js/admin-flights.js"></script>
+<script src="../js/admin-cities.js"></script>
+<script src="../js/admin-payments.js"></script>
+<script src="../js/admin-reports.js"></script>
+<script src="../js/admin-notifications.js"></script>
+<script src="../js/admin-support.js"></script>
+<script src="../js/admin-settings.js"></script>
+<script>
+'use strict';
+
+/* ─── Config ─────────────────────────────────────── */
+const API = 'http://localhost:5000/api';
+
+/* ─── State ──────────────────────────────────────── */
+let allBookings = [];
+let allCargo    = [];
+let allUsers    = [];
+let allFlights  = [];
+let allCities   = [];
+let cargoUserFilterId = null;
+window.cargoUserFilterId = null;
+let modalCtx    = {};  // { type: 'booking'|'cargo', id, currentStatus }
+
+/* ─── Auth Guard ─────────────────────────────────── */
+const token = localStorage.getItem('mideye_token');
+const user  = JSON.parse(localStorage.getItem('mideye_user') || 'null');
+
+if (!token || !user || !['admin', 'staff'].includes(user.role)) {
+  window.location.href = 'login.html';
+}
+
+/* ─── Populate sidebar user ──────────────────────── */
+document.getElementById('sidebarName').textContent = user?.full_name || 'Admin';
+const dashWelcome = document.getElementById('dashWelcomeName');
+if (dashWelcome) dashWelcome.textContent = user?.full_name?.split(' ')[0] || 'Admin';
+const avatarLetter = (user?.full_name || 'A')[0].toUpperCase();
+document.getElementById('sidebarAvatar').textContent = avatarLetter;
+document.getElementById('topbarAvatar').textContent = avatarLetter;
+document.getElementById('profileDropdownAvatar').textContent = avatarLetter;
+document.getElementById('profileDropdownName').textContent = user?.full_name || 'Admin';
+document.getElementById('profileDropdownEmail').textContent = user?.email || 'admin@mideye.com';
+applyRoleBasedNav(user?.role || 'admin');
+
+/* ─── Clock ──────────────────────────────────────── */
+const clockEl = document.getElementById('clockDisplay');
+const updateClock = () => {
+  clockEl.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+};
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ─── Navigation ─────────────────────────────────── */
+const sections = {
+  dashboard: 'Overview of all activity',
+  users: 'All registered accounts',
+  bookings: 'All flight booking requests',
+  flights: 'Manage flights, routes, schedules, prices & seats',
+  cities: 'Manage destination cities for flights and cargo',
+  cargo: 'All cargo shipments',
+  payments: 'Paid/unpaid invoices, receipts, refunds & payment methods',
+  reports: 'Flight, cargo, revenue & customer analytics',
+  notifications: 'Send WhatsApp updates for tickets, delays, cargo & payments',
+  support: 'View customer complaints and reply via WhatsApp',
+  settings: 'Admin users, roles, permissions & company info',
+};
+
+const sectionTitles = {
+  dashboard: 'Dashboard',
+  users: 'Users',
+  bookings: 'Bookings',
+  flights: 'Flights',
+  cities: 'Cities',
+  cargo: 'Cargo',
+  payments: 'Payments',
+  reports: 'Reports',
+  notifications: 'Notifications',
+  support: 'Support',
+  settings: 'Settings',
+};
+
+function navigate(sectionId, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item-link').forEach(a => a.classList.remove('active'));
+
+  document.getElementById('sec-' + sectionId)?.classList.add('active');
+  if (el) el.classList.add('active');
+
+  document.getElementById('pageTitle').textContent = sectionTitles[sectionId] || sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+  document.getElementById('pageSubtitle').textContent = sections[sectionId] || '';
+  const crumb = document.getElementById('breadcrumbCurrent');
+  if (crumb) crumb.textContent = sectionTitles[sectionId] || sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+
+  if (sectionId === 'cities') {
+    window.loadCities?.();
+  }
+
+  if (sectionId === 'payments' || sectionId === 'reports') {
+    refreshFinanceSections(sectionId);
+  }
+
+  if (sectionId === 'notifications' || sectionId === 'support' || sectionId === 'settings') {
+    refreshOpsSections(sectionId);
+  }
+
+  if (sectionId === 'cargo' && window.cargoUserFilterId != null) {
+    cargoUserFilterId = window.cargoUserFilterId;
+    applyCargoUserFilter();
+  } else if (sectionId !== 'cargo') {
+    clearCargoUserFilter(false);
+    window.cargoUserFilterId = null;
+  }
+
+  if (document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+}
+
+async function refreshFinanceSections(activeSection) {
+  const needsBookings = !Array.isArray(window.allBookings) || !window.allBookings.length;
+  const needsCargo = !Array.isArray(window.allCargo) || !window.allCargo.length;
+  const needsUsers = !Array.isArray(window.allUsers) || !window.allUsers.length;
+  const needsFlights = !Array.isArray(window.allFlights) || !window.allFlights.length;
+
+  const tasks = [];
+  if (needsBookings) tasks.push(loadBookings());
+  if (needsCargo) tasks.push(loadCargo());
+  if (activeSection === 'reports' && needsUsers) tasks.push(loadUsers());
+  if (activeSection === 'reports' && needsFlights) tasks.push(loadFlights());
+  if (tasks.length) await Promise.allSettled(tasks);
+
+  if (activeSection === 'payments' || !activeSection) window.renderPaymentsSection?.();
+  if (activeSection === 'reports' || !activeSection) window.renderReportsSection?.();
+}
+
+async function refreshOpsSections(activeSection) {
+  const needsBookings = !Array.isArray(window.allBookings) || !window.allBookings.length;
+  const needsCargo = !Array.isArray(window.allCargo) || !window.allCargo.length;
+  const needsUsers = !Array.isArray(window.allUsers) || !window.allUsers.length;
+
+  const tasks = [];
+  if (needsBookings) tasks.push(loadBookings());
+  if (needsCargo) tasks.push(loadCargo());
+  if ((activeSection === 'settings' || activeSection === 'support') && needsUsers) tasks.push(loadUsers());
+  if (tasks.length) await Promise.allSettled(tasks);
+
+  if (activeSection === 'notifications' || !activeSection) window.renderNotificationsSection?.();
+  if (activeSection === 'support' || !activeSection) window.renderSupportSection?.();
+  if (activeSection === 'settings' || !activeSection) window.renderSettingsSection?.();
+}
+
+/* ─── Fetch Helper ───────────────────────────────── */
+async function apiFetch(endpoint) {
+  const res = await fetch(`${API}${endpoint}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+    throw new Error(`HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+/* ─── Toast ──────────────────────────────────────── */
+function showToast(msg, icon = 'fa-check-circle') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ─── Badge helpers ──────────────────────────────── */
+function bookingBadge(status) {
+  const map = { Pending: 'pending', Confirmed: 'confirmed', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
+  return `<span class="badge-status badge-${(map[status] || 'pending')}">${status}</span>`;
+}
+function cargoBadge(status) {
+  return window.CargoStatus?.renderCargoStatusBadge(status)
+    || `<span class="badge-status badge-cargo-pending">${status}</span>`;
+}
+function roleBadge(role) {
+  return `<span class="badge-status badge-${role}">${role}</span>`;
+}
+
+function applyRoleBasedNav(role) {
+  const isAdmin = role === 'admin';
+  document.querySelectorAll('.nav-admin-only').forEach((el) => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  const subtitle = document.querySelector('.sidebar-subtitle');
+  if (subtitle) {
+    subtitle.textContent = role === 'staff' ? 'Staff Panel' : 'Admin Panel';
+  }
+  const roleLabel = document.querySelector('.sidebar-user-role');
+  if (roleLabel) {
+    roleLabel.textContent = role === 'staff' ? 'Staff Member' : 'Administrator';
+  }
+  if (!isAdmin) {
+    const active = document.querySelector('.nav-item-link.active.nav-admin-only');
+    if (active) {
+      navigate('dashboard', document.querySelector('[data-section=dashboard]'));
+    }
+  }
+}
+
+document.addEventListener('mideye:panel-ready', (e) => {
+  applyRoleBasedNav(e.detail?.user?.role || 'admin');
+  try {
+    const user = e.detail?.user || JSON.parse(localStorage.getItem('mideye_user') || 'null');
+    if (user?.full_name) {
+      const initial = user.full_name[0].toUpperCase();
+      ['sidebarAvatar', 'topbarAvatar', 'profileDropdownAvatar'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = initial;
+      });
+      const nameEl = document.getElementById('sidebarName');
+      if (nameEl) nameEl.textContent = user.full_name;
+    }
+  } catch {}
+});
+function fmtDate(d) {
+  if (!d) return '–';
+  return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD STATS
+═══════════════════════════════════════════════ */
+async function loadStats() {
+  try {
+    const { data } = await apiFetch('/admin/stats');
+    const s = data.stats;
+    ['users','bookings','cargo','pending'].forEach(k => {
+      const el = document.getElementById('stat-' + k);
+      if (el) {
+        el.classList.remove('loading-pulse');
+        const key = k === 'pending' ? 'pending_bookings' : `total_${k}`;
+        el.textContent = (s[key] ?? 0).toLocaleString();
+      }
+    });
+    const paymentEl = document.getElementById('stat-payment');
+    if (paymentEl) {
+      paymentEl.classList.remove('loading-pulse');
+      paymentEl.textContent = (s.total_payments ?? 0).toLocaleString();
+    }
+    const paymentSub = document.getElementById('stat-payment-sub');
+    if (paymentSub) {
+      const awaiting = s.pending_payments ?? 0;
+      paymentSub.textContent = awaiting
+        ? `${awaiting.toLocaleString()} awaiting payment`
+        : 'Received payments';
+    }
+    const revenueEl = document.getElementById('stat-revenue');
+    if (revenueEl) {
+      revenueEl.classList.remove('loading-pulse');
+      revenueEl.textContent = '$' + (s.total_revenue ?? 0).toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      });
+    }
+    // update sidebar badges
+    document.getElementById('badge-users').textContent    = s.total_users    ?? '–';
+    document.getElementById('badge-bookings').textContent = s.total_bookings  ?? '–';
+    document.getElementById('badge-flights').textContent  = s.total_flights   ?? '–';
+    document.getElementById('badge-cargo').textContent    = s.total_cargo     ?? '–';
+    updateNotificationBadge();
+  } catch (e) {
+    console.error('Stats error:', e);
+    ['users','bookings','cargo','pending','payment','revenue'].forEach(k => {
+      const el = document.getElementById('stat-' + k);
+      if (el) { el.classList.remove('loading-pulse'); el.textContent = 'N/A'; }
+    });
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD USERS
+═══════════════════════════════════════════════ */
+async function loadUsers() {
+  if (user?.role !== 'admin') return;
+  const tbody = document.getElementById('users-body');
+  try {
+    const { data, count } = await apiFetch('/admin/users');
+    allUsers = data.users || [];
+    window.allUsers = allUsers;
+    document.getElementById('users-count').textContent = `${count} total`;
+    renderUsers(allUsers);
+    window.renderReportsSection?.();
+    window.renderSettingsSection?.();
+    window.renderSupportSection?.();
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load users. Check server connection.</div></td></tr>`;
+  }
+}
+
+function renderUsers(users) {
+  if (typeof renderEnhancedUsers === 'function') {
+    renderEnhancedUsers(users, allBookings, allCargo, esc, fmtDate, roleBadge);
+    return;
+  }
+  const tbody = document.getElementById('users-body');
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="table-empty"><i class="fas fa-users"></i>No users found.</div></td></tr>`;
+    return;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD BOOKINGS
+═══════════════════════════════════════════════ */
+async function loadBookings() {
+  const tbody = document.getElementById('bookings-body');
+  try {
+    const { data, count } = await apiFetch('/admin/bookings');
+    allBookings = data.bookings || [];
+    window.allBookings = allBookings;
+    document.getElementById('bookings-count').textContent = `${count} total`;
+    renderBookings(allBookings);
+    if (allUsers.length) renderUsers(allUsers);
+    renderDashBookings(allBookings.slice(0, 5));
+    updateMediVisuals();
+    updateNotificationBadge();
+    window.renderPaymentsSection?.();
+    window.renderReportsSection?.();
+    window.renderNotificationsSection?.();
+    window.renderSupportSection?.();
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load bookings.</div></td></tr>`;
+    document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+  }
+}
+
+function renderBookings(bookings) {
+  const tbody = document.getElementById('bookings-body');
+  if (!bookings.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-plane"></i>No bookings found.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bookings.map((b, i) => `
+    <tr>
+      <td class="td-muted">${i + 1}</td>
+      <td>
+        <div class="td-bold">${esc(b.passenger_name)}</div>
+        <div class="td-muted" style="font-size:var(--fs-base)">${esc(b.email)}</div>
+      </td>
+      <td>
+        <div class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</div>
+        <div class="td-muted" style="font-size:var(--fs-base);text-transform:capitalize;">${b.trip_type || 'oneway'}</div>
+      </td>
+      <td class="td-muted">${fmtDate(b.travel_date)}</td>
+      <td class="td-muted" style="text-transform:capitalize;">${b.cabin_class || 'economy'}</td>
+      <td class="td-muted">${(b.adults||1) + (b.children||0) + (b.infants||0)} pax</td>
+      <td>${bookingBadge(b.status)}</td>
+      <td>
+        <div class="actions-group">
+          <button class="btn-action btn-action-gold" onclick="openBookingReceipt(${b.id})" title="View Receipt">
+            <i class="fas fa-eye"></i> Receipt
+          </button>
+          <button class="btn-action btn-action-brown" onclick="openStatusModal('booking', ${b.id}, '${b.status}')">
+            <i class="fas fa-edit"></i> Status
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderDashBookings(bookings) {
+  const tbody = document.getElementById('dash-bookings-body');
+  if (!bookings.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bookings.map(b => `
+    <tr>
+      <td class="td-bold">${esc(b.passenger_name)}</td>
+      <td class="td-muted">${esc(b.origin)} → ${esc(b.destination)}</td>
+      <td>${bookingBadge(b.status)}</td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   LOAD CARGO
+═══════════════════════════════════════════════ */
+async function loadCargo() {
+  const tbody = document.getElementById('cargo-body');
+  try {
+    const { data, count } = await apiFetch('/admin/cargo');
+    allCargo = data.shipments || [];
+    window.allCargo = allCargo;
+    document.getElementById('cargo-count').textContent = `${count} total`;
+    if (cargoUserFilterId != null || window.cargoUserFilterId != null) {
+      cargoUserFilterId = window.cargoUserFilterId;
+      applyCargoUserFilter();
+    } else renderCargo(allCargo);
+    if (allUsers.length) renderUsers(allUsers);
+    renderDashCargo(allCargo.slice(0, 5));
+    updateMediVisuals();
+    updateNotificationBadge();
+    window.renderPaymentsSection?.();
+    window.renderReportsSection?.();
+    window.renderNotificationsSection?.();
+    window.renderSupportSection?.();
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load cargo.</div></td></tr>`;
+    document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+  }
+}
+
+function renderCargo(shipments) {
+  const tbody = document.getElementById('cargo-body');
+  if (!shipments.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-box"></i>No cargo found.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = shipments.map((c) => `
+    <tr data-user-id="${c.user_id || ''}">
+      <td class="td-mono">${esc(c.tracking_id)}</td>
+      <td>
+        <div class="td-bold">${esc(c.sender_name)}</div>
+        <div class="td-muted" style="font-size:var(--fs-base)">${esc(c.sender_phone)}</div>
+      </td>
+      <td>
+        <div class="td-bold">${esc(c.recipient_name)}</div>
+        <div class="td-muted" style="font-size:var(--fs-base)">${esc(c.recipient_phone)}</div>
+      </td>
+      <td class="td-muted">${esc(c.origin || 'GLK')} → ${esc(c.destination)}</td>
+      <td class="td-muted" style="text-transform:capitalize;">${esc(c.cargo_type)}</td>
+      <td class="td-muted">${c.weight} kg</td>
+      <td class="td-muted" style="text-transform:capitalize;">${c.shipping_speed || 'standard'}</td>
+      <td>${cargoBadge(c.status)}</td>
+      <td>
+        <div class="actions-group">
+          <button class="btn-action btn-action-gold" onclick="openCargoReceipt(${c.id})" title="View Receipt">
+            <i class="fas fa-file-alt"></i> Receipt
+          </button>
+          <button class="btn-action btn-action-brown" onclick="openStatusModal('cargo', ${c.id}, '${c.status}')">
+            <i class="fas fa-edit"></i> Status
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function applyCargoUserFilter() {
+  const sec = document.getElementById('sec-cargo');
+  cargoUserFilterId = window.cargoUserFilterId;
+  if (!sec || cargoUserFilterId == null) return;
+
+  const user = allUsers.find((u) => u.id === cargoUserFilterId);
+  const filtered = allCargo.filter((c) => c.user_id === cargoUserFilterId);
+
+  let banner = document.getElementById('cargo-filter-banner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'cargo-filter-banner';
+    banner.className = 'cargo-filter-banner';
+    const card = sec.querySelector('.data-card');
+    card?.parentNode?.insertBefore(banner, card);
+  }
+
+  banner.innerHTML = `
+    <span><i class="fas fa-filter me-1"></i> Showing cargo for <strong>${esc(user?.full_name || 'User')}</strong> (${filtered.length})</span>
+    <button type="button" onclick="clearCargoUserFilter()"><i class="fas fa-times"></i> Show all cargo</button>`;
+
+  renderCargo(filtered);
+  document.getElementById('cargo-count').textContent = `${filtered.length} for user`;
+  const search = document.getElementById('search-cargo');
+  if (search) search.value = '';
+}
+
+function clearCargoUserFilter(rerender = true) {
+  cargoUserFilterId = null;
+  window.cargoUserFilterId = null;
+  document.getElementById('cargo-filter-banner')?.remove();
+  if (!rerender) return;
+  renderCargo(allCargo);
+  document.getElementById('cargo-count').textContent = `${allCargo.length} total`;
+  const search = document.getElementById('search-cargo');
+  if (search) search.value = '';
+}
+
+function renderDashCargo(shipments) {
+  const tbody = document.getElementById('dash-cargo-body');
+  if (!shipments.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = shipments.map(c => `
+    <tr>
+      <td class="td-mono">${esc(c.tracking_id)}</td>
+      <td class="td-muted">${esc(c.destination)}</td>
+      <td>${cargoBadge(c.status)}</td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   STATUS MODAL
+═══════════════════════════════════════════════ */
+const bookingStatuses = ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Delay'];
+const cargoStatuses   = window.CargoStatus?.CARGO_STATUSES || [
+  'Pending', 'Confirmed', 'Received', 'Processing',
+  'In Transit', 'Arrived', 'Ready for Pickup', 'Delivered', 'Cancelled',
+];
+
+function openStatusModal(type, id, currentStatus) {
+  modalCtx = { type, id, currentStatus };
+  const statuses = type === 'booking' ? bookingStatuses : cargoStatuses;
+  document.getElementById('modalTitle').textContent = `Update ${type === 'booking' ? 'Booking' : 'Cargo'} Status`;
+  const sel = document.getElementById('modalSelect');
+  sel.innerHTML = statuses.map((s) => {
+    let label = s;
+    if (type === 'cargo' && s === 'Cancelled') label = '❌ Cancelled';
+    if (type === 'cargo' && s === 'Delivered') label = '✅ Delivered';
+    return `<option value="${s}" ${s === currentStatus ? 'selected' : ''}>${label}</option>`;
+  }).join('');
+
+  const reasonInput = document.getElementById('modalCancelReason');
+  const reasonError = document.getElementById('modalCancelReasonError');
+  if (reasonInput) {
+    const cargo = type === 'cargo' ? allCargo.find(c => c.id === id) : null;
+    reasonInput.value = cargo?.cancellation_reason || '';
+    reasonInput.classList.remove('is-invalid');
+  }
+  reasonError?.classList.add('is-hidden');
+
+  syncCancelReasonField();
+  document.getElementById('statusModal').classList.add('open');
+}
+
+function syncCancelReasonField() {
+  const wrap = document.getElementById('modalCancelReasonWrap');
+  const reasonInput = document.getElementById('modalCancelReason');
+  const reasonError = document.getElementById('modalCancelReasonError');
+  const isCargoCancelled = modalCtx.type === 'cargo'
+    && document.getElementById('modalSelect')?.value === 'Cancelled';
+
+  wrap?.classList.toggle('is-hidden', !isCargoCancelled);
+  if (!isCargoCancelled) {
+    reasonInput?.classList.remove('is-invalid');
+    reasonError?.classList.add('is-hidden');
+  }
+}
+
+function closeModal() {
+  document.getElementById('statusModal').classList.remove('open');
+  document.getElementById('modalCancelReason')?.classList.remove('is-invalid');
+  document.getElementById('modalCancelReasonError')?.classList.add('is-hidden');
+  modalCtx = {};
+}
+
+async function saveStatus() {
+  const { type, id } = modalCtx;
+  const newStatus = document.getElementById('modalSelect').value;
+  const endpoint  = type === 'booking' ? `/bookings/${id}` : `/cargo/${id}`;
+  const reasonInput = document.getElementById('modalCancelReason');
+  const reasonError = document.getElementById('modalCancelReasonError');
+
+  if (type === 'cargo' && newStatus === 'Cancelled') {
+    const reason = reasonInput?.value.trim() || '';
+    if (!reason) {
+      reasonInput?.classList.add('is-invalid');
+      reasonError?.classList.remove('is-hidden');
+      return;
+    }
+  }
+
+  const payload = { status: newStatus };
+  if (type === 'cargo' && newStatus === 'Cancelled') {
+    payload.cancellation_reason = reasonInput.value.trim();
+  }
+
+  try {
+    const res = await fetch(`${API}${endpoint}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.success) {
+      const toastLabel = type === 'cargo' && newStatus === 'Cancelled' ? '❌ Cancelled' : newStatus;
+      showToast(`Status updated to "${toastLabel}"`, 'fa-check-circle');
+      closeModal();
+      if (type === 'booking') await loadBookings();
+      else                    await loadCargo();
+      await loadStats();
+    } else {
+      showToast(data.message || 'Update failed', 'fa-times-circle');
+    }
+  } catch (e) {
+    showToast('Server error. Please try again.', 'fa-times-circle');
+  }
+}
+
+document.getElementById('modalSelect')?.addEventListener('change', syncCancelReasonField);
+document.getElementById('modalCancelReason')?.addEventListener('input', () => {
+  document.getElementById('modalCancelReason')?.classList.remove('is-invalid');
+  document.getElementById('modalCancelReasonError')?.classList.add('is-hidden');
+});
+
+/* ═══════════════════════════════════════════════
+   DELETE USER
+═══════════════════════════════════════════════ */
+async function deleteUser(id, name) {
+  if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`${API}/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('User deleted successfully', 'fa-check-circle');
+      await loadUsers();
+      await loadStats();
+    } else {
+      showToast(data.message || 'Delete failed', 'fa-times-circle');
+    }
+  } catch (e) {
+    showToast('Server error.', 'fa-times-circle');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   SEARCH / FILTER
+═══════════════════════════════════════════════ */
+function filterTable(tbodyId, query, colIndexes) {
+  const tbody = document.getElementById(tbodyId);
+  const q = query.toLowerCase().trim();
+  Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+    const text = colIndexes.map(i => row.cells[i]?.textContent || '').join(' ').toLowerCase();
+    row.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+}
+
+/* ─── Medi dashboard visuals (gauges + chart) ─── */
+function setGauge(ringId, textId, pct) {
+  const ring = document.getElementById(ringId);
+  const text = document.getElementById(textId);
+  const safe = Math.max(0, Math.min(100, pct || 0));
+  if (ring) ring.style.setProperty('--gauge-pct', safe);
+  if (text) text.textContent = `${safe}%`;
+}
+
+function updateMediVisuals() {
+  const totalB = allBookings.length || 0;
+  const totalC = allCargo.length || 0;
+
+  const confirmedPct = totalB ? Math.round((allBookings.filter(b => b.status === 'Completed').length / totalB) * 100) : 0;
+  const transitPct   = totalC ? Math.round((allCargo.filter(c => c.status === 'In Transit').length / totalC) * 100) : 0;
+  const arrivedPct   = totalC ? Math.round((allCargo.filter(c => ['Arrived', 'Ready for Pickup', 'Delivered'].includes(c.status)).length / totalC) * 100) : 0;
+
+  setGauge('ring-confirmed', 'gauge-confirmed', confirmedPct);
+  setGauge('ring-transit', 'gauge-transit', transitPct);
+  setGauge('ring-arrived', 'gauge-arrived', arrivedPct);
+
+  const chartEl = document.getElementById('activityChart');
+  if (!chartEl) return;
+
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: d.toLocaleDateString('en-US', { month: 'short' }),
+      bookings: 0,
+      cargo: 0,
+    });
+  }
+
+  const monthMap = Object.fromEntries(months.map(m => [m.key, m]));
+
+  allBookings.forEach(b => {
+    const d = new Date(b.created_at);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (monthMap[key]) monthMap[key].bookings += 1;
+  });
+  allCargo.forEach(c => {
+    const d = new Date(c.created_at);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (monthMap[key]) monthMap[key].cargo += 1;
+  });
+
+  const maxVal = Math.max(1, ...months.map(m => Math.max(m.bookings, m.cargo)));
+
+  chartEl.innerHTML = months.map(m => `
+    <div class="medi-chart-bar-group">
+      <div class="medi-chart-bars">
+        <div class="medi-chart-bar medi-chart-bar--bookings" style="height:${Math.round((m.bookings / maxVal) * 140)}px" title="${m.bookings} bookings"></div>
+        <div class="medi-chart-bar medi-chart-bar--cargo" style="height:${Math.round((m.cargo / maxVal) * 140)}px" title="${m.cargo} cargo"></div>
+      </div>
+      <div class="medi-chart-label">${m.label}</div>
+    </div>`).join('');
+}
+
+/* ─── Topbar dropdowns ───────────────────────────── */
+const topbarDropdowns = [
+  { btn: 'btnNotifications', panel: 'dropdownNotifications' },
+  { btn: 'btnMessages', panel: 'dropdownMessages' },
+  { btn: 'btnSettings', panel: 'dropdownSettings' },
+  { btn: 'btnProfile', panel: 'dropdownProfile' },
+];
+
+function closeTopbarDropdowns() {
+  topbarDropdowns.forEach(({ btn, panel }) => {
+    document.getElementById(btn)?.setAttribute('aria-expanded', 'false');
+    const el = document.getElementById(panel);
+    if (el) el.hidden = true;
+  });
+}
+
+function toggleTopbarDropdown(btnId, panelId) {
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  if (!btn || !panel) return;
+  const willOpen = panel.hidden;
+  closeTopbarDropdowns();
+  if (willOpen) {
+    panel.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    if (panelId === 'dropdownNotifications') renderNotifications();
+    if (panelId === 'dropdownMessages') renderMessages();
+  }
+}
+
+function renderNotifications() {
+  const list = document.getElementById('notifList');
+  const badge = document.getElementById('notifBadge');
+  if (!list) return;
+
+  const pendingBookings = allBookings.filter(b => b.status === 'Pending');
+  const receivedCargo = allCargo.filter(c => ['Pending', 'Confirmed', 'Received'].includes(c.status));
+  const ticketDownloads = allBookings
+    .filter(b => b.status === 'Completed' && b.ticket_downloaded_at)
+    .sort((a, b) => new Date(b.ticket_downloaded_at) - new Date(a.ticket_downloaded_at));
+  const items = [
+    ...ticketDownloads.slice(0, 4).map(b => ({
+      icon: 'fa-ticket-alt',
+      title: `${b.passenger_name} has downloaded ticket`,
+      sub: `${b.origin} → ${b.destination} · ${fmtDate(b.ticket_downloaded_at)}`,
+      action: () => navigate('bookings', document.querySelector('[data-section=bookings]')),
+    })),
+    ...pendingBookings.slice(0, 4).map(b => ({
+      icon: 'fa-plane-departure',
+      title: `Pending booking: ${b.passenger_name}`,
+      sub: `${b.origin} → ${b.destination}`,
+      action: () => navigate('bookings', document.querySelector('[data-section=bookings]')),
+    })),
+    ...receivedCargo.slice(0, 3).map(c => ({
+      icon: 'fa-box',
+      title: `New cargo: ${c.tracking_id}`,
+      sub: `To ${c.destination}`,
+      action: () => navigate('cargo', document.querySelector('[data-section=cargo]')),
+    })),
+  ];
+
+  const count = ticketDownloads.length + pendingBookings.length + receivedCargo.length;
+  if (badge) {
+    badge.textContent = count > 9 ? '9+' : String(count);
+    badge.hidden = count === 0;
+  }
+
+  if (!items.length) {
+    list.innerHTML = '<p class="topbar-dropdown__empty">No new notifications</p>';
+    return;
+  }
+
+  list.innerHTML = items.map((item, i) => `
+    <button type="button" class="topbar-dropdown__item" data-notif-idx="${i}">
+      <span class="topbar-dropdown__item-icon"><i class="fas ${item.icon}"></i></span>
+      <span>
+        <span class="topbar-dropdown__item-title">${esc(item.title)}</span>
+        <span class="topbar-dropdown__item-sub">${esc(item.sub)}</span>
+      </span>
+    </button>`).join('');
+
+  list.querySelectorAll('[data-notif-idx]').forEach(el => {
+    el.addEventListener('click', () => {
+      items[parseInt(el.dataset.notifIdx, 10)]?.action?.();
+      closeTopbarDropdowns();
+    });
+  });
+}
+
+function renderMessages() {
+  const list = document.getElementById('messagesList');
+  if (!list) return;
+
+  const events = [
+    ...allBookings.filter(b => b.ticket_downloaded_at).map(b => ({
+      sort: new Date(b.ticket_downloaded_at).getTime(),
+      icon: 'fa-ticket-alt',
+      title: `${b.passenger_name} has downloaded ticket`,
+      sub: `${b.origin} → ${b.destination} · ${fmtDate(b.ticket_downloaded_at)}`,
+    })),
+    ...allBookings.map(b => ({
+      sort: new Date(b.created_at).getTime(),
+      icon: 'fa-plane',
+      title: `Booking — ${b.passenger_name}`,
+      sub: `${b.status} · ${fmtDate(b.created_at)}`,
+    })),
+    ...allCargo.map(c => ({
+      sort: new Date(c.created_at).getTime(),
+      icon: 'fa-box',
+      title: `Cargo — ${c.tracking_id}`,
+      sub: `${c.status} · ${fmtDate(c.created_at)}`,
+    })),
+  ].sort((a, b) => b.sort - a.sort).slice(0, 6);
+
+  if (!events.length) {
+    list.innerHTML = '<p class="topbar-dropdown__empty">No recent activity</p>';
+    return;
+  }
+
+  list.innerHTML = events.map(e => `
+    <div class="topbar-dropdown__item topbar-dropdown__item--static">
+      <span class="topbar-dropdown__item-icon"><i class="fas ${e.icon}"></i></span>
+      <span>
+        <span class="topbar-dropdown__item-title">${esc(e.title)}</span>
+        <span class="topbar-dropdown__item-sub">${esc(e.sub)}</span>
+      </span>
+    </div>`).join('');
+}
+
+function updateNotificationBadge() {
+  renderNotifications();
+  const badge = document.getElementById('notifBadge');
+  if (!badge || badge.hidden) return;
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+function initTopbarControls() {
+  topbarDropdowns.forEach(({ btn, panel }) => {
+    document.getElementById(btn)?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTopbarDropdown(btn, panel);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.topbar-dropdown-wrap')) closeTopbarDropdowns();
+  });
+
+  document.getElementById('topbarSearch')?.addEventListener('input', (e) => {
+    const q = e.target.value.trim();
+    const active = document.querySelector('.section.active');
+    if (!active) return;
+    const map = {
+      'sec-users':    { id: 'search-users', body: 'users-body', cols: [1, 2, 3, 4] },
+      'sec-bookings': { id: 'search-bookings', body: 'bookings-body', cols: [0, 1, 2] },
+      'sec-flights':  { id: 'search-flights', body: 'flights-body', cols: [0, 1, 2, 3, 4] },
+      'sec-cities':   { id: 'search-cities', body: 'cities-body', cols: [1, 2] },
+      'sec-cargo':    { id: 'search-cargo', body: 'cargo-body', cols: [0, 1, 2] },
+      'sec-payments': { id: null, body: 'payments-invoices-body', cols: [1, 2, 3, 4] },
+      'sec-reports':  { id: null, body: 'report-customers-body', cols: [1, 2, 3] },
+    };
+    const cfg = map[active.id];
+    if (!cfg) return;
+    const sectionSearch = document.getElementById(cfg.id);
+    if (sectionSearch) sectionSearch.value = q;
+    filterTable(cfg.body, q, cfg.cols);
+  });
+}
+
+window.closeTopbarDropdowns = closeTopbarDropdowns;
+
+initTopbarControls();
+
+/* ─── Boot continues below ─── */
+async function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Refreshing…';
+  btn.disabled = true;
+  await Promise.allSettled([loadStats(), loadUsers(), loadBookings(), loadFlights(), loadCargo()]);
+  await refreshFinanceSections();
+  await refreshOpsSections();
+  btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+  btn.disabled = false;
+  showToast('Dashboard refreshed', 'fa-check-circle');
+}
+
+/* ─── Logout ──────────────────────────────────── */
+function logout() {
+  localStorage.removeItem('mideye_token');
+  localStorage.removeItem('mideye_user');
+  window.location.href = 'login.html';
+}
+
+/* ─── Escape HTML ─────────────────────────────── */
+function esc(str) {
+  if (str === null || str === undefined) return '–';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─── Keyboard shortcut: close modal on Esc ──── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('receiptModal')?.classList.contains('open')) {
+      closeReceiptModal();
+    } else if (document.getElementById('userProfileModal')?.classList.contains('open')) {
+      closeUserProfileModal();
+    } else if (document.getElementById('cityModal')?.classList.contains('open')) {
+      closeCityModal();
+    } else if (document.getElementById('flightModal')?.classList.contains('open')) {
+      closeFlightModal();
+    } else {
+      closeModal();
+    }
+  }
+});
+document.getElementById('statusModal').addEventListener('click', e => { if (e.target === document.getElementById('statusModal')) closeModal(); });
+
+/* ─── Expose globals for admin-users.js ─────── */
+window.allUsers    = allUsers;
+window.allBookings = allBookings;
+window.allCargo    = allCargo;
+window.allFlights  = allFlights;
+window.esc         = esc;
+window.fmtDate     = fmtDate;
+window.roleBadge   = roleBadge;
+window.showToast   = showToast;
+window.navigate    = navigate;
+window.loadUsers   = loadUsers;
+window.loadCities  = window.loadCities;
+window.allCities   = allCities;
+window.loadStats   = loadStats;
+window.API         = API;
+window.applyCargoUserFilter = applyCargoUserFilter;
+window.clearCargoUserFilter = clearCargoUserFilter;
+window.refreshFinanceSections = refreshFinanceSections;
+window.refreshOpsSections = refreshOpsSections;
+
+/* ─── Boot ────────────────────────────────────── */
+(async () => {
+  const bootTasks = [loadStats(), loadBookings(), loadFlights(), loadCargo(), window.loadCities?.()];
+  if (user?.role === 'admin') bootTasks.push(loadUsers());
+  await Promise.allSettled(bootTasks);
+  await refreshFinanceSections();
+  await refreshOpsSections();
+})();
+</script>
+</body>
+</html>

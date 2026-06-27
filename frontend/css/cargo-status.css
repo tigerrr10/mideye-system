@@ -1,0 +1,59 @@
+/* Shared cargo status badges – admin, user dashboard, tracking */
+.badge-cargo-pending    { background: rgba(107, 114, 128, 0.14); color: #4b5563; }
+.badge-cargo-confirmed  { background: rgba(37, 99, 235, 0.12); color: #1d4ed8; }
+.badge-cargo-received   { background: rgba(8, 145, 178, 0.14); color: #0e7490; }
+.badge-cargo-processing { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
+.badge-cargo-in-transit { background: rgba(124, 58, 237, 0.14); color: #6d28d9; }
+.badge-cargo-arrived    { background: rgba(13, 148, 136, 0.14); color: #0f766e; }
+.badge-cargo-ready      { background: rgba(202, 138, 4, 0.16); color: #a16207; }
+.badge-cargo-delivered  { background: rgba(22, 163, 74, 0.14); color: #15803d; }
+.badge-cargo-cancelled  { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+
+.track-status-badge--cargo-pending    { background: rgba(107, 114, 128, 0.14); color: #4b5563; }
+.track-status-badge--cargo-confirmed  { background: rgba(37, 99, 235, 0.12); color: #1d4ed8; }
+.track-status-badge--cargo-received   { background: rgba(8, 145, 178, 0.14); color: #0e7490; }
+.track-status-badge--cargo-processing { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
+.track-status-badge--cargo-in-transit { background: rgba(124, 58, 237, 0.14); color: #6d28d9; }
+.track-status-badge--cargo-arrived    { background: rgba(13, 148, 136, 0.14); color: #0f766e; }
+.track-status-badge--cargo-ready      { background: rgba(202, 138, 4, 0.16); color: #a16207; }
+.track-status-badge--cargo-delivered  { background: rgba(22, 163, 74, 0.14); color: #15803d; }
+.track-status-badge--cargo-cancelled  { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+
+.track-delivered-card {
+  background: #f0fdf4;
+  border: 1.5px solid rgba(22, 163, 74, 0.22);
+  border-radius: var(--r-lg, 14px);
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.track-delivered-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.track-delivered-card__row:last-child { margin-bottom: 0; }
+
+.track-delivered-card__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #6b7280);
+  min-width: 4.5rem;
+}
+
+.track-delivered-card__value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--brown, #441306);
+  line-height: 1.5;
+}
+
+.track-delivered-card__value--status {
+  font-weight: 800;
+  color: #15803d;
+}

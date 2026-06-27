@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="../css/style.css" rel="stylesheet" />
+  <!-- Redirect already-logged-in users away from login page -->
+  <script src="../js/auth-guard.js"></script>
+  <script>AuthGuard.requireGuest();</script>
+</head>
+<body class="inner-page">
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" data-page="index.html" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="booking.html" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="cargo.html" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="tracking.html" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="register-page-main">
+  <div class="container">
+    <div class="register-card">
+      <div class="register-card-header">
+        <span class="section-eyebrow">Member Login</span>
+        <h1 class="section-title mt-2">Sign In to Your Account</h1>
+        <p class="register-card-sub">Sign in with your registered email to manage bookings and track cargo.</p>
+        <p id="loginPrompt" class="register-card-sub mt-2 mb-0" style="display:none;"></p>
+      </div>
+
+      <div class="register-card-body">
+        <form id="loginForm" novalidate aria-label="Login form">
+          <div class="input-group-custom">
+            <label for="loginEmail" class="input-label-custom">Email Address <span class="text-danger" aria-hidden="true">*</span></label>
+            <div class="input-wrap">
+              <i class="fas fa-envelope input-prefix-icon" aria-hidden="true"></i>
+              <input
+                type="email"
+                id="loginEmail"
+                class="form-control-custom"
+                placeholder="e.g. ayuub.Abdirzak@gmail.com"
+                autocomplete="email"
+                inputmode="email"
+                required
+                aria-describedby="loginEmailHelp"
+              />
+            </div>
+            <p class="input-hint" id="loginEmailHelp">Use the email address associated with your account.</p>
+          </div>
+
+          <div class="input-group-custom">
+            <label for="loginPassword" class="input-label-custom">Password <span class="text-danger" aria-hidden="true">*</span></label>
+            <div class="input-wrap">
+              <i class="fas fa-lock input-prefix-icon" aria-hidden="true"></i>
+              <input
+                type="password"
+                id="loginPassword"
+                class="form-control-custom has-pass-toggle"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                required
+                aria-describedby="loginPasswordHelp"
+              />
+              <button type="button" class="pass-toggle-btn" data-target="loginPassword" aria-label="Show password">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p class="input-hint" id="loginPasswordHelp">Enter your account password to continue.</p>
+          </div>
+
+          <button type="submit" class="btn-primary-custom w-100 register-submit-btn">
+            <span><i class="fas fa-sign-in-alt me-2" aria-hidden="true"></i>Sign In</span>
+          </button>
+
+          <p class="auth-switch-text mb-0">
+            Don't have an account? <a href="register.html">Register</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+
+    const returnTo = sessionStorage.getItem('mideye_redirect_after_login');
+    const prompt = document.getElementById('loginPrompt');
+    if (prompt && returnTo) {
+      const page = returnTo.split('?')[0];
+      const messages = {
+        'booking.html': 'Please sign in to book a flight.',
+        'cargo.html': 'Please sign in to submit a cargo shipment.',
+        'tracking.html': 'Please sign in to track your shipment.',
+      };
+      if (messages[page]) {
+        prompt.textContent = messages[page];
+        prompt.style.display = 'block';
+      }
+    }
+  });
+</script>
+</body>
+</html>

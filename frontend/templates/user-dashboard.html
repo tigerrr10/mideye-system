@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="../css/cargo-status.css" rel="stylesheet"/>
+
+  <!-- ── Inline auth guard: runs before any page renders ── -->
+  <script src="../js/auth-guard.js"></script>
+  <script>AuthGuard.requireUser();</script>
+
+  <style>
+    :root {
+      --brown:      #441306;
+      --brown-dark: #2c0b04;
+      --brown-mid:  #6b1e0d;
+      --gold:       #fee685;
+      --gold-dark:  #e8c945;
+      --cream:      #fdf7ed;
+      --cream-2:    #f9f0dc;
+      --white:      #ffffff;
+      --sidebar-w:  260px;
+      --topbar-h:   64px;
+      --shadow-sm:  0 2px 12px rgba(68,19,6,0.09);
+      --shadow-md:  0 6px 28px rgba(68,19,6,0.13);
+      --border:     rgba(68,19,6,0.10);
+      --r-sm: 8px; --r-md: 14px; --r-lg: 20px;
+      --fs-base: 0.9375rem;
+      --fs-heading: 1.25rem;
+      --fs-title: clamp(1.75rem, 3.5vw, 2.5rem);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;font-size:var(--fs-base);background:#f2e8d8;color:var(--brown);min-height:100vh;display:flex;}
+    input,select,textarea,button,table{font-size:var(--fs-base);}
+
+    /* ── SIDEBAR ── */
+    #sidebar{width:var(--sidebar-w);height:100vh;max-height:100vh;height:100dvh;max-height:100dvh;background:var(--brown);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;transition:transform .3s ease;overflow:hidden;}
+    .sidebar-brand{padding:1.25rem 1.5rem 1.1rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:.75rem;flex-shrink:0;}
+    .sidebar-brand-icon{width:40px;height:40px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--brown);font-size:var(--fs-base);}
+    .sidebar-brand-text{font-family:'Cormorant Garamond',serif;font-size:var(--fs-heading);font-weight:700;color:var(--white);letter-spacing:.02em;}
+    .sidebar-brand-text span{color:var(--gold);}
+    .sidebar-subtitle{font-size:var(--fs-base);color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-top:.1rem;}
+    .sidebar-section-label{font-size:var(--fs-base);font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.35);padding:.85rem 1.5rem .35rem;}
+    .sidebar-section-label:first-child{padding-top:.35rem;}
+    .sidebar-nav{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:.25rem 0;-webkit-overflow-scrolling:touch;}
+    .nav-item-link{display:flex;align-items:center;gap:.85rem;padding:.65rem 1.5rem;color:rgba(255,255,255,.7);text-decoration:none;font-size:var(--fs-base);font-weight:500;transition:all .18s ease;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+    .nav-item-link .nav-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:var(--fs-base);background:rgba(255,255,255,.07);flex-shrink:0;transition:all .18s ease;}
+    .nav-item-link:hover{color:var(--white);background:rgba(255,255,255,.07);}
+    .nav-item-link:hover .nav-icon{background:rgba(254,230,133,.15);}
+    .nav-item-link.active{color:var(--brown);background:var(--gold);}
+    .nav-item-link.active .nav-icon{background:rgba(68,19,6,.15);color:var(--brown);}
+    .sidebar-footer{padding:.85rem 1.5rem;border-top:1px solid rgba(255,255,255,.1);flex-shrink:0;margin-top:auto;}
+    .sidebar-user{display:flex;align-items:center;gap:.75rem;min-width:0;}
+    .sidebar-user-meta{min-width:0;flex:1;}
+    .sidebar-avatar{width:40px;height:40px;min-width:40px;min-height:40px;max-width:40px;max-height:40px;aspect-ratio:1;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;color:var(--brown);font-weight:700;font-size:var(--fs-base);flex-shrink:0;flex-grow:0;align-self:center;line-height:1;padding:0;box-sizing:border-box;}
+    .sidebar-user-name{font-size:var(--fs-base);font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .sidebar-user-role{font-size:var(--fs-base);color:rgba(255,255,255,.45);}
+
+    /* ── MAIN ── */
+    #mainWrap{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column;}
+    #topBar{height:var(--topbar-h);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:50;box-shadow:var(--shadow-sm);}
+    .topbar-left{display:flex;align-items:center;gap:1rem;}
+    #sidebarToggle{display:none;background:none;border:none;color:var(--brown);font-size:var(--fs-heading);cursor:pointer;padding:.4rem;border-radius:var(--r-sm);}
+    .page-title{font-size:var(--fs-base);font-weight:700;color:var(--brown);}
+    .page-subtitle{font-size:var(--fs-base);color:rgba(68,19,6,.5);margin-top:.1rem;}
+    .topbar-right{display:flex;align-items:center;gap:1rem;}
+    .topbar-time{font-size:var(--fs-base);color:rgba(68,19,6,.5);display:flex;align-items:center;gap:.4rem;}
+    #refreshBtn{background:var(--cream);border:1px solid var(--border);color:var(--brown);padding:.45rem 1rem;border-radius:var(--r-sm);font-size:var(--fs-base);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .18s ease;}
+    #refreshBtn:hover{background:var(--cream-2);}
+    .topbar-logout{background:var(--brown);color:var(--gold);border:none;padding:.45rem 1rem;border-radius:var(--r-sm);font-size:var(--fs-base);font-weight:600;cursor:pointer;transition:all .18s ease;display:flex;align-items:center;gap:.4rem;}
+    .topbar-logout:hover{background:var(--brown-mid);}
+
+    /* ── CONTENT ── */
+    #content{flex:1;padding:2rem;overflow-x:hidden;}
+    .section{display:none;}
+    .section.active{display:block;}
+    .section-heading{font-size:var(--fs-heading);font-weight:700;color:var(--brown);}
+    .section-subheading{font-size:var(--fs-base);color:rgba(68,19,6,.55);margin-top:.2rem;}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;}
+
+    /* ── STAT CARDS ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1.25rem;margin-bottom:2rem;}
+    .stat-card{background:var(--white);border-radius:var(--r-lg);padding:1.5rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0;}
+    .stat-card.bookings::before{background:linear-gradient(90deg,#441306,#8c3520);}
+    .stat-card.cargo::before{background:linear-gradient(90deg,#e8c945,#fee685);}
+    .stat-card.pending::before{background:linear-gradient(90deg,#dc8f00,#ffc107);}
+    .stat-card.confirmed::before{background:linear-gradient(90deg,#19875e,#28a745);}
+    .stat-card.tracking::before{background:linear-gradient(90deg,#6b1e0d,#b85a40);}
+    .stat-card-link{text-decoration:none;color:inherit;display:block;}
+    .stat-card-link:hover{color:inherit;}
+    .stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+    .stat-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;}
+    .stat-label{font-size:var(--fs-base);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(68,19,6,.5);}
+    .stat-icon{width:42px;height:42px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:var(--fs-base);flex-shrink:0;}
+    .stat-card.bookings  .stat-icon{background:rgba(68,19,6,.08);color:var(--brown);}
+    .stat-card.cargo     .stat-icon{background:rgba(254,230,133,.4);color:#a07a00;}
+    .stat-card.pending   .stat-icon{background:rgba(255,193,7,.15);color:#dc8f00;}
+    .stat-card.confirmed .stat-icon{background:rgba(40,167,69,.12);color:#19875e;}
+    .stat-card.tracking  .stat-icon{background:rgba(107,30,13,.1);color:var(--brown-mid);}
+    .stat-value{font-size:var(--fs-heading);font-weight:700;color:var(--brown);line-height:1;font-variant-numeric:tabular-nums;}
+    .stat-value.stat-action{font-size:1.35rem;color:var(--brown-mid);}
+    .stat-footer{font-size:var(--fs-base);color:rgba(68,19,6,.45);margin-top:.4rem;}
+    .stat-value.loading-pulse{animation:pulse 1.2s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    /* ── DATA CARDS ── */
+    .data-card{background:var(--white);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;margin-bottom:1.75rem;}
+    .data-card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:var(--cream);}
+    .data-card-title{font-size:var(--fs-base);font-weight:700;color:var(--brown);display:flex;align-items:center;gap:.6rem;}
+    .data-card-title i{color:var(--brown-mid);}
+    .search-input{border:1px solid var(--border);border-radius:var(--r-sm);padding:.4rem .85rem .4rem 2rem;font-size:var(--fs-base);color:var(--brown);background:var(--white);outline:none;transition:border-color .18s;width:200px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23441306' opacity='0.4'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:.6rem center;background-size:.85rem;}
+    .search-input:focus{border-color:var(--brown);}
+    .table-wrap{overflow-x:auto;}
+    table.admin-table{width:100%;border-collapse:collapse;font-size:var(--fs-base);}
+    table.admin-table thead th{background:var(--cream);color:rgba(68,19,6,.6);font-size:var(--fs-base);font-weight:700;text-transform:uppercase;letter-spacing:.09em;padding:.9rem 1.25rem;border-bottom:1px solid var(--border);white-space:nowrap;}
+    table.admin-table tbody tr{border-bottom:1px solid rgba(68,19,6,.05);transition:background .15s;}
+    table.admin-table tbody tr:last-child{border-bottom:none;}
+    table.admin-table tbody tr:hover{background:rgba(253,247,237,.6);}
+    table.admin-table td{padding:.9rem 1.25rem;color:var(--brown);vertical-align:middle;}
+    .td-muted{color:rgba(68,19,6,.55);font-size:var(--fs-base);}
+    .td-bold{font-weight:600;}
+    .td-mono{font-family:'Courier New',monospace;font-size:var(--fs-base);font-weight:600;}
+    .table-loading,.table-empty{text-align:center;padding:3rem 1rem;color:rgba(68,19,6,.45);}
+    .table-loading .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--brown);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .75rem;}
+    .table-empty i{font-size:var(--fs-heading);margin-bottom:.75rem;display:block;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── BADGES ── */
+    .badge-status{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;border-radius:999px;font-size:var(--fs-base);font-weight:700;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+    .badge-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+    .badge-pending   {background:rgba(255,193,7,.15);color:#a07200;}
+    .badge-confirmed {background:rgba(25,135,84,.12);color:#0d6640;}
+    .badge-completed {background:rgba(13,110,253,.12);color:#084fc7;}
+    .badge-delay {background:rgba(255,152,0,.15);color:#c65a00;}
+    .badge-cancelled {background:rgba(220,53,69,.12);color:#b02a37;}
+    .badge-received  {background:rgba(108,117,125,.12);color:#495057;}
+    .badge-in-transit{background:rgba(255,193,7,.15);color:#a07200;}
+    .badge-arrived   {background:rgba(25,135,84,.12);color:#0d6640;}
+
+    /* ── PROFILE FORM ── */
+    .profile-card{background:var(--white);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);border:1px solid var(--border);padding:2rem;margin-bottom:1.5rem;}
+    .profile-avatar-ring{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--brown),var(--brown-mid));display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:2rem;font-weight:700;font-family:'Cormorant Garamond',serif;margin-bottom:1rem;}
+    .form-field{margin-bottom:1.25rem;}
+    .form-field label{display:block;font-size:var(--fs-base);font-weight:600;color:rgba(68,19,6,.7);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.06em;}
+    .form-field input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:.7rem 1rem;font-size:var(--fs-base);color:var(--brown);background:var(--cream);outline:none;transition:border-color .18s;}
+    .form-field input:focus{border-color:var(--brown);background:var(--white);}
+    .form-field input:read-only{opacity:.6;cursor:not-allowed;}
+    .btn-save{background:var(--brown);color:var(--gold);border:none;border-radius:var(--r-sm);padding:.65rem 1.5rem;font-size:var(--fs-base);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .18s;}
+    .btn-save:hover{background:var(--brown-mid);}
+    .btn-outline-brown-sm{background:transparent;color:var(--brown);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:.55rem 1.2rem;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .18s;}
+    .btn-outline-brown-sm:hover{border-color:var(--brown);background:rgba(68,19,6,.05);}
+    .divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
+
+    /* ── QUICK NAV DASH ── */
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+    @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
+
+    /* ── QUICK LINKS CARDS ── */
+    .quick-link-card{background:var(--white);border-radius:var(--r-lg);padding:1.5rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;text-decoration:none;}
+    .quick-link-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+    .qlc-icon{width:48px;height:48px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:var(--fs-heading);flex-shrink:0;}
+    .qlc-title{font-weight:700;color:var(--brown);font-size:var(--fs-base);}
+    .qlc-sub{font-size:var(--fs-base);color:rgba(68,19,6,.5);margin-top:.15rem;}
+
+    /* ── Toast ── */
+    #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--brown);color:var(--gold);padding:.8rem 1.4rem;border-radius:var(--r-md);font-size:var(--fs-base);font-weight:600;z-index:2000;opacity:0;transform:translateY(12px);transition:all .3s ease;pointer-events:none;display:flex;align-items:center;gap:.5rem;box-shadow:var(--shadow-md);}
+    #toast.show{opacity:1;transform:translateY(0);}
+
+    /* ── Responsive ── */
+    @media(max-width:1100px){
+      .stats-grid{grid-template-columns:repeat(3,1fr);}
+    }
+    @media(max-width:768px){
+      #sidebar{transform:translateX(-100%);}
+      #sidebar.open{transform:translateX(0);}
+      #mainWrap{margin-left:0;}
+      #sidebarToggle{display:block;}
+      .stats-grid{grid-template-columns:repeat(2,1fr);}
+      #content{padding:1.25rem;}
+      #topBar{padding:0 1.25rem;}
+    }
+    @media(max-width:480px){.stats-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon"><i class="fas fa-plane"></i></div>
+    <div>
+      <div class="sidebar-brand-text">Mideye<span> Travel </span></div>
+      <div class="sidebar-subtitle">My Dashboard</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Overview</div>
+    <a class="nav-item-link active" onclick="navigate('dashboard',this)">
+      <span class="nav-icon"><i class="fas fa-th-large"></i></span>Dashboard
+    </a>
+
+    <div class="sidebar-section-label">My Activity</div>
+    <a class="nav-item-link" onclick="navigate('bookings',this)">
+      <span class="nav-icon"><i class="fas fa-plane-departure"></i></span>My Bookings
+      <span class="nav-badge" id="badge-bookings" style="margin-left:auto;background:rgba(254,230,133,.2);color:var(--gold);font-size:var(--fs-base);font-weight:700;padding:.15rem .55rem;border-radius:999px;min-width:22px;text-align:center;">0</span>
+    </a>
+    <a class="nav-item-link" onclick="navigate('cargo',this)">
+      <span class="nav-icon"><i class="fas fa-box"></i></span>My Cargo
+      <span class="nav-badge" id="badge-cargo" style="margin-left:auto;background:rgba(254,230,133,.2);color:var(--gold);font-size:var(--fs-base);font-weight:700;padding:.15rem .55rem;border-radius:999px;min-width:22px;text-align:center;">0</span>
+    </a>
+
+    <div class="sidebar-section-label">Account</div>
+    <a class="nav-item-link" onclick="navigate('profile',this)">
+      <span class="nav-icon"><i class="fas fa-user-cog"></i></span>Profile Settings
+    </a>
+
+    <div class="sidebar-section-label">Site</div>
+    <a class="nav-item-link" href="index.html">
+      <span class="nav-icon"><i class="fas fa-globe"></i></span>Back to Website
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebarAvatar">U</div>
+      <div class="sidebar-user-meta">
+        <div class="sidebar-user-name" id="sidebarName">User</div>
+        <div class="sidebar-user-role">Registered Member</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div id="mainWrap">
+  <header id="topBar">
+    <div class="topbar-left">
+      <button id="sidebarToggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-subtitle" id="pageSubtitle">Welcome back</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-time"><i class="far fa-clock"></i><span id="clockDisplay"></span></div>
+      <button id="refreshBtn" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <button class="topbar-logout" onclick="AuthGuard.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </header>
+
+  <main id="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <section id="sec-dashboard" class="section active">
+      <div class="section-header">
+        
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card bookings">
+          <div class="stat-top">
+            <div class="stat-label">My Bookings</div>
+            <div class="stat-icon"><i class="fas fa-plane-departure"></i></div>
+          </div>
+          <div class="stat-value" id="stat-bookings">0</div>
+          <div class="stat-footer">Total flight requests</div>
+        </div>
+        <div class="stat-card cargo">
+          <div class="stat-top">
+            <div class="stat-label">My Cargo</div>
+            <div class="stat-icon"><i class="fas fa-box-open"></i></div>
+          </div>
+          <div class="stat-value" id="stat-cargo">0</div>
+          <div class="stat-footer">Total cargo requests</div>
+        </div>
+        <div class="stat-card pending">
+          <div class="stat-top">
+            <div class="stat-label">Pending</div>
+            <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+          </div>
+          <div class="stat-value" id="stat-pending">0</div>
+          <div class="stat-footer">Pending &amp; confirmed bookings</div>
+        </div>
+        <div class="stat-card confirmed">
+          <div class="stat-top">
+            <div class="stat-label">In Transit</div>
+            <div class="stat-icon"><i class="fas fa-shipping-fast"></i></div>
+          </div>
+          <div class="stat-value" id="stat-transit">0</div>
+          <div class="stat-footer">Cargo currently shipping</div>
+        </div>
+        <a href="tracking.html" class="stat-card tracking stat-card-link">
+          <div class="stat-top">
+            <div class="stat-label">Track Shipment</div>
+            <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+          </div>
+          <div class="stat-value stat-action"><i class="fas fa-search-location"></i></div>
+          <div class="stat-footer">Enter tracking ID</div>
+        </a>
+      </div>
+
+      <div class="dash-grid">
+        <div class="data-card">
+          <div class="data-card-header">
+            <div class="data-card-title"><i class="fas fa-plane-departure"></i> Recent Bookings</div>
+            <a class="btn-outline-brown-sm" onclick="navigate('bookings',document.querySelector('[onclick*=bookings]'))">View all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Route</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody id="dash-bookings-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="data-card">
+          <div class="data-card-header">
+            <div class="data-card-title"><i class="fas fa-box"></i> Recent Cargo</div>
+            <a class="btn-outline-brown-sm" onclick="navigate('cargo',document.querySelector('[onclick*=cargo]'))">View all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="admin-table">
+              <thead><tr><th>Tracking ID</th><th>Destination</th><th>Status</th></tr></thead>
+              <tbody id="dash-cargo-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MY BOOKINGS ═══ -->
+    <section id="sec-bookings" class="section">
+      <div class="section-header">
+       
+        <input class="search-input" type="text" placeholder="Search bookings…" oninput="filterTable('bookings-body',this.value,[0,1])">
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-plane-departure"></i> Booking History</div>
+          <span class="td-muted" id="bookings-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>#</th><th>Route</th><th>Travel Date</th><th>Class</th><th>Passengers</th><th>Trip Type</th><th>Status</th><th>Submitted</th><th>Ticket</th></tr>
+            </thead>
+            <tbody id="bookings-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MY CARGO ═══ -->
+    <section id="sec-cargo" class="section">
+      <div class="section-header">
+        
+        <input class="search-input" type="text" placeholder="Search cargo…" oninput="filterTable('cargo-body',this.value,[0,1,2])">
+      </div>
+      <div class="data-card">
+        <div class="data-card-header">
+          <div class="data-card-title"><i class="fas fa-box"></i> Cargo History</div>
+          <span class="td-muted" id="cargo-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Tracking ID</th><th>Recipient</th><th>Destination</th><th>Type</th><th>Weight</th><th>Speed</th><th>Status</th><th>Submitted</th></tr>
+            </thead>
+            <tbody id="cargo-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PROFILE ═══ -->
+    <section id="sec-profile" class="section">
+      <div class="section-header">
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <!-- Personal Info -->
+          <div class="profile-card">
+            <div class="profile-avatar-ring" id="profileAvatar">U</div>
+            <h5 style="color:var(--brown);font-weight:700;margin-bottom:.25rem;" id="profileName">–</h5>
+            <p style="font-size:var(--fs-base);color:rgba(68,19,6,.5);margin-bottom:1.5rem;" id="profileEmail">–</p>
+
+            <form id="profileForm">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-field">
+                    <label>Full Name</label>
+                    <input type="text" id="inp-full_name" placeholder="Your full name" required/>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-field">
+                    <label>Phone Number</label>
+                    <input type="tel" id="inp-phone" placeholder="+252 61 ..."/>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-field">
+                    <label>Email Address</label>
+                    <input type="email" id="inp-email" readonly/>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-field">
+                    <label>Member Since</label>
+                    <input type="text" id="inp-joined" readonly/>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-field">
+                    <label>Account Role</label>
+                    <input type="text" id="inp-role" readonly/>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn-save"><i class="fas fa-save me-1"></i> Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <!-- Change Password -->
+          <div class="profile-card">
+            <h6 style="color:var(--brown);font-weight:700;margin-bottom:1rem;"><i class="fas fa-lock me-2"></i>Change Password</h6>
+            <form id="passwordForm">
+              <div class="form-field">
+                <label>Current Password</label>
+                <input type="password" id="inp-current-pass" placeholder="Enter current password" required/>
+              </div>
+              <div class="form-field">
+                <label>New Password</label>
+                <input type="password" id="inp-new-pass" placeholder="Min. 6 characters" required/>
+              </div>
+              <div class="form-field">
+                <label>Confirm New Password</label>
+                <input type="password" id="inp-confirm-pass" placeholder="Repeat new password" required/>
+              </div>
+              <button type="submit" class="btn-save"><i class="fas fa-key me-1"></i> Update Password</button>
+            </form>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="profile-card" style="border-color:rgba(220,53,69,.2);">
+            <h6 style="color:#b02a37;font-weight:700;margin-bottom:.5rem;"><i class="fas fa-exclamation-triangle me-2"></i>Session</h6>
+            <p style="font-size:.83rem;color:rgba(68,19,6,.55);margin-bottom:1rem;">Sign out of your account on this device.</p>
+            <button class="btn-outline-brown-sm" onclick="AuthGuard.logout()" style="color:#b02a37;border-color:rgba(220,53,69,.3);">
+              <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+<div id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;" onclick="toggleSidebar()"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/cargo-status.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/user-ticket.js"></script>
+<script>
+'use strict';
+
+const API   = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:5000/api';
+const token = localStorage.getItem('mideye_token');
+const user  = JSON.parse(localStorage.getItem('mideye_user') || 'null');
+const CACHE_KEY = `mideye_dash_${user?.id || user?.email || 'guest'}`;
+
+let allBookings = [];
+let allCargo = [];
+
+/* ── Dashboard cache (keeps layout stable between visits) ── */
+function readCache() {
+  try { return JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null'); }
+  catch { return null; }
+}
+
+function writeCache(payload) {
+  try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(payload)); }
+  catch {}
+}
+
+function applyStats(s) {
+  const statMap = { bookings:'total_bookings', cargo:'total_cargo', pending:'pending_bookings', transit:'cargo_in_transit' };
+  Object.entries(statMap).forEach(([k,v]) => {
+    const el = document.getElementById('stat-'+k);
+    if (el) el.textContent = (s[v] ?? 0).toLocaleString();
+  });
+  const badgeBookings = document.getElementById('badge-bookings');
+  const badgeCargo = document.getElementById('badge-cargo');
+  if (badgeBookings) badgeBookings.textContent = s.total_bookings ?? 0;
+  if (badgeCargo) badgeCargo.textContent = s.total_cargo ?? 0;
+}
+
+function applyCachedDashboard(cache) {
+  if (!cache) return false;
+  if (cache.stats) applyStats(cache.stats);
+  if (Array.isArray(cache.bookings)) {
+    allBookings = cache.bookings;
+    renderBookings(allBookings);
+    renderDashBookings(allBookings.slice(0, 3));
+    const countEl = document.getElementById('bookings-count');
+    if (countEl) countEl.textContent = `${allBookings.length} total`;
+  }
+  if (Array.isArray(cache.cargo)) {
+    allCargo = cache.cargo;
+    renderCargo(allCargo);
+    renderDashCargo(allCargo.slice(0, 3));
+    const countEl = document.getElementById('cargo-count');
+    if (countEl) countEl.textContent = `${allCargo.length} total`;
+  }
+  return true;
+}
+
+/* ── Populate sidebar ── */
+document.getElementById('sidebarName').textContent   = user?.full_name || 'User';
+document.getElementById('sidebarAvatar').textContent = (user?.full_name || 'U')[0].toUpperCase();
+const welcomeSubtitle = document.getElementById('pageSubtitle');
+if (welcomeSubtitle) {
+  welcomeSubtitle.textContent = `Welcome back, ${user?.full_name?.split(' ')[0] || 'there'}!`;
+}
+
+/* ── Clock ── */
+const clockEl = document.getElementById('clockDisplay');
+const tick = () => { clockEl.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}); };
+tick(); setInterval(tick,1000);
+
+/* ── Navigation ── */
+const pageMeta = {
+  dashboard: 'Overview of your activity',
+  bookings:  'All your flight requests',
+  cargo:     'All your cargo requests',
+  profile:   'Manage your account',
+};
+
+function navigate(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item-link').forEach(a => a.classList.remove('active'));
+  document.getElementById('sec-' + id)?.classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('pageTitle').textContent    = id.charAt(0).toUpperCase() + id.slice(1).replace('-',' ');
+  document.getElementById('pageSubtitle').textContent = pageMeta[id] || '';
+  if (document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+  if (id === 'profile') loadProfile();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+}
+
+/* ── Fetch helper ── */
+async function apiFetch(endpoint) {
+  const res = await fetch(`${API}${endpoint}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (res.status === 401 || res.status === 403) { AuthGuard.logout(); }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+/* ── Toast ── */
+function showToast(msg, icon = 'fa-check-circle') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<i class="fas ${icon}"></i> ${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── Badge helpers ── */
+const bookingBadge = s => { const m={Pending:'pending',Confirmed:'confirmed',Completed:'completed',Cancelled:'cancelled',Delay:'delay'}; return `<span class="badge-status badge-${m[s]||'pending'}">${s}</span>`; };
+const cargoBadge = s => window.CargoStatus?.renderCargoStatusBadge(s) || `<span class="badge-status badge-cargo-pending">${s}</span>`;
+const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '–';
+const esc = s => s == null ? '–' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ═══════════════ LOAD STATS ═══════════════ */
+async function loadStats(silent = true) {
+  try {
+    const { data } = await apiFetch('/user/stats');
+    const s = data.stats;
+    const cache = readCache() || {};
+    applyStats(s);
+    writeCache({ ...cache, stats: s });
+  } catch(e) {
+    if (!silent) {
+      ['bookings','cargo','pending','transit'].forEach(k => {
+        const el = document.getElementById('stat-'+k);
+        if (el) el.textContent = '–';
+      });
+    }
+  }
+}
+
+/* ═══════════════ LOAD BOOKINGS ═══════════════ */
+async function loadBookings(silent = true) {
+  try {
+    const { data, count } = await apiFetch('/user/bookings');
+    const bookings = data.bookings || [];
+    const cache = readCache() || {};
+    allBookings = bookings;
+    window.allBookings = allBookings;
+    document.getElementById('bookings-count').textContent = `${count} total`;
+    renderBookings(allBookings);
+    renderDashBookings(allBookings.slice(0, 3));
+    writeCache({ ...cache, bookings });
+  } catch(e) {
+    if (!silent) {
+      document.getElementById('bookings-body').innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load bookings.</div></td></tr>`;
+      document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+    }
+  }
+}
+
+function renderBookings(list) {
+  const tbody = document.getElementById('bookings-body');
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="9"><div class="table-empty"><i class="fas fa-plane"></i>No bookings yet. <a href="booking.html" style="color:var(--brown);font-weight:600;">Book your first flight →</a></div></td></tr>`; return; }
+  tbody.innerHTML = list.map((b,i) => `
+    <tr>
+      <td class="td-muted">${i+1}</td>
+      <td><div class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</div></td>
+      <td class="td-muted">${fmtDate(b.travel_date)}</td>
+      <td class="td-muted" style="text-transform:capitalize;">${b.cabin_class||'economy'}</td>
+      <td class="td-muted">${(b.adults||1)+(b.children||0)+(b.infants||0)} pax</td>
+      <td class="td-muted" style="text-transform:capitalize;">${b.trip_type||'oneway'}</td>
+      <td>${bookingBadge(b.status)}</td>
+      <td class="td-muted">${fmtDate(b.created_at)}</td>
+      <td>
+        ${b.status === 'Completed'
+          ? `<button type="button" class="btn-outline-brown-sm" onclick="openUserTicket(${b.id})"><i class="fas fa-ticket-alt"></i> View Ticket</button>`
+          : `<span class="td-muted" style="font-size:.82rem;" title="Ticket available when admin sets status to Completed"><i class="fas fa-lock"></i> Not issued</span>`
+        }
+      </td>
+    </tr>`).join('');
+}
+
+function renderDashBookings(list) {
+  const tbody = document.getElementById('dash-bookings-body');
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`; return; }
+  tbody.innerHTML = list.map(b => `<tr><td class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</td><td class="td-muted">${fmtDate(b.travel_date)}</td><td>${bookingBadge(b.status)}</td></tr>`).join('');
+}
+
+/* ═══════════════ LOAD CARGO ═══════════════ */
+async function loadCargo(silent = true) {
+  try {
+    const { data, count } = await apiFetch('/user/cargo');
+    const shipments = data.shipments || [];
+    const cache = readCache() || {};
+    allCargo = shipments;
+    document.getElementById('cargo-count').textContent = `${count} total`;
+    renderCargo(allCargo);
+    renderDashCargo(allCargo.slice(0, 3));
+    writeCache({ ...cache, cargo: shipments });
+  } catch(e) {
+    if (!silent) {
+      document.getElementById('cargo-body').innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load cargo.</div></td></tr>`;
+      document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+    }
+  }
+}
+
+function renderCargo(list) {
+  const tbody = document.getElementById('cargo-body');
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="8"><div class="table-empty"><i class="fas fa-box"></i>No cargo requests yet. <a href="cargo.html" style="color:var(--brown);font-weight:600;">Ship your first cargo →</a></div></td></tr>`; return; }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td class="td-mono">${esc(c.tracking_id)}</td>
+      <td><div class="td-bold">${esc(c.recipient_name)}</div><div class="td-muted" style="font-size:var(--fs-base)">${esc(c.recipient_phone)}</div></td>
+      <td class="td-muted">${esc(c.destination)}</td>
+      <td class="td-muted" style="text-transform:capitalize;">${esc(c.cargo_type)}</td>
+      <td class="td-muted">${c.weight} kg</td>
+      <td class="td-muted" style="text-transform:capitalize;">${c.shipping_speed||'standard'}</td>
+      <td>${cargoBadge(c.status)}</td>
+      <td class="td-muted">${fmtDate(c.created_at)}</td>
+    </tr>`).join('');
+}
+
+function renderDashCargo(list) {
+  const tbody = document.getElementById('dash-cargo-body');
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`; return; }
+  tbody.innerHTML = list.map(c => `<tr><td class="td-mono">${esc(c.tracking_id)}</td><td class="td-muted">${esc(c.destination)}</td><td>${cargoBadge(c.status)}</td></tr>`).join('');
+}
+
+/* ═══════════════ PROFILE ═══════════════ */
+async function loadProfile() {
+  try {
+    const { data } = await apiFetch('/user/profile');
+    const u = data.user;
+    document.getElementById('profileAvatar').textContent = (u.full_name||'U')[0].toUpperCase();
+    document.getElementById('profileName').textContent   = u.full_name;
+    document.getElementById('profileEmail').textContent  = u.email;
+    document.getElementById('inp-full_name').value = u.full_name || '';
+    document.getElementById('inp-phone').value     = u.phone    || '';
+    document.getElementById('inp-email').value     = u.email    || '';
+    document.getElementById('inp-joined').value    = fmtDate(u.created_at);
+    document.getElementById('inp-role').value      = u.role === 'admin' ? 'Administrator' : 'Registered Member';
+  } catch(e) { showToast('Could not load profile.','fa-times-circle'); }
+}
+
+document.getElementById('profileForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('[type=submit]');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving…';
+  try {
+    const res = await fetch(`${API}/user/profile`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        full_name: document.getElementById('inp-full_name').value.trim(),
+        phone:     document.getElementById('inp-phone').value.trim(),
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Update localStorage with new name
+      const stored = JSON.parse(localStorage.getItem('mideye_user') || '{}');
+      stored.full_name = data.data.user.full_name;
+      localStorage.setItem('mideye_user', JSON.stringify(stored));
+      document.getElementById('sidebarName').textContent   = stored.full_name;
+      document.getElementById('sidebarAvatar').textContent = stored.full_name[0].toUpperCase();
+      showToast('Profile updated successfully!');
+    } else {
+      showToast(data.message || 'Update failed.','fa-times-circle');
+    }
+  } catch(err) { showToast('Server error.','fa-times-circle'); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-save me-1"></i> Save Changes'; }
+});
+
+document.getElementById('passwordForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const newPass     = document.getElementById('inp-new-pass').value;
+  const confirmPass = document.getElementById('inp-confirm-pass').value;
+  if (newPass !== confirmPass) { showToast('Passwords do not match.','fa-times-circle'); return; }
+  if (newPass.length < 6)     { showToast('Password must be at least 6 characters.','fa-times-circle'); return; }
+  const btn = e.target.querySelector('[type=submit]');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Updating…';
+  try {
+    const res = await fetch(`${API}/user/change-password`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ current_password: document.getElementById('inp-current-pass').value, new_password: newPass }),
+    });
+    const data = await res.json();
+    if (data.success) { showToast('Password changed successfully!'); e.target.reset(); }
+    else              { showToast(data.message || 'Failed to change password.','fa-times-circle'); }
+  } catch(err) { showToast('Server error.','fa-times-circle'); }
+  finally { btn.disabled=false; btn.innerHTML='<i class="fas fa-key me-1"></i> Update Password'; }
+});
+
+/* ═══════════════ SEARCH / FILTER ═══════════════ */
+function filterTable(tbodyId, query, colIndexes) {
+  const q = query.toLowerCase().trim();
+  Array.from(document.getElementById(tbodyId)?.querySelectorAll('tr') || []).forEach(row => {
+    const text = colIndexes.map(i => row.cells[i]?.textContent||'').join(' ').toLowerCase();
+    row.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+}
+
+/* ═══════════════ REFRESH ═══════════════ */
+async function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.innerHTML='<i class="fas fa-sync-alt fa-spin"></i> Refreshing…'; btn.disabled=true;
+  await Promise.allSettled([loadStats(false), loadBookings(false), loadCargo(false)]);
+  btn.innerHTML='<i class="fas fa-sync-alt"></i> Refresh'; btn.disabled=false;
+  showToast('Dashboard refreshed');
+}
+
+/* ── Boot: show cached data first, then refresh quietly in background ── */
+window.API = API;
+window.showToast = showToast;
+applyCachedDashboard(readCache());
+(async () => {
+  await Promise.allSettled([loadStats(true), loadBookings(true), loadCargo(true)]);
+})();
+</script>
+</body>
+</html>

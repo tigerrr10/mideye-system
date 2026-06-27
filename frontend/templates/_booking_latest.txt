@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Flight | Mideye Travel Agency</title>
+  <meta name="description" content="Book your domestic flight with Mideye Travel Agency in Galkacyo, Somalia."/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="../css/style.css" rel="stylesheet"/>
+  <link href="../css/flights.css" rel="stylesheet"/>
+</head>
+<body class="inner-page booking-dashboard-page">
+
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mid<span>eye</span></div>
+    </a>
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom active" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+        <li class="nav-item" id="navDashboardItem" style="display:none;">
+          <a class="nav-link-custom" id="navDashboardLink" href="#"><i class="fas fa-th-large me-1"></i>Dashboard</a>
+        </li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0" id="navAuthButtons">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom nav-register-btn" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="booking-dashboard">
+  <div class="booking-dashboard__inner">
+
+    <!-- LEFT: Search Flights -->
+    <aside class="booking-panel booking-panel--sidebar" id="searchFlightsCard">
+      <div class="booking-panel__head">
+        <i class="fas fa-search booking-panel__icon"></i>
+        <h2>Search Flights</h2>
+      </div>
+      <form id="flightSearchForm" class="booking-panel__body" novalidate>
+        <div class="search-form-stack">
+          <div class="search-form-field">
+            <label for="searchFrom">From City</label>
+            <select id="searchFrom" required>
+              <option value="MGQ">Mogadishu</option>
+              <option value="HGA">Hargeisa</option>
+              <option value="GLK">Galkacyo</option>
+              <option value="KSM">Kismayo</option>
+              <option value="BDI">Baidoa</option>
+            </select>
+          </div>
+          <div class="search-form-field">
+            <label for="searchTo">To City</label>
+            <select id="searchTo" required>
+              <option value="HGA">Hargeisa</option>
+              <option value="MGQ">Mogadishu</option>
+              <option value="GLK">Galkacyo</option>
+              <option value="KSM">Kismayo</option>
+              <option value="BDI">Baidoa</option>
+            </select>
+          </div>
+          <div class="search-form-field">
+            <label for="searchDepart">Departure Date</label>
+            <input type="date" id="searchDepart" value="2026-06-09" required/>
+          </div>
+          <div class="search-form-field">
+            <label for="searchReturn">Return Date <span class="label-opt">(Optional)</span></label>
+            <input type="date" id="searchReturn" placeholder="mm/dd/yyyy"/>
+          </div>
+          <div class="search-form-field">
+            <label for="searchPassengers">Passengers</label>
+            <input type="number" id="searchPassengers" min="1" max="10" value="1" required/>
+          </div>
+          <div class="search-form-field">
+            <label for="searchClass">Class</label>
+            <select id="searchClass" required>
+              <option value="economy">Economy</option>
+              <option value="business">Business</option>
+              <option value="first">First Class</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-search-flights" id="searchFlightsBtn">
+            <i class="fas fa-search"></i> Search Flights
+          </button>
+        </div>
+      </form>
+    </aside>
+
+    <!-- RIGHT: Results + Passenger -->
+    <div class="booking-dashboard__main">
+
+      <!-- Summary chips -->
+      <div class="booking-summary" id="bookingSummary">
+        <div class="booking-summary__chip">
+          <span class="booking-summary__label">Route</span>
+          <span class="booking-summary__value" id="summaryRoute">Mogadishu → Hargeisa</span>
+        </div>
+        <div class="booking-summary__chip">
+          <span class="booking-summary__label">Passengers</span>
+          <span class="booking-summary__value" id="summaryPassengers">1</span>
+        </div>
+        <div class="booking-summary__chip">
+          <span class="booking-summary__label">Class</span>
+          <span class="booking-summary__value" id="summaryClass">Economy</span>
+        </div>
+        <div class="booking-summary__chip booking-summary__chip--accent">
+          <span class="booking-summary__label">Estimated</span>
+          <span class="booking-summary__value" id="summaryEstimated">$40.00</span>
+        </div>
+      </div>
+
+      <!-- Available Flights -->
+      <section class="booking-panel" id="availableFlightsCard">
+        <div class="booking-panel__head">
+          <i class="fas fa-plane booking-panel__icon"></i>
+          <h2>Available Flights</h2>
+          <span class="booking-panel__meta" id="flightsCount"></span>
+        </div>
+        <div class="booking-panel__body">
+          <div id="flightsLoader" class="flights-loader">
+            <div class="flights-loader__spinner"></div>
+            <p>Searching flights…</p>
+          </div>
+          <div id="flightsList" class="flights-grid" aria-live="polite"></div>
+          <div id="flightsEmpty" class="flights-empty">
+            <i class="fas fa-plane-slash"></i>
+            <h3>No flights found</h3>
+            <p>Try different cities or dates.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Passenger Details -->
+      <section class="booking-panel" id="passengerDetailsCard">
+        <div class="booking-panel__head">
+          <i class="fas fa-user booking-panel__icon"></i>
+          <h2>Passenger Details</h2>
+        </div>
+        <div class="booking-panel__body">
+          <form id="flightBookingForm" novalidate>
+            <div class="sr-only-api" aria-hidden="true">
+              <select id="formOrigin"><option value="MGQ">MGQ</option><option value="HGA">HGA</option><option value="GLK">GLK</option><option value="KSM">KSM</option><option value="BDI">BDI</option></select>
+              <select id="formDestination"><option value="MGQ">MGQ</option><option value="HGA">HGA</option><option value="KSM">KSM</option><option value="GLK">GLK</option><option value="BDI">BDI</option></select>
+              <input type="date" id="formTravelDate"/>
+              <input type="date" id="formReturnDate"/>
+              <select id="formAdults"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>
+              <select id="formChildren"><option value="0">0</option></select>
+              <select id="formInfants"><option value="0">0</option></select>
+              <input type="radio" name="tripType" id="tripOneWay" value="oneway" checked/>
+              <input type="radio" name="tripType" id="tripRoundtrip" value="roundtrip"/>
+              <input type="radio" name="cabinClass" id="classEconomy" value="economy" checked/>
+              <input type="radio" name="cabinClass" id="classBusiness" value="business"/>
+            </div>
+
+            <div class="passenger-form-grid">
+              <div class="passenger-form-field">
+                <label for="passengerFullName">Full Name</label>
+                <input type="text" id="passengerFullName" placeholder="TIGER" required/>
+                <div class="field-error" id="passengerFullNameError">Please enter your full name.</div>
+              </div>
+              <div class="passenger-form-field">
+                <label for="passengerDob">Date of Birth</label>
+                <input type="date" id="passengerDob" required/>
+                <div class="field-error" id="passengerDobError">Date of birth cannot be in the future.</div>
+              </div>
+              <div class="passenger-form-field">
+                <label for="passengerPhone">Contact Phone</label>
+                <input type="tel" id="passengerPhone" placeholder="+252 61 ..." required/>
+                <div class="field-error" id="passengerPhoneError">Please enter a valid phone number.</div>
+              </div>
+              <div class="passenger-form-field">
+                <label for="passengerEmail">Contact Email</label>
+                <input type="email" id="passengerEmail" placeholder="your@email.com" required/>
+                <div class="field-error" id="passengerEmailError">Please enter a valid email address.</div>
+              </div>
+            </div>
+
+            <p class="total-price-line">
+              Total Price: <strong id="totalPriceValue">$40.00</strong>
+            </p>
+
+            <button type="submit" class="btn-book-now" id="bookNowBtn">
+              Proceed to Payment
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<footer class="booking-footer">
+  <div class="container">
+    <p class="mb-2">© 2026 Mideye Travel Agency. All rights reserved.</p>
+    <p class="small">Galkacyo, Somalia | info@mideye.so</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/flights.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-link-custom').forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === currentPage);
+    });
+    const navbar = document.getElementById('mainNavbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+    }, { passive: true });
+  });
+</script>
+</body>
+</html>

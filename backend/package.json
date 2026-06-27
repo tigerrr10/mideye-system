@@ -1,0 +1,28 @@
+{
+  "name": "mideye-backend",
+  "version": "1.0.0",
+  "description": "Mideye Travel Agency - Node.js Backend API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed:users": "node seed-users.js",
+    "seed:simple": "node seed-simple-data.js",
+    "seed:five": "node seed-five-users.js",
+    "seed:flights": "node seed-flights.js",
+    "seed:flights:reset": "node seed-flights.js --force"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.9.4",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

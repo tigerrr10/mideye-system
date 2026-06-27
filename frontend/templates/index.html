@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mideye – Flight Booking & Cargo Management | Galkacyo</title>
+  <meta name="description" content="Mideye Travel Agency – Book domestic flights and ship cargo across Somalia. Based in Galkacyo."/>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- AOS -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet"/>
+  <!-- Master CSS -->
+  <link href="../css/style1.css" rel="stylesheet"/>
+
+  <!-- Homepage is public; login required only for dashboard & form submit -->
+  <script src="../js/auth-guard.js"></script>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="pageLoader" class="page-loader">
+  <div class="loader-logo">✈ Mideye</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════ -->
+<nav id="mainNavbar" class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="index.html">
+      <div class="nav-brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="nav-brand-text">Mideye<span> Travel </span></div>
+    </a>
+
+    <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavMenu">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mobileNavMenu">
+      <ul class="navbar-nav mx-auto gap-1">
+        <li class="nav-item"><a class="nav-link-custom" data-page="index.html" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="booking.html" href="booking.html"><i class="fas fa-plane me-1"></i>Book Flight</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="cargo.html" href="cargo.html"><i class="fas fa-box me-1"></i>Cargo</a></li>
+        <li class="nav-item"><a class="nav-link-custom" data-page="tracking.html" href="tracking.html"><i class="fas fa-map-marker-alt me-1"></i>Track</a></li>
+        <li class="nav-item" id="navDashboardItem" style="display:none;">
+          <a class="nav-link-custom" id="navDashboardLink" href="#"><i class="fas fa-th-large me-1"></i>Dashboard</a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+        <div class="nav-clock"><i class="far fa-clock"></i><span id="clockDisplay"></span></div>
+        <div class="d-flex gap-2" id="navAuthButtons">
+        <a href="login.html" class="btn-outline-custom" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Login</a>
+        <a href="register.html" class="btn-gold-custom nav-register-btn" style="font-size:0.85rem;padding:0.6rem 1.3rem;">Register</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     HERO SECTION
+═══════════════════════════════════════════════ -->
+<section class="hero-section" id="home">
+  <div class="hero-bg-layer"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-lines"></div>
+
+  <div class="container hero-content">
+    <div class="row align-items-center g-5">
+      <!-- Left: Text -->
+      <div class="col-lg-6">
+        <div class="hero-tagline">
+          <i class="fas fa-star" style="font-size:0.6rem"></i>
+          Galkacyo's Most Trusted Travel Agency
+        </div>
+        <h1 class="hero-title">
+          Book Flights &<br/>
+          <span class="gold-word">Track Cargo</span><br/>
+          Easily
+        </h1>
+        <p class="hero-subtitle">
+          Mideye Travel Agency serves Galkacyo and all of Somalia with domestic flight bookings and cargo shipping. Simple, fast, and reliable.
+        </p>
+        <div class="hero-cta-group">
+          <a href="booking.html" class="btn-primary-custom">
+            <i class="fas fa-plane-departure"></i>
+            <span>Book a Flight</span>
+          </a>
+          <a href="tracking.html" class="btn-outline-custom">
+            <i class="fas fa-shipping-fast"></i>
+            <span>Track Cargo</span>
+          </a>
+        </div>
+        <div class="hero-stats-strip">
+          <div class="hss-item">
+            <span class="hss-num" data-count="5000" data-suffix="+">0+</span>
+            <span class="hss-label">Happy Travelers</span>
+          </div>
+          <div class="hss-divider"></div>
+          <div class="hss-item">
+            <span class="hss-num" data-count="12">0</span>
+            <span class="hss-label">Destinations</span>
+          </div>
+          <div class="hss-divider"></div>
+          <div class="hss-item">
+            <span class="hss-num" data-count="8">0</span>
+            <span class="hss-label">Years in Business</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Floating card -->
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="hero-float-card">
+          <div class="hfc-route">
+            <div class="hfc-airport">
+              <div class="hfc-code">GLK</div>
+              <div class="hfc-city">Galkacyo</div>
+            </div>
+            <div class="hfc-plane-line">
+              <div class="hfc-line"></div>
+              <div class="hfc-plane-icon"><i class="fas fa-plane"></i></div>
+            </div>
+            <div class="hfc-airport" style="text-align:right;">
+              <div class="hfc-code">MGQ</div>
+              <div class="hfc-city">Mogadishu</div>
+            </div>
+          </div>
+          <div class="hfc-detail-row">
+            <div class="hfc-detail">
+              <div class="hfc-detail-label">Departure</div>
+              <div class="hfc-detail-val">06:30 AM</div>
+            </div>
+            <div class="hfc-detail">
+              <div class="hfc-detail-label">Arrival</div>
+              <div class="hfc-detail-val">07:30 AM</div>
+            </div>
+            <div class="hfc-detail">
+              <div class="hfc-detail-label">Duration</div>
+              <div class="hfc-detail-val">1h 00m</div>
+            </div>
+            <div class="hfc-detail">
+              <div class="hfc-detail-label">Class</div>
+              <div class="hfc-detail-val">Economy</div>
+            </div>
+          </div>
+          <div class="hfc-price-row">
+            <div>
+              <div style="font-size:0.72rem;color:rgba(255,255,255,0.45);margin-bottom:0.1rem;">Starting from</div>
+              <div class="hfc-price">$85 <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);font-weight:400;">/ person</span></div>
+            </div>
+            <a href="booking.html" class="hfc-book-btn">Book Now →</a>
+          </div>
+        </div>
+
+        <!-- Mini cargo card -->
+        <div style="background:rgba(255,255,255,0.06);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 1.3rem;margin-top:0.9rem;display:flex;align-items:center;gap:1rem;animation:cardFloat 7s 2s ease-in-out infinite;">
+          <div style="width:40px;height:40px;background:rgba(254,230,133,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:1.1rem;flex-shrink:0;">
+            <i class="fas fa-box"></i>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);">Latest Cargo Dispatch</div>
+            <div style="font-size:0.88rem;color:var(--white);font-weight:600;margin-top:0.1rem;">#MID-CRG-7841 · GLK → MGQ</div>
+          </div>
+          <div style="background:rgba(34,197,94,0.15);color:#4ade80;font-size:0.72rem;font-weight:700;padding:0.25rem 0.75rem;border-radius:50px;">In Transit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <i class="fas fa-chevron-down"></i>
+    <span>scroll to explore</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FLIGHT SEARCH STRIP
+═══════════════════════════════════════════════ -->
+<section style="background:var(--cream);padding:0 0 5rem;">
+  <div class="container">
+    <form id="homeSearchForm" class="search-strip" data-aos="fade-up" novalidate>
+      <div class="search-strip-tabs" role="tablist" aria-label="Trip type">
+        <button type="button" class="sst-tab active" data-trip="oneway" role="tab" aria-selected="true">
+          <i class="fas fa-plane me-1"></i>One Way
+        </button>
+        <button type="button" class="sst-tab" data-trip="roundtrip" role="tab" aria-selected="false">
+          <i class="fas fa-exchange-alt me-1"></i>Round Trip
+        </button>
+        <button type="button" class="sst-tab" data-trip="cargo" role="tab" aria-selected="false">
+          <i class="fas fa-box me-1"></i>Cargo
+        </button>
+      </div>
+      <div class="search-field-group" id="homeSearchFields">
+        <div class="search-field">
+          <label class="sf-label" for="homeSearchFrom">From</label>
+          <div class="sf-input-wrap">
+            <i class="fas fa-plane-departure sf-icon"></i>
+            <select id="homeSearchFrom" class="sf-input" required>
+              <option value="">Loading…</option>
+            </select>
+          </div>
+        </div>
+        <div class="search-field">
+          <label class="sf-label" for="homeSearchTo">To</label>
+          <div class="sf-input-wrap">
+            <i class="fas fa-plane-arrival sf-icon"></i>
+            <select id="homeSearchTo" class="sf-input" required>
+              <option value="">Loading…</option>
+            </select>
+          </div>
+        </div>
+        <div class="search-field" id="homeDepartField">
+          <label class="sf-label" for="homeSearchDepart" id="homeDepartLabel">Departure</label>
+          <div class="sf-input-wrap">
+            <i class="fas fa-calendar-alt sf-icon"></i>
+            <input type="date" id="homeSearchDepart" class="sf-input" required/>
+          </div>
+        </div>
+        <div class="search-field search-field--return is-hidden" id="homeReturnField">
+          <label class="sf-label" for="homeSearchReturn">Return</label>
+          <div class="sf-input-wrap">
+            <i class="fas fa-calendar-check sf-icon"></i>
+            <input type="date" id="homeSearchReturn" class="sf-input"/>
+          </div>
+        </div>
+        <div class="search-field" id="homePassengersField">
+          <label class="sf-label" for="homeSearchPassengers">Passengers</label>
+          <div class="sf-input-wrap">
+            <i class="fas fa-user sf-icon"></i>
+            <select id="homeSearchPassengers" class="sf-input">
+              <option value="1" selected>1 Passenger</option>
+              <option value="2">2 Passengers</option>
+              <option value="3">3 Passengers</option>
+              <option value="4">4 Passengers</option>
+              <option value="5">5 Passengers</option>
+              <option value="6">6+ Passengers</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn-search-main" id="homeSearchBtn">
+          <i class="fas fa-search" id="homeSearchBtnIcon"></i>
+          <span id="homeSearchBtnText">Search Flights</span>
+        </button>
+      </div>
+      <p class="home-search-error is-hidden" id="homeSearchError" role="alert"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     STATISTICS
+═══════════════════════════════════════════════ -->
+<section class="stats-section section-pad">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-card-fancy">
+          <div class="scf-icon"><i class="fas fa-users"></i></div>
+          <div class="scf-num" data-count="5000" data-suffix="+">0+</div>
+          <div class="scf-label">Happy Travelers Served</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card-fancy">
+          <div class="scf-icon"><i class="fas fa-route"></i></div>
+          <div class="scf-num" data-count="12">0</div>
+          <div class="scf-label">Domestic Destinations</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-card-fancy">
+          <div class="scf-icon"><i class="fas fa-box"></i></div>
+          <div class="scf-num" data-count="2400" data-suffix="+">0+</div>
+          <div class="scf-label">Cargo Shipments Handled</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-card-fancy">
+          <div class="scf-icon"><i class="fas fa-award"></i></div>
+          <div class="scf-num" data-count="8">0</div>
+          <div class="scf-label">Years of Excellence</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     SERVICES SECTION
+═══════════════════════════════════════════════ -->
+<section class="services-section section-pad" id="services">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-6 text-center" data-aos="fade-up">
+        <div class="section-eyebrow mx-auto">Our Services</div>
+        <h2 class="section-title mt-2">Everything You Need<br/><em>in One Place</em></h2>
+        <p class="section-desc mx-auto text-center">We handle your travel needs from flight booking to cargo delivery, all from our Galkacyo office.</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="service-card">
+          <div class="sc-icon-wrap"><i class="fas fa-plane-departure"></i></div>
+          <h4>Domestic Flight Booking</h4>
+          <p>Book seats on Jubba Airways, Daallo Airlines, and African Express for all major Somali routes including GLK, MGQ, BSY, HGA, and more.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="service-card">
+          <div class="sc-icon-wrap"><i class="fas fa-box-open"></i></div>
+          <h4>Cargo Shipping</h4>
+          <p>Send packages, documents, electronics, or bulk goods across Somalia. Fast and safe delivery with real-time tracking on every shipment.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="150">
+        <div class="service-card">
+          <div class="sc-icon-wrap"><i class="fas fa-map-marker-alt"></i></div>
+          <h4>Live Cargo Tracking</h4>
+          <p>Track your cargo shipments in real-time. Know exactly where your package is — from pickup in Galkacyo to delivery at its destination.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="service-card">
+          <div class="sc-icon-wrap"><i class="fas fa-ticket-alt"></i></div>
+          <h4>Ticket Management</h4>
+          <p>We manage your e-ticket, rescheduling, and cancellation requests. Our team handles all paperwork so you travel stress-free.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="250">
+        <div class="service-card">
+          <div class="sc-icon-wrap"><i class="fas fa-headset"></i></div>
+          <h4>24/7 Support</h4>
+          <p>Our team is always available by phone and WhatsApp to assist with bookings, tracking updates, and any travel-related queries.</p>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
+        <div class="service-card">
+          <div class="sc-icon-wrap"><i class="fas fa-shield-alt"></i></div>
+          <h4>Secure & Reliable</h4>
+          <p>All transactions are handled with care. Your booking information and cargo are secure with us from start to finish.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     QUICK CARGO TRACKING
+═══════════════════════════════════════════════ -->
+<section class="tracking-cta-section section-pad" id="track">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="tracking-box">
+          <div class="section-eyebrow light mx-0"><i class="fas fa-radar me-1"></i> Live Tracking</div>
+          <h2 class="section-title light mt-2">Track Your<br/>Cargo Shipment</h2>
+          <p class="section-desc light mt-2">Enter your tracking ID to see the real-time status of your cargo anywhere in Somalia.</p>
+          <div class="track-input-group">
+            <input type="text" id="homeTrackInput" class="track-input" placeholder="Enter Tracking ID  e.g. MID-CRG-7841"/>
+            <button id="homeTrackBtn" class="btn-gold-custom" style="white-space:nowrap;">
+              <i class="fas fa-search me-1"></i>Track
+            </button>
+          </div>
+          <p style="margin-top:0.8rem;font-size:0.78rem;color:rgba(255,255,255,0.35);">
+            <i class="fas fa-info-circle me-1"></i>Demo ID: MID-CRG-7841
+          </p>
+        </div>
+      </div>
+      <div class="col-lg-6" data-aos="fade-left" data-aos-delay="150">
+        <img src="https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=700&q=80" alt="Cargo logistics" style="width:100%;border-radius:20px;object-fit:cover;height:360px;box-shadow:0 20px 60px rgba(0,0,0,0.18);"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     WHY CHOOSE US
+═══════════════════════════════════════════════ -->
+<section class="why-us-section section-pad" id="about">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-5" data-aos="fade-right">
+        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=700&q=80" alt="Travel agency" style="width:100%;border-radius:20px;object-fit:cover;height:480px;box-shadow:var(--shadow-lg);"/>
+      </div>
+      <div class="col-lg-7" data-aos="fade-left" data-aos-delay="100">
+        <div class="section-eyebrow">Why Mideye?</div>
+        <h2 class="section-title mt-2">Galkacyo's Premier<br/><em>Travel Agency</em></h2>
+        <p class="section-desc">We've been serving travelers in the Mudug region since 2017 — combining local knowledge with reliable service.</p>
+        <div class="mt-4 d-flex flex-column gap-2">
+          <div class="why-item">
+            <div class="why-icon"><i class="fas fa-clock"></i></div>
+            <div>
+              <h5>Fast Booking in Minutes</h5>
+              <p>Book your flight in under 5 minutes through our office, WhatsApp, or this system. Instant confirmation sent to your phone.</p>
+            </div>
+          </div>
+          <div class="why-item">
+            <div class="why-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div>
+              <h5>Competitive Local Prices</h5>
+              <p>We offer the best prices on all domestic routes — no hidden fees, no surprises. Pay in Somali Shilling or USD.</p>
+            </div>
+          </div>
+          <div class="why-item">
+            <div class="why-icon"><i class="fas fa-map-marked-alt"></i></div>
+            <div>
+              <h5>Local Knowledge & Trust</h5>
+              <p>We know Somalia's routes, schedules, and carriers inside out. Trusted by thousands of Galkacyo residents for 8 years.</p>
+            </div>
+          </div>
+          <div class="why-item">
+            <div class="why-icon"><i class="fas fa-phone-alt"></i></div>
+            <div>
+              <h5>Always Reachable</h5>
+              <p>Call, WhatsApp, or walk into our office on Main Street, Galkacyo. We're here whenever you need us.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     DESTINATIONS
+═══════════════════════════════════════════════ -->
+<section style="background:var(--cream);padding:5rem 0;">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-6 text-center" data-aos="fade-up">
+        <div class="section-eyebrow mx-auto">Routes We Cover</div>
+        <h2 class="section-title mt-2">Popular <em>Destinations</em></h2>
+      </div>
+    </div>
+    <div class="row g-4">
+      <!-- Mogadishu -->
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="50">
+        <div style="border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md);position:relative;cursor:pointer;" onclick="window.location.href='booking.html'">
+          <img src="https://images.pexels.com/photos/17732689/pexels-photo-17732689.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Mogadishu city skyline" style="width:100%;height:220px;object-fit:cover;display:block;transition:transform 0.45s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(28,8,3,0.85) 0%,transparent 55%);"></div>
+          <div style="position:absolute;bottom:1.2rem;left:1.3rem;right:1.3rem;">
+            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--white);">Mogadishu</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem;">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">GLK → MGQ · 1h 00m</span>
+              <span style="color:var(--gold);font-weight:800;font-size:1rem;">From $85</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Bosaso -->
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div style="border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md);position:relative;cursor:pointer;" onclick="window.location.href='booking.html'">
+          <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80" alt="Bosaso" style="width:100%;height:220px;object-fit:cover;display:block;transition:transform 0.45s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(28,8,3,0.85) 0%,transparent 55%);"></div>
+          <div style="position:absolute;bottom:1.2rem;left:1.3rem;right:1.3rem;">
+            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--white);">Bosaso</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem;">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">GLK → BSY · 1h 15m</span>
+              <span style="color:var(--gold);font-weight:800;font-size:1rem;">From $70</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Hargeisa -->
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="150">
+        <div style="border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md);position:relative;cursor:pointer;" onclick="window.location.href='booking.html'">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80" alt="Hargeisa" style="width:100%;height:220px;object-fit:cover;display:block;transition:transform 0.45s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(28,8,3,0.85) 0%,transparent 55%);"></div>
+          <div style="position:absolute;bottom:1.2rem;left:1.3rem;right:1.3rem;">
+            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--white);">Hargeisa</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem;">
+              <span style="font-size:0.78rem;color:rgba(255,255,255,0.55);">GLK → HGA · 1h 25m</span>
+              <span style="color:var(--gold);font-weight:800;font-size:1rem;">From $105</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-4" data-aos="fade-up">
+      <a href="booking.html" class="btn-primary-custom">
+        <i class="fas fa-globe-africa me-2"></i>View All Destinations
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════════════════ -->
+<section class="testimonials-section section-pad" id="testimonials">
+  <div class="container">
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-5 text-center" data-aos="fade-up">
+        <div class="section-eyebrow mx-auto">Customer Reviews</div>
+        <h2 class="section-title mt-2">What Our <em>Clients Say</em></h2>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="testi-card">
+          <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="testi-text">"Booked my Mogadishu flight in 10 minutes. The team at Mideye was so helpful and the price was exactly as stated. Will definitely use them again."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">AH</div>
+            <div>
+              <div class="testi-name">Ahmed Hassan</div>
+              <div class="testi-loc"><i class="fas fa-map-marker-alt me-1" style="font-size:0.7rem;"></i>Galkacyo, Mudug</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="testi-card">
+          <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <p class="testi-text">"I ship goods from Galkacyo to Mogadishu every week. Mideye's cargo service is fast, honest, and I can track my shipment at any time. Highly recommended."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">HO</div>
+            <div>
+              <div class="testi-name">Hodan Osman</div>
+              <div class="testi-loc"><i class="fas fa-map-marker-alt me-1" style="font-size:0.7rem;"></i>Galkacyo, Mudug</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="150">
+        <div class="testi-card">
+          <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+          <p class="testi-text">"The online system is easy to use and very clear. I was able to book tickets for my whole family without any confusion. Excellent service!"</p>
+          <div class="testi-author">
+            <div class="testi-avatar">OY</div>
+            <div>
+              <div class="testi-name">Omar Yusuf</div>
+              <div class="testi-loc"><i class="fas fa-map-marker-alt me-1" style="font-size:0.7rem;"></i>Dhusamareb, Galgaduud</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     CTA BANNER
+═══════════════════════════════════════════════ -->
+<section style="background:linear-gradient(135deg,var(--brown-dark),var(--brown),var(--brown-mid));padding:5rem 0;position:relative;overflow:hidden;" data-aos="fade-up">
+  <div style="position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(254,230,133,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+  <div class="container text-center" style="position:relative;z-index:1;">
+    <div class="section-eyebrow light mx-auto">Ready to Travel?</div>
+    <h2 class="section-title light mt-2 mb-3">Book Your Flight <em style="color:var(--gold);">Today</em></h2>
+    <p style="color:rgba(255,255,255,0.6);max-width:500px;margin:0 auto 2.5rem;line-height:1.75;">
+      Contact Mideye Travel Agency in Galkacyo or book online. Fast, easy, and trusted by thousands.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="booking.html" class="btn-gold-custom"><i class="fas fa-plane-departure me-2"></i>Book a Flight</a>
+      <a href="cargo.html" class="btn-outline-custom"><i class="fas fa-box me-2"></i>Send Cargo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Brand -->
+      <div class="col-lg-4 footer-brand-col">
+        <div class="footer-brand"><i class="fas fa-plane me-2"></i>Mideye</div>
+        <p class="footer-desc">Galkacyo's trusted travel agency since 2017. Serving the Mudug region and all of Somalia with domestic flight booking and cargo management.</p>
+        <div class="footer-socials">
+          <a href="#" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="footer-social-btn"><i class="fab fa-whatsapp"></i></a>
+          <a href="#" class="footer-social-btn"><i class="fab fa-telegram-plane"></i></a>
+          <a href="#" class="footer-social-btn"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+      <!-- Quick Links -->
+      <div class="col-sm-6 col-lg-2">
+        <div class="footer-heading">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="index.html"><i class="fas fa-chevron-right me-1" style="font-size:0.65rem;"></i>Home</a></li>
+          <li><a href="booking.html"><i class="fas fa-chevron-right me-1" style="font-size:0.65rem;"></i>Book Flight</a></li>
+          <li><a href="cargo.html"><i class="fas fa-chevron-right me-1" style="font-size:0.65rem;"></i>Cargo Services</a></li>
+          <li><a href="tracking.html"><i class="fas fa-chevron-right me-1" style="font-size:0.65rem;"></i>Track Cargo</a></li>
+          <li><a href="login.html"><i class="fas fa-chevron-right me-1" style="font-size:0.65rem;"></i>Login</a></li>
+          <li><a href="admin.html"><i class="fas fa-chevron-right me-1" style="font-size:0.65rem;"></i>Admin</a></li>
+        </ul>
+      </div>
+      <!-- Routes -->
+      <div class="col-sm-6 col-lg-2">
+        <div class="footer-heading">Our Routes</div>
+        <ul class="footer-links">
+          <li><a href="booking.html"><i class="fas fa-plane me-1" style="font-size:0.65rem;opacity:0.5;"></i>GLK → Mogadishu</a></li>
+          <li><a href="booking.html"><i class="fas fa-plane me-1" style="font-size:0.65rem;opacity:0.5;"></i>GLK → Bosaso</a></li>
+          <li><a href="booking.html"><i class="fas fa-plane me-1" style="font-size:0.65rem;opacity:0.5;"></i>GLK → Hargeisa</a></li>
+          <li><a href="booking.html"><i class="fas fa-plane me-1" style="font-size:0.65rem;opacity:0.5;"></i>GLK → Garowe</a></li>
+          <li><a href="booking.html"><i class="fas fa-plane me-1" style="font-size:0.65rem;opacity:0.5;"></i>GLK → Kismayo</a></li>
+        </ul>
+      </div>
+      <!-- Contact -->
+      <div class="col-lg-4">
+        <div class="footer-heading">Contact Us</div>
+        <div class="footer-contact-item">
+          <div class="fci-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <span>Main Street, Galkacyo, Mudug Region, Somalia</span>
+        </div>
+        <div class="footer-contact-item">
+          <div class="fci-icon"><i class="fas fa-phone-alt"></i></div>
+          <span>+252 907 816567</span>
+        </div>
+        <div class="footer-contact-item">
+          <div class="fci-icon"><i class="fab fa-whatsapp"></i></div>
+          <span>WhatsApp: <a href="https://wa.me/252907816567" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">+252 907 816567</a></span>
+        </div>
+        <div class="footer-contact-item">
+          <div class="fci-icon"><i class="fas fa-envelope"></i></div>
+          <span>info@mideye.so</span>
+        </div>
+        <div class="footer-contact-item">
+          <div class="fci-icon"><i class="fas fa-clock"></i></div>
+          <span>Mon–Sat: 8:00 AM – 6:00 PM<br/>Sunday: 9:00 AM – 2:00 PM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <span>© 2025 Mideye Travel Agency, Galkacyo · All rights reserved.</span>
+      <div style="display:flex;gap:1.5rem;">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Floating WhatsApp -->
+<a
+  href="#"
+  class="whatsapp-float"
+  id="whatsappFloatBtn"
+  aria-label="Chat on WhatsApp +252907816567"
+  title="WhatsApp Support: +252907816567"
+>
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- Support contact modal (saves ticket → opens WhatsApp) -->
+<div id="supportContactModal" class="support-modal" role="dialog" aria-modal="true" aria-labelledby="supportModalTitle">
+  <div class="support-modal__card">
+    <button type="button" class="support-modal__close" id="supportModalClose" aria-label="Close">&times;</button>
+    <div class="support-modal__head">
+      <i class="fab fa-whatsapp"></i>
+      <h2 id="supportModalTitle">Contact Mideye Travel</h2>
+      <p>Geli codsigaaga — waxaa lagu soo bandhigi doonaa Support dashboard-ka admin.</p>
+    </div>
+    <form id="supportContactForm">
+      <div class="support-modal__field">
+        <label for="support-name">Magacaaga *</label>
+        <input type="text" id="support-name" placeholder="Tusaale: Ahmed Hassan" required />
+      </div>
+      <div class="support-modal__field">
+        <label for="support-phone">WhatsApp Number *</label>
+        <input type="tel" id="support-phone" placeholder="+252 90 1234567" required />
+      </div>
+      <div class="support-modal__field">
+        <label for="support-message">Fariintaada *</label>
+        <textarea id="support-message" rows="4" placeholder="Maxaad u baahan tahay caawimaad?" required></textarea>
+      </div>
+      <p id="support-form-error" class="support-modal__error"></p>
+      <button type="submit" class="support-modal__submit" id="support-submit-btn">
+        <i class="fab fa-whatsapp"></i> Send &amp; Open WhatsApp
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="../js/config.js?v=20260625e"></script>
+<script src="../js/cities.js?v=20260625e"></script>
+<script src="../js/support-contact.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="../js/main.js"></script>
+</body>
+</html>

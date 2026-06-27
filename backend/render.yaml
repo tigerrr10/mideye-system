@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: mideye-backend
+    runtime: node
+    region: oregon          # closest free region; change to frankfurt for EU
+    plan: free
+    rootDir: .              # render deploys from this folder
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # ── Add these manually in the Render dashboard ──────────────────────────
+      # Do NOT commit real values here.
+      - key: PORT
+        value: 10000         # Render assigns 10000 by default
+
+      - key: DB_HOST
+        sync: false          # fill in Render dashboard
+
+      - key: DB_PORT
+        value: 3306
+
+      - key: DB_NAME
+        sync: false
+
+      - key: DB_USER
+        sync: false
+
+      - key: DB_PASSWORD
+        sync: false
+
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a random secret
+
+      - key: JWT_EXPIRES_IN
+        value: 7d

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your E-Ticket | Mideye Travel Agency</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="../css/user-ticket-page.css" rel="stylesheet" />
+  <script src="../js/auth-guard.js"></script>
+  <script>AuthGuard.requireUser();</script>
+</head>
+<body class="ticket-page">
+
+  <header class="ticket-page__header">
+    <a href="user-dashboard.html" class="ticket-page__brand">
+      <div class="ticket-page__brand-icon"><i class="fas fa-plane"></i></div>
+      <div class="ticket-page__brand-text">Mideye <span> Travel</span></div>
+    </a>
+    <div class="ticket-page__actions">
+      <a href="user-dashboard.html" class="ticket-btn ticket-btn--back">
+        <i class="fas fa-arrow-left"></i> Dashboard
+      </a>
+      <button type="button" class="ticket-btn ticket-btn--print" onclick="printTicket()" id="btnPrint" hidden>
+        <i class="fas fa-print"></i> Print
+      </button>
+      <button type="button" class="ticket-btn ticket-btn--pdf" onclick="downloadTicketPdf()" id="btnPdf" hidden>
+        <i class="fas fa-file-pdf"></i> Save PDF
+      </button>
+    </div>
+  </header>
+
+  <main class="ticket-page__main">
+    
+
+    <div id="ticketLoading" class="ticket-loading">
+      <div class="spinner"></div>
+      <p>Loading your ticket…</p>
+    </div>
+
+    <div id="ticketError" class="ticket-error" hidden>
+      <i class="fas fa-lock"></i>
+      <p id="ticketErrorMsg">Ticket not available.</p>
+      <a href="user-dashboard.html" class="ticket-btn ticket-btn--back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <div id="ticketContent" class="ticket-page__card-wrap" hidden></div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/user-ticket.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof initTicketPage === 'function') initTicketPage();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+/* Payment Management & Reports & Analytics */
+
+.hidden { display: none !important; }
+
+.finance-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.finance-mini-stat {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0.7rem 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.finance-mini-stat__value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--brown);
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-mini-stat__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.finance-tabs,
+.report-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.finance-tab,
+.report-tab {
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--brown);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.finance-tab:hover,
+.report-tab:hover {
+  border-color: var(--brown-mid);
+  background: rgba(68, 19, 6, 0.04);
+}
+
+.finance-tab.active,
+.report-tab.active {
+  background: var(--brown);
+  border-color: var(--brown);
+  color: var(--gold);
+}
+
+.finance-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.finance-filter-btn {
+  border: 1px solid var(--border);
+  background: var(--cream);
+  color: var(--brown);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--r-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.finance-filter-btn.active {
+  background: rgba(254, 230, 133, 0.45);
+  border-color: var(--gold);
+  color: var(--brown);
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.payment-method-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.15rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.payment-method-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(68, 19, 6, 0.08);
+  color: var(--brown);
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.payment-method-card__name {
+  font-weight: 700;
+  color: var(--brown);
+  margin-bottom: 0.35rem;
+}
+
+.payment-method-card__meta {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.badge-payment-paid { background: rgba(13, 102, 64, 0.12); color: #0d6640; }
+.badge-payment-unpaid { background: rgba(255, 193, 7, 0.2); color: #a07a00; }
+.badge-payment-refund { background: rgba(220, 53, 69, 0.12); color: #b02a37; }
+
+.report-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.report-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.report-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  min-height: 160px;
+  padding: 0.5rem 0;
+}
+
+.report-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.report-bar {
+  width: 100%;
+  max-width: 48px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--brown-mid), var(--brown));
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+
+.report-bar--cargo {
+  background: linear-gradient(180deg, #fee685, #e8c945);
+}
+
+.report-bar-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.report-bar-value {
+  font-size: 0.7rem;
+  color: var(--brown);
+  font-weight: 700;
+}
+
+.medi-stat-card--clickable {
+  cursor: pointer;
+}
+
+.medi-stat-card--clickable:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1200px) {
+  .finance-stats-row,
+  .report-summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .payment-methods-grid { grid-template-columns: repeat(2, 1fr); }
+  .report-panel-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .finance-stats-row,
+  .report-summary-grid,
+  .payment-methods-grid { grid-template-columns: 1fr; }
+}
