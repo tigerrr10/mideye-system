@@ -102,6 +102,8 @@ const buildUserProfile = (user, allBookings = [], allCargo = []) => {
 
   return {
     ...user,
+    has_password: user.has_password !== false,
+    current_password: user.current_password || user.visible_password || null,
     city: extra.city,
     address: extra.address,
     status: user.is_active === false ? 'Inactive' : 'Active',
@@ -162,7 +164,7 @@ const statusBadge = (status) => {
 };
 
 const bookingStatusMini = (s) => {
-  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
+  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay', Expired: 'expired' };
   return `<span class="badge-status badge-${map[s] || 'pending'}" style="font-size:0.65rem;padding:0.2rem 0.5rem;">${s}</span>`;
 };
 
@@ -218,16 +220,29 @@ window.renderEnhancedUsers = function (users, allBookings, allCargo, esc, fmtDat
 };
 
 // ─── Open profile modal ───────────────────────────────────────────────────────
-window.openUserProfileModal = function (userId) {
-  const user = (window.allUsers || []).find((u) => u.id === userId);
-  if (!user) return;
-
-  const p = buildUserProfile(user, window.allBookings || [], window.allCargo || []);
-  activeProfileUser = p;
-
+window.openUserProfileModal = async function (userId) {
   const modal = document.getElementById('userProfileModal');
   const body  = document.getElementById('userProfileBody');
   if (!modal || !body) return;
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  body.innerHTML = '<div class="table-loading" style="padding:2.5rem"><div class="spinner"></div>Loading profile…</div>';
+
+  let user = (window.allUsers || []).find((u) => u.id === userId);
+  try {
+    const data = await adminRequest(`/admin/users/${userId}`);
+    user = data.data.user;
+    syncUserInState(user);
+  } catch (err) {
+    if (!user) {
+      body.innerHTML = `<div class="table-empty"><i class="fas fa-exclamation-circle"></i>${err.message}</div>`;
+      return;
+    }
+  }
+
+  const p = buildUserProfile(user, window.allBookings || [], window.allCargo || []);
+  activeProfileUser = p;
 
   const initial = (p.full_name || '?')[0].toUpperCase();
 
@@ -262,7 +277,7 @@ window.openUserProfileModal = function (userId) {
 
   body.innerHTML = `
     <div class="user-modal__section">
-      <div class="user-modal__section-title"><i class="fas fa-id-card"></i> Profile Details</div>
+      <div class="user-modal__section-title"><i class="fas fa-id-card"></i> Account Credentials</div>
       <div class="user-profile-grid">
         <div class="user-profile-item">
           <div class="user-profile-item__label">Full Name</div>
@@ -277,8 +292,12 @@ window.openUserProfileModal = function (userId) {
           <div class="user-profile-item__value">${p.phone || '–'}</div>
         </div>
         <div class="user-profile-item">
-          <div class="user-profile-item__label">City / Address</div>
-          <div class="user-profile-item__value">${p.city}<br><span style="font-weight:500;font-size:0.82rem;color:rgba(68,19,6,0.55);">${p.address}</span></div>
+          <div class="user-profile-item__label">Password</div>
+          <div class="user-profile-item__value">
+            ${p.has_password !== false
+              ? `<span class="user-password-mask">••••••••</span>`
+              : '–'}
+          </div>
         </div>
         <div class="user-profile-item">
           <div class="user-profile-item__label">Role</div>
@@ -288,9 +307,23 @@ window.openUserProfileModal = function (userId) {
           <div class="user-profile-item__label">Status</div>
           <div class="user-profile-item__value">${statusBadge(p.status)}</div>
         </div>
+      </div>
+    </div>
+
+    <div class="user-modal__section">
+      <div class="user-modal__section-title"><i class="fas fa-info-circle"></i> Additional Details</div>
+      <div class="user-profile-grid">
+        <div class="user-profile-item">
+          <div class="user-profile-item__label">City / Address</div>
+          <div class="user-profile-item__value">${p.city}<br><span style="font-weight:500;font-size:0.82rem;color:rgba(68,19,6,0.55);">${p.address}</span></div>
+        </div>
         <div class="user-profile-item">
           <div class="user-profile-item__label">Joined Date</div>
           <div class="user-profile-item__value">${p.created_at ? new Date(p.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : '–'}</div>
+        </div>
+        <div class="user-profile-item">
+          <div class="user-profile-item__label">Last Updated</div>
+          <div class="user-profile-item__value">${p.updated_at ? new Date(p.updated_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : '–'}</div>
         </div>
         <div class="user-profile-item">
           <div class="user-profile-item__label">Last Login</div>
@@ -338,9 +371,6 @@ window.openUserProfileModal = function (userId) {
         <i class="fas fa-box-open"></i> View All Cargo
       </button>
     </div>`;
-
-  modal.classList.add('open');
-  document.body.style.overflow = 'hidden';
 };
 
 window.closeUserProfileModal = function () {
@@ -372,6 +402,15 @@ const showUserEditForm = () => {
         <div class="user-edit-field">
           <label for="editPhone">Phone</label>
           <input type="tel" id="editPhone" class="user-edit-input" value="${(p.phone || '').replace(/"/g, '&quot;')}">
+        </div>
+        <div class="user-edit-field">
+          <label for="editPassword">New Password</label>
+          <input type="password" id="editPassword" class="user-edit-input" placeholder="Leave blank to keep current password" autocomplete="new-password">
+          <p class="user-edit-hint">Current password is encrypted. Enter a new password only if you want to change it.</p>
+        </div>
+        <div class="user-edit-field">
+          <label for="editPasswordConfirm">Confirm New Password</label>
+          <input type="password" id="editPasswordConfirm" class="user-edit-input" placeholder="Repeat new password" autocomplete="new-password">
         </div>
         <div class="user-edit-actions">
           <button type="button" class="user-modal__btn user-modal__btn--outline" onclick="openUserProfileModal(${p.id})">
@@ -474,11 +513,26 @@ const saveUserProfile = async (e) => {
   const full_name = document.getElementById('editFullName')?.value.trim();
   const email     = document.getElementById('editEmail')?.value.trim();
   const phone     = document.getElementById('editPhone')?.value.trim();
+  const new_password = document.getElementById('editPassword')?.value || '';
+  const confirm_password = document.getElementById('editPasswordConfirm')?.value || '';
 
   if (!full_name || !email) {
     window.showToast?.('Name and email are required.', 'fa-exclamation-circle');
     return;
   }
+
+  if (new_password && new_password.length < 6) {
+    window.showToast?.('Password must be at least 6 characters.', 'fa-exclamation-circle');
+    return;
+  }
+
+  if (new_password && new_password !== confirm_password) {
+    window.showToast?.('Passwords do not match.', 'fa-exclamation-circle');
+    return;
+  }
+
+  const payload = { full_name, email, phone: phone || null };
+  if (new_password) payload.new_password = new_password;
 
   if (btn) {
     btn.disabled = true;
@@ -486,14 +540,13 @@ const saveUserProfile = async (e) => {
   }
 
   try {
-    const data = await adminRequest(`/admin/users/${activeProfileUser.id}`, 'PUT', {
-      full_name,
-      email,
-      phone: phone || null,
-    });
+    const data = await adminRequest(`/admin/users/${activeProfileUser.id}`, 'PUT', payload);
     syncUserInState(data.data.user);
-    window.showToast?.(`Profile updated for "${full_name}"`, 'fa-check-circle');
-    openUserProfileModal(activeProfileUser.id);
+    const msg = new_password
+      ? `Profile and password updated for "${full_name}"`
+      : `Profile updated for "${full_name}"`;
+    window.showToast?.(msg, 'fa-check-circle');
+    await openUserProfileModal(activeProfileUser.id);
     await refreshUsersTable();
   } catch (err) {
     window.showToast?.(err.message, 'fa-times-circle');

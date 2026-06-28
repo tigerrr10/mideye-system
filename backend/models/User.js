@@ -33,6 +33,10 @@ const User = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
+    visible_password: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+    },
     role: {
       type: DataTypes.ENUM('user', 'admin', 'staff'),
       defaultValue: 'user',

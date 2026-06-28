@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   getAllUsers,
+  getUserById,
   getAllBookings,
   getAllCargo,
   getDashboardStats,
@@ -46,6 +47,7 @@ router.get('/support', staffOrAdmin, getAllSupportTickets);
 router.patch('/support/:id/status', staffOrAdmin, updateSupportTicketStatus);
 
 router.get('/users', adminOnly, getAllUsers);
+router.get('/users/:id', adminOnly, getUserById);
 router.put('/users/:id', adminOnly, updateUser);
 router.patch('/users/:id/role', adminOnly, updateUserRole);
 router.patch('/users/:id/status', adminOnly, updateUserStatus);

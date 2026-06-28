@@ -6,8 +6,6 @@
 
 const CARGO_STATUSES = [
   'Pending',
-  'Confirmed',
-  'Received',
   'Processing',
   'In Transit',
   'Arrived',
@@ -20,8 +18,6 @@ const CARGO_WORKFLOW_STEPS = CARGO_STATUSES.filter((s) => s !== 'Cancelled');
 
 const CARGO_STATUS_BADGE_CLASS = {
   Pending: 'cargo-pending',
-  Confirmed: 'cargo-confirmed',
-  Received: 'cargo-received',
   Processing: 'cargo-processing',
   'In Transit': 'cargo-in-transit',
   Arrived: 'cargo-arrived',

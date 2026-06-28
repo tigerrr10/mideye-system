@@ -16,7 +16,6 @@
     address: 'Main Street, Galkacyo, Somalia',
     office_hours: 'Sat–Thu: 8:00 AM – 6:00 PM',
     currency: 'USD',
-    sms_enabled: true,
     email_alerts: true,
   };
 
@@ -29,7 +28,6 @@
     { module: 'Cities', admin: true, staff: true, agent: false },
     { module: 'Payments', admin: true, staff: true, agent: false },
     { module: 'Reports', admin: true, staff: false, agent: false },
-    { module: 'Notifications', admin: true, staff: true, agent: false },
     { module: 'Support', admin: true, staff: true, agent: true },
     { module: 'Settings', admin: true, staff: false, agent: false },
   ];
@@ -77,9 +75,7 @@
       const el = document.getElementById(id);
       if (el) el.value = val || '';
     });
-    const sms = document.getElementById('set-sms-enabled');
     const email = document.getElementById('set-email-alerts');
-    if (sms) sms.checked = s.sms_enabled !== false;
     if (email) email.checked = s.email_alerts !== false;
   };
 
@@ -138,7 +134,6 @@
       address: document.getElementById('set-address')?.value?.trim(),
       office_hours: document.getElementById('set-hours')?.value?.trim(),
       currency: document.getElementById('set-currency')?.value || 'USD',
-      sms_enabled: document.getElementById('set-sms-enabled')?.checked,
       email_alerts: document.getElementById('set-email-alerts')?.checked,
     };
     saveSettings(data);

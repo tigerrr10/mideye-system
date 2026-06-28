@@ -1,8 +1,6 @@
 /** Canonical cargo shipment workflow statuses (shared across API + DB). */
 const CARGO_STATUSES = [
   'Pending',
-  'Confirmed',
-  'Received',
   'Processing',
   'In Transit',
   'Arrived',

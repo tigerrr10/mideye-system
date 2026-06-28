@@ -21,7 +21,7 @@ const formatDateTime = (value) => {
 };
 
 const getWorkflowSteps = () => CS().CARGO_WORKFLOW_STEPS || [
-  'Pending', 'Confirmed', 'Received', 'Processing',
+  'Pending', 'Processing',
   'In Transit', 'Arrived', 'Ready for Pickup', 'Delivered',
 ];
 
@@ -33,8 +33,6 @@ const getStatusLabel = (status) => CS().cargoStatusLabel?.(status) || status;
 
 const PIPELINE_ICONS = {
   Pending: 'fa-clock',
-  Confirmed: 'fa-check',
-  Received: 'fa-inbox',
   Processing: 'fa-cogs',
   'In Transit': 'fa-plane',
   Arrived: 'fa-map-marker-alt',

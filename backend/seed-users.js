@@ -40,6 +40,7 @@ const run = async () => {
       await User.create({
         ...u,
         password: hashedPassword,
+        visible_password: DEMO_PASSWORD,
         role: 'user',
       });
       created++;

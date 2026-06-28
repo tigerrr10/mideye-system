@@ -81,10 +81,6 @@
     </a>
 
     <div class="sidebar-section-label">Communication</div>
-    <a class="nav-item-link" data-section="notifications" onclick="navigate('notifications', this)">
-      <span class="nav-icon"><i class="fab fa-whatsapp"></i></span>
-      Notifications
-    </a>
     <a class="nav-item-link" data-section="support" onclick="navigate('support', this)">
       <span class="nav-icon"><i class="fas fa-headset"></i></span>
       Support
@@ -134,22 +130,12 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-dropdown-wrap">
-        <button type="button" class="medi-icon-btn" id="btnNotifications" title="Notifications" aria-expanded="false" aria-haspopup="true">
-          <i class="far fa-bell"></i>
-          <span class="topbar-badge" id="notifBadge" hidden>0</span>
-        </button>
-        <div class="topbar-dropdown" id="dropdownNotifications" hidden>
-          <div class="topbar-dropdown__head">Notifications</div>
-          <div class="topbar-dropdown__body" id="notifList"></div>
-          <button type="button" class="topbar-dropdown__foot" onclick="navigate('notifications', document.querySelector('[data-section=notifications]')); closeTopbarDropdowns();">Send WhatsApp updates</button>
-        </div>
-      </div>
-      <div class="topbar-dropdown-wrap">
-        <button type="button" class="medi-icon-btn" id="btnMessages" title="Messages" aria-expanded="false" aria-haspopup="true">
+        <button type="button" class="medi-icon-btn" id="btnMessages" title="User activity" aria-expanded="false" aria-haspopup="true">
           <i class="far fa-comment-alt"></i>
+          <span class="topbar-badge" id="activityBadge" hidden>0</span>
         </button>
         <div class="topbar-dropdown" id="dropdownMessages" hidden>
-          <div class="topbar-dropdown__head">Recent Activity</div>
+          <div class="topbar-dropdown__head">User Activity</div>
           <div class="topbar-dropdown__body" id="messagesList"></div>
         </div>
       </div>
@@ -740,65 +726,6 @@
       </div>
     </section>
 
-    <!-- ══ SECTION: NOTIFICATIONS ══ -->
-    <section id="sec-notifications" class="section">
-      <div class="ops-stats-row">
-        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-total">–</div><div class="finance-mini-stat__label">WhatsApp Sent</div></div>
-        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-today">–</div><div class="finance-mini-stat__label">Sent Today</div></div>
-        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-ticket">–</div><div class="finance-mini-stat__label">Ticket Alerts</div></div>
-        <div class="finance-mini-stat"><div class="finance-mini-stat__value" id="notif-stat-cargo">–</div><div class="finance-mini-stat__label">Cargo Alerts</div></div>
-      </div>
-
-      <div class="report-panel-grid">
-        <div class="data-card">
-          <div class="data-card-header"><div class="data-card-title"><i class="fab fa-whatsapp"></i> Send WhatsApp Update</div></div>
-          <div style="padding:0 1.25rem 1.25rem">
-            <div class="ops-form-grid">
-              <div class="ops-form-group">
-                <label for="notif-type">Notification Type</label>
-                <select id="notif-type">
-                  <option value="ticket">E-Ticket Ready</option>
-                  <option value="delay">Flight Updates</option>
-                  <option value="cargo">Cargo Updates</option>
-                  <option value="payment">Payments</option>
-                </select>
-              </div>
-              <div class="ops-form-group">
-                <label for="notif-recipient">Customer</label>
-                <select id="notif-recipient">
-                  <option value="">— Select customer —</option>
-                </select>
-              </div>
-              <div class="ops-form-group">
-                <label for="notif-phone">WhatsApp Number</label>
-                <input type="tel" id="notif-phone" placeholder="252 90 1234567" />
-              </div>
-              <div class="ops-form-group ops-form-group--full">
-                <label for="notif-message">Message</label>
-                <textarea id="notif-message" placeholder="WhatsApp message…"></textarea>
-              </div>
-            </div>
-            <div class="ops-actions">
-              <button type="button" class="btn-whatsapp" onclick="sendWhatsAppNotification()"><i class="fab fa-whatsapp"></i> Send WhatsApp</button>
-            </div>
-          </div>
-        </div>
-        
-      </div>
-
-      <div class="data-card" style="margin-top:1.25rem">
-        <div class="data-card-header"><div class="data-card-title"><i class="fas fa-history"></i> WhatsApp History</div></div>
-        <div class="table-wrap">
-          <table class="admin-table">
-            <thead><tr><th>#</th><th>Type</th><th>Recipient</th><th>Message</th><th>Sent</th><th>Status</th></tr></thead>
-            <tbody id="notif-log-body">
-              <tr><td colspan="6"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
     <!-- ══ SECTION: SUPPORT ══ -->
     <section id="sec-support" class="section">
       <div class="ops-stats-row">
@@ -867,7 +794,6 @@
                 <div class="ops-form-group"><label for="set-currency">Currency</label><select id="set-currency"><option value="USD">USD ($)</option><option value="SOS">SOS (Sh)</option></select></div>
                 <div class="ops-form-group ops-form-group--full"><label for="set-address">Office Address</label><input type="text" id="set-address" /></div>
                 <div class="ops-form-group ops-form-group--full"><label for="set-hours">Office Hours</label><input type="text" id="set-hours" /></div>
-                <div class="ops-form-group"><label><input type="checkbox" id="set-sms-enabled" /> Enable WhatsApp notifications</label></div>
                 <div class="ops-form-group"><label><input type="checkbox" id="set-email-alerts" /> Enable email alerts</label></div>
               </div>
               <div class="ops-actions">
@@ -1102,7 +1028,6 @@
 <script src="../js/admin-cities.js"></script>
 <script src="../js/admin-payments.js"></script>
 <script src="../js/admin-reports.js"></script>
-<script src="../js/admin-notifications.js"></script>
 <script src="../js/admin-support.js"></script>
 <script src="../js/admin-settings.js"></script>
 <script>
@@ -1159,7 +1084,6 @@ const sections = {
   cargo: 'All cargo shipments',
   payments: 'Paid/unpaid invoices, receipts, refunds & payment methods',
   reports: 'Flight, cargo, revenue & customer analytics',
-  notifications: 'Send WhatsApp updates for tickets, delays, cargo & payments',
   support: 'View customer complaints and reply via WhatsApp',
   settings: 'Admin users, roles, permissions & company info',
 };
@@ -1173,7 +1097,6 @@ const sectionTitles = {
   cargo: 'Cargo',
   payments: 'Payments',
   reports: 'Reports',
-  notifications: 'Notifications',
   support: 'Support',
   settings: 'Settings',
 };
@@ -1198,7 +1121,7 @@ function navigate(sectionId, el) {
     refreshFinanceSections(sectionId);
   }
 
-  if (sectionId === 'notifications' || sectionId === 'support' || sectionId === 'settings') {
+  if (sectionId === 'support' || sectionId === 'settings') {
     refreshOpsSections(sectionId);
   }
 
@@ -1248,7 +1171,6 @@ async function refreshOpsSections(activeSection) {
   if ((activeSection === 'settings' || activeSection === 'support') && needsUsers) tasks.push(loadUsers());
   if (tasks.length) await Promise.allSettled(tasks);
 
-  if (activeSection === 'notifications' || !activeSection) window.renderNotificationsSection?.();
   if (activeSection === 'support' || !activeSection) window.renderSupportSection?.();
   if (activeSection === 'settings' || !activeSection) window.renderSettingsSection?.();
 }
@@ -1278,7 +1200,7 @@ function showToast(msg, icon = 'fa-check-circle') {
 
 /* ─── Badge helpers ──────────────────────────────── */
 function bookingBadge(status) {
-  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
+  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay', Expired: 'expired' };
   return `<span class="badge-status badge-${(map[status] || 'pending')}">${status}</span>`;
 }
 function cargoBadge(status) {
@@ -1370,7 +1292,6 @@ async function loadStats() {
     document.getElementById('badge-bookings').textContent = s.total_bookings  ?? '–';
     document.getElementById('badge-flights').textContent  = s.total_flights   ?? '–';
     document.getElementById('badge-cargo').textContent    = s.total_cargo     ?? '–';
-    updateNotificationBadge();
   } catch (e) {
     console.error('Stats error:', e);
     ['users','bookings','cargo','pending','payment','revenue'].forEach(k => {
@@ -1395,6 +1316,7 @@ async function loadUsers() {
     window.renderReportsSection?.();
     window.renderSettingsSection?.();
     window.renderSupportSection?.();
+    renderAdminActivity();
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="10"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load users. Check server connection.</div></td></tr>`;
   }
@@ -1426,11 +1348,10 @@ async function loadBookings() {
     if (allUsers.length) renderUsers(allUsers);
     renderDashBookings(allBookings.slice(0, 5));
     updateMediVisuals();
-    updateNotificationBadge();
     window.renderPaymentsSection?.();
     window.renderReportsSection?.();
-    window.renderNotificationsSection?.();
     window.renderSupportSection?.();
+    renderAdminActivity();
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load bookings.</div></td></tr>`;
     document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
@@ -1502,11 +1423,10 @@ async function loadCargo() {
     if (allUsers.length) renderUsers(allUsers);
     renderDashCargo(allCargo.slice(0, 5));
     updateMediVisuals();
-    updateNotificationBadge();
     window.renderPaymentsSection?.();
     window.renderReportsSection?.();
-    window.renderNotificationsSection?.();
     window.renderSupportSection?.();
+    renderAdminActivity();
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load cargo.</div></td></tr>`;
     document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
@@ -1603,9 +1523,9 @@ function renderDashCargo(shipments) {
 /* ═══════════════════════════════════════════════
    STATUS MODAL
 ═══════════════════════════════════════════════ */
-const bookingStatuses = ['Pending', 'Reject', 'Completed', 'Cancelled', 'Delay'];
+const bookingStatuses = ['Pending', 'Reject', 'Completed', 'Cancelled', 'Delay', 'Expired'];
 const cargoStatuses   = window.CargoStatus?.CARGO_STATUSES || [
-  'Pending', 'Confirmed', 'Received', 'Processing',
+  'Pending', 'Processing',
   'In Transit', 'Arrived', 'Ready for Pickup', 'Delivered', 'Cancelled',
 ];
 
@@ -1801,8 +1721,152 @@ function updateMediVisuals() {
 }
 
 /* ─── Topbar dropdowns ───────────────────────────── */
+/* ─── Topbar user activity (bookings, cargo, registrations) ─── */
+const ADMIN_ACTIVITY_SEEN_KEY = `mideye_admin_activity_seen_${user?.id || 'admin'}`;
+const ADMIN_ACTIVITY_POLL_MS = 30000;
+let lastAdminDataFingerprint = '';
+
+const getAdminActivitySeenAt = () => {
+  const raw = localStorage.getItem(ADMIN_ACTIVITY_SEEN_KEY);
+  return raw ? new Date(raw).getTime() : 0;
+};
+
+const markAdminActivitySeen = () => {
+  localStorage.setItem(ADMIN_ACTIVITY_SEEN_KEY, new Date().toISOString());
+  renderAdminActivity();
+};
+
+const adminActivityFingerprint = () =>
+  [
+    ...allBookings.map((b) => `b:${b.id}:${b.status}:${b.created_at}:${b.ticket_downloaded_at || ''}`),
+    ...allCargo.map((c) => `c:${c.id}:${c.status}:${c.created_at}`),
+    ...allUsers.map((u) => `u:${u.id}:${u.created_at}`),
+  ].join('|');
+
+const buildAdminActivityEvents = () => {
+  const events = [];
+
+  allBookings.forEach((b) => {
+    events.push({
+      id: `booking-new-${b.id}`,
+      sort: new Date(b.created_at).getTime(),
+      activityAt: new Date(b.created_at).getTime(),
+      icon: 'fa-plane-departure',
+      title: `New booking — ${b.passenger_name}`,
+      sub: `${b.origin} → ${b.destination} · ${b.status} · ${fmtDate(b.created_at)}`,
+      action: () => {
+        navigate('bookings', document.querySelector('[data-section=bookings]'));
+        closeTopbarDropdowns();
+      },
+    });
+    if (b.ticket_downloaded_at) {
+      events.push({
+        id: `booking-ticket-${b.id}`,
+        sort: new Date(b.ticket_downloaded_at).getTime(),
+        activityAt: new Date(b.ticket_downloaded_at).getTime(),
+        icon: 'fa-ticket-alt',
+        title: `${b.passenger_name} downloaded E-ticket`,
+        sub: `${b.origin} → ${b.destination} · ${fmtDate(b.ticket_downloaded_at)}`,
+        action: () => {
+          navigate('bookings', document.querySelector('[data-section=bookings]'));
+          closeTopbarDropdowns();
+        },
+      });
+    }
+  });
+
+  allCargo.forEach((c) => {
+    events.push({
+      id: `cargo-new-${c.id}`,
+      sort: new Date(c.created_at).getTime(),
+      activityAt: new Date(c.created_at).getTime(),
+      icon: 'fa-box',
+      title: `New cargo — ${c.tracking_id}`,
+      sub: `${c.sender_name || 'Customer'} → ${c.destination} · ${fmtDate(c.created_at)}`,
+      action: () => {
+        navigate('cargo', document.querySelector('[data-section=cargo]'));
+        closeTopbarDropdowns();
+      },
+    });
+  });
+
+  allUsers.filter((u) => u.role === 'user').forEach((u) => {
+    if (!u.created_at) return;
+    events.push({
+      id: `user-new-${u.id}`,
+      sort: new Date(u.created_at).getTime(),
+      activityAt: new Date(u.created_at).getTime(),
+      icon: 'fa-user-plus',
+      title: `New user — ${u.full_name}`,
+      sub: `${u.email} · ${fmtDate(u.created_at)}`,
+      action: () => {
+        navigate('users', document.querySelector('[data-section=users]'));
+        closeTopbarDropdowns();
+      },
+    });
+  });
+
+  return events.sort((a, b) => b.sort - a.sort).slice(0, 15);
+};
+
+const getUnreadAdminActivity = () => {
+  const seenAt = getAdminActivitySeenAt();
+  return buildAdminActivityEvents().filter((e) => e.activityAt > seenAt);
+};
+
+function renderAdminActivity() {
+  const list = document.getElementById('messagesList');
+  const badge = document.getElementById('activityBadge');
+  if (!list) return;
+
+  const seenAt = getAdminActivitySeenAt();
+  const events = buildAdminActivityEvents();
+  const unreadCount = events.filter((e) => e.activityAt > seenAt).length;
+
+  if (badge) {
+    badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+    badge.hidden = unreadCount === 0;
+  }
+
+  if (!events.length) {
+    list.innerHTML = '<p class="topbar-dropdown__empty">No user activity yet</p>';
+    return;
+  }
+
+  list.innerHTML = events.map((e, i) => `
+    <button type="button" class="topbar-dropdown__item${e.activityAt > seenAt ? ' topbar-dropdown__item--unread' : ''}" data-activity-idx="${i}">
+      <span class="topbar-dropdown__item-icon"><i class="fas ${e.icon}"></i></span>
+      <span>
+        <span class="topbar-dropdown__item-title">${esc(e.title)}</span>
+        <span class="topbar-dropdown__item-sub">${esc(e.sub)}</span>
+      </span>
+    </button>`).join('');
+
+  list.querySelectorAll('[data-activity-idx]').forEach((el) => {
+    el.addEventListener('click', () => events[parseInt(el.dataset.activityIdx, 10)]?.action?.());
+  });
+}
+
+async function pollForUserActivity() {
+  const prev = lastAdminDataFingerprint || adminActivityFingerprint();
+  const tasks = [loadBookings(), loadCargo()];
+  if (user?.role === 'admin') tasks.push(loadUsers());
+  await Promise.allSettled(tasks);
+
+  const next = adminActivityFingerprint();
+  if (prev && next !== prev) {
+    const unread = getUnreadAdminActivity();
+    renderAdminActivity();
+    if (unread.length) {
+      showToast(unread[0].title, 'fa-bell');
+    }
+  } else {
+    renderAdminActivity();
+  }
+  lastAdminDataFingerprint = next;
+}
+
 const topbarDropdowns = [
-  { btn: 'btnNotifications', panel: 'dropdownNotifications' },
   { btn: 'btnMessages', panel: 'dropdownMessages' },
   { btn: 'btnSettings', panel: 'dropdownSettings' },
   { btn: 'btnProfile', panel: 'dropdownProfile' },
@@ -1825,114 +1889,11 @@ function toggleTopbarDropdown(btnId, panelId) {
   if (willOpen) {
     panel.hidden = false;
     btn.setAttribute('aria-expanded', 'true');
-    if (panelId === 'dropdownNotifications') renderNotifications();
-    if (panelId === 'dropdownMessages') renderMessages();
+    if (panelId === 'dropdownMessages') {
+      renderAdminActivity();
+      markAdminActivitySeen();
+    }
   }
-}
-
-function renderNotifications() {
-  const list = document.getElementById('notifList');
-  const badge = document.getElementById('notifBadge');
-  if (!list) return;
-
-  const pendingBookings = allBookings.filter(b => b.status === 'Pending');
-  const receivedCargo = allCargo.filter(c => ['Pending', 'Confirmed', 'Received'].includes(c.status));
-  const ticketDownloads = allBookings
-    .filter(b => b.status === 'Completed' && b.ticket_downloaded_at)
-    .sort((a, b) => new Date(b.ticket_downloaded_at) - new Date(a.ticket_downloaded_at));
-  const items = [
-    ...ticketDownloads.slice(0, 4).map(b => ({
-      icon: 'fa-ticket-alt',
-      title: `${b.passenger_name} has downloaded ticket`,
-      sub: `${b.origin} → ${b.destination} · ${fmtDate(b.ticket_downloaded_at)}`,
-      action: () => navigate('bookings', document.querySelector('[data-section=bookings]')),
-    })),
-    ...pendingBookings.slice(0, 4).map(b => ({
-      icon: 'fa-plane-departure',
-      title: `Pending booking: ${b.passenger_name}`,
-      sub: `${b.origin} → ${b.destination}`,
-      action: () => navigate('bookings', document.querySelector('[data-section=bookings]')),
-    })),
-    ...receivedCargo.slice(0, 3).map(c => ({
-      icon: 'fa-box',
-      title: `New cargo: ${c.tracking_id}`,
-      sub: `To ${c.destination}`,
-      action: () => navigate('cargo', document.querySelector('[data-section=cargo]')),
-    })),
-  ];
-
-  const count = ticketDownloads.length + pendingBookings.length + receivedCargo.length;
-  if (badge) {
-    badge.textContent = count > 9 ? '9+' : String(count);
-    badge.hidden = count === 0;
-  }
-
-  if (!items.length) {
-    list.innerHTML = '<p class="topbar-dropdown__empty">No new notifications</p>';
-    return;
-  }
-
-  list.innerHTML = items.map((item, i) => `
-    <button type="button" class="topbar-dropdown__item" data-notif-idx="${i}">
-      <span class="topbar-dropdown__item-icon"><i class="fas ${item.icon}"></i></span>
-      <span>
-        <span class="topbar-dropdown__item-title">${esc(item.title)}</span>
-        <span class="topbar-dropdown__item-sub">${esc(item.sub)}</span>
-      </span>
-    </button>`).join('');
-
-  list.querySelectorAll('[data-notif-idx]').forEach(el => {
-    el.addEventListener('click', () => {
-      items[parseInt(el.dataset.notifIdx, 10)]?.action?.();
-      closeTopbarDropdowns();
-    });
-  });
-}
-
-function renderMessages() {
-  const list = document.getElementById('messagesList');
-  if (!list) return;
-
-  const events = [
-    ...allBookings.filter(b => b.ticket_downloaded_at).map(b => ({
-      sort: new Date(b.ticket_downloaded_at).getTime(),
-      icon: 'fa-ticket-alt',
-      title: `${b.passenger_name} has downloaded ticket`,
-      sub: `${b.origin} → ${b.destination} · ${fmtDate(b.ticket_downloaded_at)}`,
-    })),
-    ...allBookings.map(b => ({
-      sort: new Date(b.created_at).getTime(),
-      icon: 'fa-plane',
-      title: `Booking — ${b.passenger_name}`,
-      sub: `${b.status} · ${fmtDate(b.created_at)}`,
-    })),
-    ...allCargo.map(c => ({
-      sort: new Date(c.created_at).getTime(),
-      icon: 'fa-box',
-      title: `Cargo — ${c.tracking_id}`,
-      sub: `${c.status} · ${fmtDate(c.created_at)}`,
-    })),
-  ].sort((a, b) => b.sort - a.sort).slice(0, 6);
-
-  if (!events.length) {
-    list.innerHTML = '<p class="topbar-dropdown__empty">No recent activity</p>';
-    return;
-  }
-
-  list.innerHTML = events.map(e => `
-    <div class="topbar-dropdown__item topbar-dropdown__item--static">
-      <span class="topbar-dropdown__item-icon"><i class="fas ${e.icon}"></i></span>
-      <span>
-        <span class="topbar-dropdown__item-title">${esc(e.title)}</span>
-        <span class="topbar-dropdown__item-sub">${esc(e.sub)}</span>
-      </span>
-    </div>`).join('');
-}
-
-function updateNotificationBadge() {
-  renderNotifications();
-  const badge = document.getElementById('notifBadge');
-  if (!badge || badge.hidden) return;
 }
 
 function toggleFullscreen() {
@@ -2051,6 +2012,12 @@ window.refreshOpsSections = refreshOpsSections;
   await Promise.allSettled(bootTasks);
   await refreshFinanceSections();
   await refreshOpsSections();
+  if (!localStorage.getItem(ADMIN_ACTIVITY_SEEN_KEY)) {
+    markAdminActivitySeen();
+  }
+  lastAdminDataFingerprint = adminActivityFingerprint();
+  renderAdminActivity();
+  setInterval(pollForUserActivity, ADMIN_ACTIVITY_POLL_MS);
 })();
 </script>
 </body>

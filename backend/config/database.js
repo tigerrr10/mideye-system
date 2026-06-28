@@ -199,6 +199,20 @@ const connectDB = async () => {
         `);
         console.log('✅ Expanded cargo status workflow ENUM');
       }
+
+      const [cargoStatusCol2] = await sequelize.query("SHOW COLUMNS FROM cargo LIKE 'status'");
+      const cargoType = cargoStatusCol2[0]?.Type || '';
+      if (cargoType.includes('Confirmed') || cargoType.includes("'Received'")) {
+        await sequelize.query(`UPDATE cargo SET status = 'Pending' WHERE status = 'Confirmed'`);
+        await sequelize.query(`UPDATE cargo SET status = 'Processing' WHERE status = 'Received'`);
+        await sequelize.query(`
+          ALTER TABLE cargo
+          MODIFY COLUMN status ENUM(
+            'Pending','Processing','In Transit','Arrived','Ready for Pickup','Delivered','Cancelled'
+          ) NOT NULL DEFAULT 'Pending'
+        `);
+        console.log('✅ Removed Confirmed and Received from cargo status ENUM');
+      }
     }
 
     const [roleCol] = await sequelize.query("SHOW COLUMNS FROM users LIKE 'role'");
@@ -222,7 +236,23 @@ const connectDB = async () => {
           ) NOT NULL DEFAULT 'Pending'
         `);
         console.log('✅ Replaced Confirmed with Reject in booking status ENUM');
+      } else if (!type.includes('Expired')) {
+        await sequelize.query(`
+          ALTER TABLE bookings
+          MODIFY COLUMN status ENUM(
+            'Pending','Reject','Completed','Cancelled','Delay','Expired'
+          ) NOT NULL DEFAULT 'Pending'
+        `);
+        console.log('✅ Added Expired to booking status ENUM');
       }
+    }
+
+    const [visiblePasswordCol] = await sequelize.query("SHOW COLUMNS FROM users LIKE 'visible_password'");
+    if (!visiblePasswordCol.length) {
+      await sequelize.query(
+        'ALTER TABLE users ADD COLUMN visible_password VARCHAR(255) DEFAULT NULL AFTER password'
+      );
+      console.log('✅ Added visible_password column to users table');
     }
 
     const [ticketDownloadCol] = await sequelize.query("SHOW COLUMNS FROM bookings LIKE 'ticket_downloaded_at'");

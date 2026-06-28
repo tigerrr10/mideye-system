@@ -2,7 +2,7 @@
 
 > **Project documentation and technical report**  
 > Based on full codebase analysis (frontend, backend, database, API, and workflows).  
-> Last updated: **25 June 2026**
+> Last updated: **28 June 2026**
 
 ---
 
@@ -25,25 +25,25 @@
 | **Flight inventory** | `models/Flight.js`, `controllers/flightController.js`, `routes/flightRoutes.js`, `utils/flightStatuses.js` | `GET /api/flights` (search), `GET/POST/PUT/DELETE /api/admin/flights` |
 | **Support tickets** | `models/SupportTicket.js`, `controllers/supportController.js`, `routes/supportRoutes.js`, `utils/generateSupportTicketCode.js` | `POST /api/support` (public), `GET /api/admin/support`, `PATCH /api/admin/support/:id/status` |
 | **Revenue & payments logic** | `utils/revenue.js` | Used by `GET /api/admin/stats` for payment counts and estimated revenue |
-| **Cargo workflow** | `utils/cargoStatuses.js` | Extended statuses: `Pending` → `Confirmed` → `Received` → `Processing` → `In Transit` → `Arrived` → `Ready for Pickup` → `Delivered` / `Cancelled` |
+| **Cargo workflow** | `utils/cargoStatuses.js` | Status pipeline: `Pending` → `Processing` → `In Transit` → `Arrived` → `Ready for Pickup` → `Delivered` / `Cancelled` |
 | **Booking references** | `utils/formatBookingReference.js` | Formatted booking reference strings for receipts and tickets |
 | **User deduplication** | `utils/dedupeUsers.js` | Utility to merge duplicate user records by email/phone |
 | **Flight seed data** | `seed-flights.js` | `npm run seed:flights` — populates demo flights (MGQ → HGA) |
 
 ## New Admin Dashboard Sections
 
-The admin panel (`frontend/templates/admin.html`) was expanded from 4 sections to **10 sections**:
+The admin panel (`frontend/templates/admin.html`) has **10 sections** (Notifications section removed June 2026):
 
 | Section | Sidebar group | JS module | CSS | Description |
 |---------|---------------|-----------|-----|-------------|
 | **Dashboard** | Main | inline + stats API | `admin-dashboard.css` | 6 stat cards (Users, Bookings, Cargo, Pending, **Payment**, **Revenue**), overview gauges, activity chart, recent bookings/cargo |
-| **Users** | Management | `admin-users.js` | `admin-users.css` | Enhanced table with avatar, bookings total, cargo count, profile modal, edit/delete |
+| **Users** | Management | `admin-users.js` | `admin-users.css` | Enhanced table with avatar, bookings total, cargo count, full profile modal (view/edit name, email, phone, password, role, activate/deactivate) |
 | **Bookings** | Management | inline | `admin-dashboard.css` | Booking list + status updates + receipts |
-| **Cargo** | Management | inline + `cargo-status.js` | `cargo-status.css` | Cargo list + extended status pipeline |
+| **Cargo** | Management | inline + `cargo-status.js` | `cargo-status.css` | Cargo list + status pipeline (7 statuses) |
 | **Flights** | Management | `admin-flights.js` | `admin-flights.css` | Add / edit / delete flights, seat management, status control |
+| **Cities** | Management | `admin-cities.js` | `admin-flights.css` | Add / edit / delete / toggle active cities for booking & cargo dropdowns |
 | **Payments** | Finance | `admin-payments.js` | `admin-finance.css` | Invoices, receipts, refunds, payment methods (derived from booking/cargo status) |
 | **Reports** | Analytics | `admin-reports.js` | `admin-finance.css` | Flight, cargo, revenue, and customer reports with tabbed views |
-| **Notifications** | Communication | `admin-notifications.js` | `admin-ops.css` | WhatsApp message templates (e-ticket, delay, cargo, payment reminder) |
 | **Support** | Communication | `admin-support.js` | `admin-ops.css` | Support ticket inbox (API tickets + derived booking/cargo items), WhatsApp reply |
 | **Settings** | System | `admin-settings.js` | `admin-ops.css` | Company info, roles/permissions matrix, security session display |
 
@@ -52,7 +52,7 @@ The admin panel (`frontend/templates/admin.html`) was expanded from 4 sections t
 - **Compact layout** — reduced topbar, stat cards, charts, and table padding so more content fits on screen without zooming
 - **Sidebar compaction** — shorter nav items, scrollable nav on small screens
 - **Users table scroll** — horizontal scroll on wide tables; `Joined` and `Actions` columns always reachable
-- **Topbar** — search, notifications dropdown, messages, settings menu, clock, refresh, logout
+- **Topbar** — search, **activity/messages** dropdown (new bookings, cargo, registrations, ticket downloads), settings menu, clock, refresh, logout
 - **Clickable stat cards** — Payment and Revenue cards navigate to Payments / Reports sections
 
 ## New Customer-Facing Features
@@ -60,7 +60,8 @@ The admin panel (`frontend/templates/admin.html`) was expanded from 4 sections t
 | Feature | Files | Description |
 |---------|-------|-------------|
 | **Database-backed flight search** | `frontend/js/flights.js`, `GET /api/flights` | Booking page loads flights from MySQL; admin manages inventory via Flights section |
-| **E-Ticket page** | `frontend/templates/ticket.html`, `frontend/js/user-ticket.js`, `frontend/css/user-ticket-page.css` | Printable / PDF boarding pass for confirmed bookings (`/ticket.html?id=`) |
+| **E-Ticket page** | `frontend/templates/ticket.html`, `frontend/js/user-ticket.js`, `frontend/css/user-ticket-page.css` | Printable / PDF boarding pass for **Completed** bookings (`/ticket.html?id=`) |
+| **Circular brand logo** | `frontend/images/mideye-logo.png`, `frontend/css/brand-logo.css` | Logo on admin, user dashboard, index, login, register, booking, cargo, tracking, ticket |
 | **Homepage WhatsApp button** | `frontend/templates/index.html`, `frontend/css/style1.css` | Floating green WhatsApp button (`+252907816567`) |
 | **Support contact modal** | `frontend/js/support-contact.js` | Visitor fills name + phone + message → `POST /api/support` → opens WhatsApp with ticket code |
 | **Dedicated registration** | `frontend/js/register.js` | Standalone registration validation module |
@@ -81,13 +82,37 @@ The following requested updates were implemented across backend and frontend:
 - **Cargo service updates:** Added `Medicine / Dawo` cargo type and removed the International section to keep only domestic cargo workflow.
 - **Admin dashboard polish:** Improved dashboard presentation and fixed City modal alignment/overlay behavior in admin UI.
 
+## June 28, 2026 — Session Updates (Additions & Removals)
+
+### Added
+
+| Area | Change | Files / notes |
+|------|--------|----------------|
+| **Booking statuses** | `Reject` and `Expired` added; old `Confirmed` rows migrated to `Completed` | `Booking.js`, `bookingController.js`, `database.js`, admin/user dashboards |
+| **Admin user profile API** | `GET /api/admin/users/:id` — full profile for modal | `adminController.js`, `adminRoutes.js` |
+| **Admin user management** | View/edit name, email, phone, new password, role; activate/deactivate; password shown as `••••••••` | `admin-users.js`, `admin-users.css` |
+| **`visible_password` column** | Plaintext password stored for admin reference (register, login, admin/user password change); excluded from user list API | `User.js`, `authController.js`, `userController.js`, `adminController.js`, `database.js` |
+| **Activity notifications (in-app)** | User dashboard: messages icon + badge for admin status updates. Admin topbar: activity badge for new bookings, cargo, registrations, ticket downloads (30s poll) | `user-dashboard.html`, `admin.html` |
+| **Brand logo** | Circular `mideye-logo.png` on all main templates | `frontend/images/`, `brand-logo.css` |
+| **Dev port helper** | `npm run dev` frees port 5000 before nodemon | `backend/scripts/free-port.js`, `package.json` |
+| **Payment methods UI** | **E-dahab** (replaces Hormuud Pay label) | `admin-payments.js`, `admin-finance.css` |
+
+### Removed
+
+| Area | Change | Notes |
+|------|--------|-------|
+| **Admin Notifications section** | Sidebar section, topbar bell, and `admin-notifications.js` deleted | Support section retained for tickets |
+| **Booking status `Confirmed`** | Replaced by **`Reject`** in admin workflow | E-ticket requires **`Completed`** only |
+| **Cargo statuses `Confirmed` & `Received`** | Removed from dropdown, API enum, tracking pipeline | DB migration: `Confirmed` → `Pending`, `Received` → `Processing` |
+| **Payment labels** | **Hormuud Pay** → **E-dahab**; **Bank Transfer** removed | UI labels only |
+| **Cargo form field** | **Postal code** removed | `cargo.html` |
+
 ## WhatsApp Integration (Office: +252 907 816567)
 
 | Flow | How it works |
 |------|----------------|
 | **Booking / cargo payment** | `confirm-pay.js` saves request then opens `wa.me/252907816567` with order details |
 | **Homepage support** | Modal form creates `support_tickets` row, then opens WhatsApp |
-| **Admin notifications** | `admin-notifications.js` builds Somali/English templates and opens WhatsApp per customer |
 | **Admin support replies** | `admin-support.js` — Reply via WhatsApp button on each ticket |
 
 > **Note:** Inbound WhatsApp messages are **not** auto-received. Tickets are created when the user submits the web form before WhatsApp opens. Full two-way WhatsApp would require WhatsApp Business API.
@@ -98,7 +123,7 @@ Payments are **estimated from booking/cargo status**, not from a real payment pr
 
 | Type | Counted as **Paid** | Counted as **Pending payment** |
 |------|---------------------|-------------------------------|
-| Booking | `Confirmed`, `Completed` | `Pending` |
+| Booking | `Completed` | `Pending`, `Reject`, `Delay`, `Expired` |
 | Cargo | `Arrived`, `Ready for Pickup`, `Delivered` | All other non-cancelled statuses |
 
 Revenue uses `utils/revenue.js` pricing formulas (booking: cabin class × passengers; cargo: weight tiers).
@@ -107,6 +132,7 @@ Revenue uses `utils/revenue.js` pricing formulas (booking: cabin class × passen
 
 ```bash
 cd backend
+npm run dev                 # Free port 5000 + nodemon (development)
 npm run seed:flights        # Seed demo flights (MGQ → HGA)
 npm run seed:flights:reset  # Clear and re-seed flights
 npm run seed:simple         # Sample users, bookings, cargo
@@ -118,11 +144,13 @@ npm run seed:users          # Seed user accounts
 ```
 backend/
 ├── controllers/
-│   ├── adminController.js    # + revenue/payment stats
+│   ├── adminController.js    # + revenue/payment stats, getUserById, profile update
+│   ├── cityController.js     # Cities CRUD
 │   ├── flightController.js   # NEW
 │   └── supportController.js  # NEW
 ├── models/
 │   ├── Flight.js             # NEW
+│   ├── City.js               # Cities
 │   └── SupportTicket.js      # NEW
 ├── routes/
 │   ├── flightRoutes.js       # NEW
@@ -145,9 +173,9 @@ frontend/
 │   ├── admin-flights.js      # NEW
 │   ├── admin-payments.js     # NEW
 │   ├── admin-reports.js      # NEW
-│   ├── admin-notifications.js # NEW
 │   ├── admin-support.js      # NEW
 │   ├── admin-settings.js     # NEW
+│   ├── admin-cities.js       # Cities CRUD
 │   ├── support-contact.js    # NEW
 │   ├── user-ticket.js        # NEW
 │   ├── register.js           # NEW
@@ -156,6 +184,7 @@ frontend/
     ├── admin-finance.css     # NEW
     ├── admin-ops.css         # NEW
     ├── admin-flights.css     # NEW
+    ├── brand-logo.css        # Circular logo
     ├── cargo-status.css      # NEW
     ├── service-pages.css     # NEW
     └── user-ticket-page.css  # NEW
@@ -252,13 +281,14 @@ The system demonstrates that meaningful digitization does not always require exp
 | Admin flight inventory management | Yes |
 | Admin payment management (invoices, derived from status) | Yes |
 | Admin reports & analytics (flights, cargo, revenue, customers) | Yes |
-| Admin WhatsApp notifications (templates) | Yes |
 | Admin support ticket inbox | Yes |
 | Admin settings (company info, roles matrix) | Yes |
+| In-app activity badges (user + admin topbar) | Yes |
+| Admin full user profile view & edit | Yes |
 | Database-backed flight search on booking page | Yes |
 | Public support ticket submission (homepage WhatsApp flow) | Yes |
-| E-ticket page (print/PDF for confirmed bookings) | Yes |
-| Extended cargo status workflow (9 statuses) | Yes |
+| E-ticket page (print/PDF for **Completed** bookings) | Yes |
+| Cargo status workflow (7 statuses) | Yes |
 | Dashboard payment & revenue statistics | Yes |
 | Homepage WhatsApp floating contact button | Yes |
 | Admin status updates for bookings and cargo | Yes |
@@ -272,7 +302,7 @@ The system demonstrates that meaningful digitization does not always require exp
 |------|--------|
 | Live flight search / GDS / airline API integration | **Not implemented** — flights are stored in MySQL and managed by admin; no external airline API |
 | Real payment gateway (Stripe, EVC Plus, Zaad, Sahal, etc.) | **Not implemented** — payment method selection is UI-only; revenue is **estimated** from status |
-| Email or SMS notifications | **Not implemented** — replaced by **WhatsApp handoff** templates in admin |
+| Email or SMS notifications | **Not implemented** — in-app activity badges + WhatsApp handoff for payments/support |
 | Inbound WhatsApp auto-sync | **Not implemented** — support tickets created via web form before WhatsApp opens |
 | Password reset / email verification | **Not implemented** |
 | Public (guest) cargo tracking | **Not implemented** — tracking requires authentication (`GET /api/track/:id` uses JWT) |
@@ -284,6 +314,7 @@ The system demonstrates that meaningful digitization does not always require exp
 | Rate limiting, Helmet, CSRF protection | **Not implemented** |
 | Gender field persistence to database | **Not implemented** — collected on booking form UI only; not stored in `bookings` table |
 | Production-ready admin API URL | **Partially implemented** — `admin.html` hardcodes `http://localhost:5000/api` instead of using `config.js` |
+| `visible_password` plaintext storage | **Security trade-off** — admin can reference passwords; not suitable for production without encryption at rest |
 
 ---
 
@@ -397,8 +428,8 @@ The Express server (`backend/app.js`) serves both API routes under `/api/*` and 
 │ User Dash.   │ Admin Dash.  │ Confirm&Pay  │ Cargo Pricing│ E-Ticket Page    │
 │ (profile)    │ (10 sections)│ (WhatsApp)   │ (client-side)│ (print/PDF)      │
 ├──────────────┼──────────────┼──────────────┼──────────────┼──────────────────┤
-│ Payments*    │ Reports*     │ Notifications*│ Support*    │ Settings*        │
-│ (*admin)     │ (*admin)     │ (*WhatsApp)  │ (*tickets)  │ (*admin)         │
+│ Payments*    │ Reports*     │ Support*     │ Settings*    │ Cities CRUD      │
+│ (*admin)     │ (*admin)     │ (*tickets)   │ (*admin)     │ (*admin)         │
 └──────────────┴──────────────┴──────────────┴──────────────┴──────────────────┘
 ```
 
@@ -407,8 +438,9 @@ The Express server (`backend/app.js`) serves both API routes under `/api/*` and 
 | Role | Access |
 |------|--------|
 | **Guest (unauthenticated)** | Homepage, login, register; tracking page shell (search requires login) |
-| **User (`role: user`)** | Booking, cargo submission, user dashboard, authenticated tracking |
-| **Admin (`role: admin`)** | All user capabilities + admin dashboard; redirected away from user dashboard |
+| **User (`role: user`)** | Booking, cargo submission, user dashboard, authenticated tracking, activity messages |
+| **Staff (`role: staff`)** | Operational admin sections (bookings, cargo, flights, cities, support) — no users/reports/settings |
+| **Admin (`role: admin`)** | All capabilities + full admin dashboard; redirected away from user dashboard |
 
 ---
 
@@ -474,6 +506,7 @@ Mideye travel agency/
 │   ├── seed-users.js
 │   ├── seed-simple-data.js
 │   ├── seed-flights.js
+│   ├── scripts/free-port.js  # Dev: free port 5000 before nodemon
 │   └── mideye_schema.sql
 ├── frontend/
 │   ├── templates/             # 10 HTML pages (+ admin sections)
@@ -627,7 +660,8 @@ erDiagram
         varchar email UK
         varchar phone
         varchar password
-        enum role "user | admin"
+        varchar visible_password
+        enum role "user | staff | admin"
         boolean is_active
         datetime created_at
         datetime updated_at
@@ -650,7 +684,7 @@ erDiagram
         enum cabin_class "economy | business"
         varchar seat_preference
         text special_requests
-        enum status "Pending | Confirmed | Completed | Cancelled"
+        enum status "Pending | Reject | Completed | Cancelled | Delay | Expired"
         datetime created_at
         datetime updated_at
     }
@@ -678,7 +712,7 @@ erDiagram
         boolean fragile
         boolean signature_required
         text special_requests
-        enum status "Pending | Confirmed | Received | Processing | In Transit | Arrived | Ready for Pickup | Delivered | Cancelled"
+        enum status "Pending | Processing | In Transit | Arrived | Ready for Pickup | Delivered | Cancelled"
         datetime created_at
         datetime updated_at
     }
@@ -747,9 +781,9 @@ The repository dump `mideye_db.sql` may contain additional columns (`city`, `sta
 | 4 | `openConfirmPayModal()` displays summary and payment method choice |
 | 5 | `POST /api/bookings` saves request with `status: Pending` |
 | 6 | User redirected to WhatsApp for payment coordination |
-| 7 | Confirmed bookings can open **E-Ticket** at `ticket.html?id=<bookingId>` |
+| 7 | **Completed** bookings can open **E-Ticket** at `ticket.html?id=<bookingId>` |
 
-**Booking statuses (admin-managed):** `Pending` → `Confirmed` → `Completed` / `Cancelled`
+**Booking statuses (admin-managed):** `Pending` → `Reject` / `Completed` / `Cancelled` / `Delay` / `Expired`
 
 ### Module 3: Cargo Management (`frontend/js/api.js`, `backend/controllers/cargoController.js`)
 
@@ -761,7 +795,7 @@ The repository dump `mideye_db.sql` may contain additional columns (`city`, `sta
 | 4 | Backend generates `tracking_id` via `generateTrackingId.js` |
 | 5 | Origin hardcoded to `Galkacyo (GLK)` in controller |
 
-**Cargo statuses (admin-managed):** `Pending` → `Confirmed` → `Received` → `Processing` → `In Transit` → `Arrived` → `Ready for Pickup` → `Delivered` / `Cancelled`
+**Cargo statuses (admin-managed):** `Pending` → `Processing` → `In Transit` → `Arrived` → `Ready for Pickup` → `Delivered` / `Cancelled`
 
 ### Module 4: Cargo Tracking (`frontend/js/tracking.js`, `backend/controllers/cargoController.js`)
 
@@ -779,22 +813,24 @@ The repository dump `mideye_db.sql` may contain additional columns (`city`, `sta
 | My Cargo table | `GET /api/user/cargo` |
 | Profile settings | `GET/PUT /api/user/profile` |
 | Change password | `PUT /api/user/change-password` |
+| Activity messages (booking/cargo status updates) | Client-side poll + `localStorage` badge |
 
 Uses `sessionStorage` cache (`mideye_dash_{userId}`) for instant render, then background API refresh.
 
-### Module 6: Admin Dashboard (`frontend/templates/admin.html`, `admin-users.js`, `admin-receipts.js`, `admin-flights.js`, `admin-payments.js`, `admin-reports.js`, `admin-notifications.js`, `admin-support.js`, `admin-settings.js`)
+### Module 6: Admin Dashboard (`frontend/templates/admin.html`, `admin-users.js`, `admin-receipts.js`, `admin-flights.js`, `admin-cities.js`, `admin-payments.js`, `admin-reports.js`, `admin-support.js`, `admin-settings.js`)
 
 | Feature | API / Implementation |
 |---------|---------------------|
 | Dashboard statistics (users, bookings, cargo, pending, payments, revenue) | `GET /api/admin/stats` |
 | Overview gauges & activity chart | Client-side from stats + booking/cargo data |
-| User management (view, profile modal, edit, role, activate/deactivate, delete) | `GET/PUT/PATCH/DELETE /api/admin/users` |
+| User management (view, full profile modal, edit, role, activate/deactivate, delete) | `GET /api/admin/users`, `GET /api/admin/users/:id`, `PUT/PATCH/DELETE /api/admin/users` |
 | Booking management (view, status update, receipts) | `GET /api/admin/bookings`, `PUT /api/bookings/:id` |
-| Cargo management (view, extended status update) | `GET /api/admin/cargo`, `PUT /api/cargo/:id` |
+| Cargo management (view, status update) | `GET /api/admin/cargo`, `PUT /api/cargo/:id` |
 | Flight inventory (CRUD) | `GET/POST/PUT/DELETE /api/admin/flights` |
+| Cities management (CRUD, toggle active) | `GET/POST/PUT/DELETE /api/admin/cities`, `GET /api/cities` (public active list) |
 | Payment management (invoices, receipts, methods) | Derived client-side from bookings/cargo (`admin-payments.js`) |
 | Reports & analytics (flights, cargo, revenue, customers) | Client-side (`admin-reports.js`) |
-| WhatsApp notifications (templates) | Client-side (`admin-notifications.js`) → `wa.me` |
+| Topbar activity feed (new bookings, cargo, registrations, downloads) | Client-side poll + `localStorage` seen markers |
 | Support ticket inbox | `GET /api/admin/support`, `PATCH /api/admin/support/:id/status` |
 | Settings (company info, roles matrix) | `localStorage` (`admin-settings.js`) |
 | Receipt / PDF generation | Client-side HTML + print/PDF (`admin-receipts.js`) |
@@ -824,7 +860,7 @@ Shared modal used by booking and cargo pages:
 ### Module 10: Payment Management (`frontend/js/admin-payments.js`, `backend/utils/revenue.js`)
 
 - Invoices and receipts **derived** from booking/cargo records and status
-- Payment methods displayed: EVC Plus, Hormuud Pay, Zaad, Sahal, Cash, Bank Transfer (UI labels only)
+- Payment methods displayed: EVC Plus, E-dahab, Zaad, Sahal, Cash (UI labels only)
 - Dashboard stats: `totalPayments`, `pendingPayments`, `totalRevenue`
 
 ### Module 11: Reports & Analytics (`frontend/js/admin-reports.js`)
@@ -832,23 +868,17 @@ Shared modal used by booking and cargo pages:
 - Tabbed reports: Flights, Cargo, Revenue (6-month chart), Customers
 - Aggregates from loaded admin data (no separate report API)
 
-### Module 12: WhatsApp Notifications (`frontend/js/admin-notifications.js`)
-
-- Templates: E-Ticket Ready, Flight Delay, Cargo Update, Payment Reminder (Somali/English)
-- Auto-fills customer context from bookings/cargo; opens WhatsApp per recipient
-- Send log stored in `localStorage`
-
-### Module 13: Support Tickets (`frontend/js/support-contact.js`, `frontend/js/admin-support.js`)
+### Module 12: Support Tickets (`frontend/js/support-contact.js`, `frontend/js/admin-support.js`)
 
 - **Public:** Homepage modal → `POST /api/support` → ticket code `SUP-YYYY-NNNNN` → WhatsApp
 - **Admin:** Lists API tickets merged with open booking/cargo items; status updates; WhatsApp reply
 
-### Module 14: E-Ticket (`frontend/templates/ticket.html`, `frontend/js/user-ticket.js`)
+### Module 13: E-Ticket (`frontend/templates/ticket.html`, `frontend/js/user-ticket.js`)
 
-- Authenticated users view/print/PDF boarding pass for **Confirmed** or **Completed** bookings
+- Authenticated users view/print/PDF boarding pass for **`Completed`** bookings only
 - Route: `/ticket.html?id=<bookingId>`
 
-### Module 15: Homepage WhatsApp Contact (`frontend/templates/index.html`, `frontend/css/style1.css`)
+### Module 14: Homepage WhatsApp Contact (`frontend/templates/index.html`, `frontend/css/style1.css`)
 
 - Floating WhatsApp button (bottom-right) linked to office number `+252907816567`
 - Opens support contact modal before WhatsApp handoff
@@ -863,7 +893,7 @@ Shared modal used by booking and cargo pages:
 Request → Route → Middleware (auth, validate) → Controller → Sequelize Model → MySQL
 ```
 
-- **Entry:** `server.js` connects to database, syncs models, seeds default admin, starts HTTP listener.
+- **Entry:** `server.js` connects to database, runs schema migrations in `config/database.js`, syncs models, seeds default admin, starts HTTP listener.
 - **Routing:** Seven routers mounted in `app.js` at `/api/auth`, `/api/user`, `/api/bookings`, `/api/cargo`, `/api/flights`, `/api/admin`, `/api/support`.
 - **Error responses:** Consistent JSON format `{ success: false, message, errors? }`.
 - **Success responses:** `{ success: true, data, message? }`.
@@ -906,7 +936,7 @@ sequenceDiagram
     R->>A: POST { fullName, email, phone, password }
     A->>A: Validate + normalize phone
     A->>DB: Check duplicate email
-    A->>DB: INSERT user (bcrypt password, role=user)
+    A->>DB: INSERT user (bcrypt password, visible_password, role=user)
     A-->>U: 201 { token, user } — token NOT stored (redirect to login)
     U->>U: Redirect to login.html
 ```
@@ -1114,7 +1144,7 @@ Mideye occupies a **practical middle ground**: more structured than manual opera
 
 Mideye is a functional full-stack web application that successfully digitizes the core workflows of a local travel agency in Galkacyo, Somalia. The system implements secure user authentication, structured flight booking requests, cargo shipment management with auto-generated tracking identifiers, authenticated cargo tracking, and comprehensive user and admin dashboards.
 
-Built with **Node.js, Express, Sequelize, MySQL, and vanilla JavaScript**, the project demonstrates a complete three-tier architecture with **35+ REST API endpoints**, **five relational database entities** (`users`, `bookings`, `cargo`, `flights`, `support_tickets`), and **ten frontend pages** with an **expanded admin panel (10 sections)**. The semi-automated design—combining online request capture with WhatsApp-based payment coordination and manual admin processing—reflects realistic operational constraints rather than attempting unsupported full automation.
+Built with **Node.js, Express, Sequelize, MySQL, and vanilla JavaScript**, the project demonstrates a complete three-tier architecture with **35+ REST API endpoints**, **six relational database entities** (`users`, `bookings`, `cargo`, `flights`, `support_tickets`, `cities`), and **ten frontend pages** with an **admin panel (10 sections: Dashboard, Users, Bookings, Cargo, Flights, Cities, Payments, Reports, Support, Settings)**. The semi-automated design—combining online request capture with WhatsApp-based payment coordination and manual admin processing—reflects realistic operational constraints rather than attempting unsupported full automation.
 
 The codebase analysis confirms that all documented features are grounded in actual implementation, with clearly identified limitations (no payment gateway, no live flight API, no email notifications) that define the system's current boundaries.
 
@@ -1150,6 +1180,7 @@ The codebase analysis confirms that all documented features are grounded in actu
 cd backend
 cp .env.example .env    # Configure DB credentials and JWT_SECRET
 npm install
+npm run dev             # Development (auto-frees port 5000)
 npm start               # http://localhost:5000
 
 # 3. Optional seed data
@@ -1207,7 +1238,8 @@ npm run seed:simple     # Sample users, bookings, cargo
 | POST | `/api/support` | Public | Create support ticket (homepage WhatsApp flow) |
 | GET | `/api/admin/stats` | Admin | Dashboard stats (incl. payments & revenue) |
 | GET | `/api/admin/users` | Admin | All users |
-| PUT | `/api/admin/users/:id` | Admin | Update user |
+| GET | `/api/admin/users/:id` | Admin | Single user profile (for admin modal) |
+| PUT | `/api/admin/users/:id` | Admin | Update user (incl. optional `new_password`) |
 | PATCH | `/api/admin/users/:id/role` | Admin | Change role |
 | PATCH | `/api/admin/users/:id/status` | Admin | Activate/deactivate |
 | DELETE | `/api/admin/users/:id` | Admin | Delete user |
@@ -1219,6 +1251,7 @@ npm run seed:simple     # Sample users, bookings, cargo
 | DELETE | `/api/admin/flights/:id` | Admin | Delete flight |
 | GET | `/api/admin/support` | Admin | All support tickets |
 | PATCH | `/api/admin/support/:id/status` | Admin | Update ticket status |
+| GET | `/api/cities` | Public/JWT | Active cities for dropdowns |
 | GET | `/api/health` | Public | Health check |
 
 ---
@@ -1229,5 +1262,4 @@ This project was developed as an academic and practical software engineering exe
 
 ---
 
-*This document was generated from comprehensive codebase analysis of all frontend templates, JavaScript modules, backend routes, controllers, models, middleware, database schema, and deployment configuration files. See **SYSTEM UPDATES & CHANGELOG** at the top for the full June 2026 feature list. Features not present in the code are explicitly marked as not implemented.*
-# mideye-system
+*This document was generated from comprehensive codebase analysis of all frontend templates, JavaScript modules, backend routes, controllers, models, middleware, database schema, and deployment configuration files. See **SYSTEM UPDATES & CHANGELOG** and **June 28, 2026 — Session Updates** at the top for the full feature list. Features not present in the code are explicitly marked as not implemented.*

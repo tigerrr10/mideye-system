@@ -71,7 +71,7 @@ const Booking = sequelize.define(
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM('Pending', 'Reject', 'Completed', 'Cancelled', 'Delay'),
+      type: DataTypes.ENUM('Pending', 'Reject', 'Completed', 'Cancelled', 'Delay', 'Expired'),
       defaultValue: 'Pending',
     },
     ticket_downloaded_at: {

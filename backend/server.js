@@ -26,6 +26,7 @@ const seedAdmin = async () => {
       email:     'admin@mideye.com',
       phone:     '+252 615 000000',
       password:  hashedPassword,
+      visible_password: 'Admin@123',
       role:      'admin',
     });
 

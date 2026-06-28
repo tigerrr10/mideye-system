@@ -39,7 +39,7 @@ const ROUTES = [
 
 const BOOKING_STATUSES = ['Pending', 'Reject', 'Completed', 'Cancelled'];
 const CARGO_STATUSES = [
-  'Pending', 'Confirmed', 'Received', 'Processing',
+  'Pending', 'Processing',
   'In Transit', 'Arrived', 'Ready for Pickup', 'Delivered', 'Cancelled',
 ];
 const CARGO_TYPES = ['electronics', 'textiles', 'documents', 'food', 'furniture', 'machinery', 'other'];
@@ -69,6 +69,7 @@ const run = async () => {
       const created = await User.create({
         ...u,
         password: hashedPassword,
+        visible_password: DEMO_PASSWORD,
         role: 'user',
       });
       users.push(created);

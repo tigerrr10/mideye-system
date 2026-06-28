@@ -68,8 +68,25 @@
     #sidebarToggle{display:none;background:none;border:none;color:var(--brown);font-size:var(--fs-heading);cursor:pointer;padding:.4rem;border-radius:var(--r-sm);}
     .page-title{font-size:var(--fs-base);font-weight:700;color:var(--brown);}
     .page-subtitle{font-size:var(--fs-base);color:rgba(68,19,6,.5);margin-top:.1rem;}
-    .topbar-right{display:flex;align-items:center;gap:1rem;}
+    .topbar-right{display:flex;align-items:center;gap:.65rem;}
     .topbar-time{font-size:var(--fs-base);color:rgba(68,19,6,.5);display:flex;align-items:center;gap:.4rem;}
+    .topbar-dropdown-wrap{position:relative;}
+    .medi-icon-btn{width:32px;height:32px;border:none;border-radius:50%;background:var(--cream);color:var(--brown-mid);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .18s;position:relative;flex-shrink:0;}
+    .medi-icon-btn:hover{background:var(--cream-2);color:var(--brown);}
+    .topbar-badge{position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#dc8f00;color:#fff;font-size:.62rem;font-weight:800;line-height:16px;text-align:center;}
+    .topbar-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:300px;background:var(--white);border:1px solid var(--border);border-radius:var(--r-md);box-shadow:var(--shadow-md);z-index:200;overflow:hidden;}
+    .topbar-dropdown__head{padding:.75rem 1rem;font-size:.82rem;font-weight:700;color:var(--brown);background:var(--cream);border-bottom:1px solid var(--border);}
+    .topbar-dropdown__body{max-height:280px;overflow-y:auto;}
+    .topbar-dropdown__empty{padding:1.25rem 1rem;text-align:center;font-size:.82rem;color:rgba(68,19,6,.5);}
+    .topbar-dropdown__item{display:flex;align-items:flex-start;gap:.65rem;width:100%;padding:.75rem 1rem;border:none;border-bottom:1px solid rgba(68,19,6,.05);background:transparent;text-align:left;cursor:pointer;transition:background .15s;}
+    .topbar-dropdown__item:last-child{border-bottom:none;}
+    .topbar-dropdown__item:hover{background:var(--cream);}
+    .topbar-dropdown__item--static{cursor:default;}
+    .topbar-dropdown__item--static:hover{background:transparent;}
+    .topbar-dropdown__item-icon{width:32px;height:32px;border-radius:50%;background:var(--cream);color:var(--brown-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;}
+    .topbar-dropdown__item-title{display:block;font-size:.84rem;font-weight:600;color:var(--brown);line-height:1.3;}
+    .topbar-dropdown__item--unread{background:rgba(254,230,133,.22);}
+    .topbar-dropdown__item--unread .topbar-dropdown__item-icon{background:rgba(254,230,133,.55);color:var(--brown);}
     #refreshBtn{background:var(--cream);border:1px solid var(--border);color:var(--brown);padding:.45rem 1rem;border-radius:var(--r-sm);font-size:var(--fs-base);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:all .18s ease;}
     #refreshBtn:hover{background:var(--cream-2);}
     .topbar-logout{background:var(--brown);color:var(--gold);border:none;padding:.45rem 1rem;border-radius:var(--r-sm);font-size:var(--fs-base);font-weight:600;cursor:pointer;transition:all .18s ease;display:flex;align-items:center;gap:.4rem;}
@@ -138,6 +155,7 @@
     .badge-confirmed {background:rgba(25,135,84,.12);color:#0d6640;}
     .badge-completed {background:rgba(13,110,253,.12);color:#084fc7;}
     .badge-reject    {background:rgba(220,53,69,.12);color:#b02a37;}
+    .badge-expired  {background:rgba(108,117,125,.15);color:#495057;}
     .badge-delay {background:rgba(255,152,0,.15);color:#c65a00;}
     .badge-cancelled {background:rgba(220,53,69,.12);color:#b02a37;}
     .badge-received  {background:rgba(108,117,125,.12);color:#495057;}
@@ -250,6 +268,16 @@
       </div>
     </div>
     <div class="topbar-right">
+      <div class="topbar-dropdown-wrap">
+        <button type="button" class="medi-icon-btn" id="btnMessages" title="Updates" aria-expanded="false" aria-haspopup="true">
+          <i class="far fa-comment-alt"></i>
+          <span class="topbar-badge" id="msgBadge" hidden>0</span>
+        </button>
+        <div class="topbar-dropdown" id="dropdownMessages" hidden>
+          <div class="topbar-dropdown__head">Your Updates</div>
+          <div class="topbar-dropdown__body" id="messagesList"></div>
+        </div>
+      </div>
       <div class="topbar-time"><i class="far fa-clock"></i><span id="clockDisplay"></span></div>
       <button id="refreshBtn" onclick="refreshAll()"><i class="fas fa-sync-alt"></i> Refresh</button>
       <button class="topbar-logout" onclick="AuthGuard.logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -526,6 +554,7 @@ function applyCachedDashboard(cache) {
     const countEl = document.getElementById('cargo-count');
     if (countEl) countEl.textContent = `${allCargo.length} total`;
   }
+  renderUserMessages();
   return true;
 }
 
@@ -541,6 +570,160 @@ if (welcomeSubtitle) {
 const clockEl = document.getElementById('clockDisplay');
 const tick = () => { clockEl.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}); };
 tick(); setInterval(tick,1000);
+
+/* ── Topbar messages (admin status updates) ── */
+const UPDATES_SEEN_KEY = `mideye_updates_seen_${user?.id || 'user'}`;
+const UPDATE_POLL_MS = 30000;
+let lastDataFingerprint = '';
+
+const getUpdatesSeenAt = () => {
+  const raw = localStorage.getItem(UPDATES_SEEN_KEY);
+  return raw ? new Date(raw).getTime() : 0;
+};
+
+const markUpdatesSeen = () => {
+  localStorage.setItem(UPDATES_SEEN_KEY, new Date().toISOString());
+  renderUserMessages();
+};
+
+const isAdminUpdate = (record) => {
+  const created = new Date(record.created_at).getTime();
+  const updated = new Date(record.updated_at || record.created_at).getTime();
+  return updated - created > 30000;
+};
+
+const bookingUpdateTitle = (status) => {
+  const map = {
+    Completed: 'Booking completed — E-ticket ready',
+    Reject: 'Booking rejected by admin',
+    Delay: 'Flight delayed — admin update',
+    Expired: 'Booking expired',
+    Cancelled: 'Booking cancelled',
+    Pending: 'Booking received',
+  };
+  return map[status] || `Booking updated: ${status}`;
+};
+
+const cargoUpdateTitle = (status) => `Cargo updated: ${status}`;
+
+const buildUpdateEvents = () => {
+  const bookingEvents = allBookings
+    .filter(isAdminUpdate)
+    .map((b) => ({
+      id: `booking-${b.id}`,
+      sort: new Date(b.updated_at || b.created_at).getTime(),
+      updatedAt: new Date(b.updated_at || b.created_at).getTime(),
+      icon: b.status === 'Completed' ? 'fa-ticket-alt' : 'fa-plane-departure',
+      title: bookingUpdateTitle(b.status),
+      sub: `${b.origin} → ${b.destination} · ${fmtDate(b.updated_at || b.created_at)}`,
+      action: () => {
+        navigate('bookings', document.querySelector('.nav-item-link[onclick*="bookings"]'));
+        closeTopbarDropdowns();
+      },
+    }));
+
+  const cargoEvents = allCargo
+    .filter(isAdminUpdate)
+    .map((c) => ({
+      id: `cargo-${c.id}`,
+      sort: new Date(c.updated_at || c.created_at).getTime(),
+      updatedAt: new Date(c.updated_at || c.created_at).getTime(),
+      icon: 'fa-box',
+      title: cargoUpdateTitle(c.status),
+      sub: `${c.tracking_id} · ${c.destination} · ${fmtDate(c.updated_at || c.created_at)}`,
+      action: () => {
+        navigate('cargo', document.querySelector('.nav-item-link[onclick*="cargo"]'));
+        closeTopbarDropdowns();
+      },
+    }));
+
+  return [...bookingEvents, ...cargoEvents].sort((a, b) => b.sort - a.sort);
+};
+
+const getUnreadUpdates = () => {
+  const seenAt = getUpdatesSeenAt();
+  return buildUpdateEvents().filter((e) => e.updatedAt > seenAt);
+};
+
+const dataFingerprint = () =>
+  [...allBookings, ...allCargo].map((r) => `${r.id}:${r.status}:${r.updated_at}`).join('|');
+
+function closeTopbarDropdowns() {
+  document.getElementById('btnMessages')?.setAttribute('aria-expanded', 'false');
+  const panel = document.getElementById('dropdownMessages');
+  if (panel) panel.hidden = true;
+}
+
+function toggleMessagesDropdown() {
+  const btn = document.getElementById('btnMessages');
+  const panel = document.getElementById('dropdownMessages');
+  if (!btn || !panel) return;
+  const willOpen = panel.hidden;
+  closeTopbarDropdowns();
+  if (willOpen) {
+    renderUserMessages();
+    panel.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    markUpdatesSeen();
+  }
+}
+
+function renderUserMessages() {
+  const list = document.getElementById('messagesList');
+  const badge = document.getElementById('msgBadge');
+  if (!list) return;
+
+  const seenAt = getUpdatesSeenAt();
+  const events = buildUpdateEvents().slice(0, 12);
+  const unreadCount = events.filter((e) => e.updatedAt > seenAt).length;
+
+  if (badge) {
+    badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
+    badge.hidden = unreadCount === 0;
+  }
+
+  if (!events.length) {
+    list.innerHTML = '<p class="topbar-dropdown__empty">No admin updates yet</p>';
+    return;
+  }
+
+  list.innerHTML = events.map((e, i) => `
+    <button type="button" class="topbar-dropdown__item${e.updatedAt > seenAt ? ' topbar-dropdown__item--unread' : ''}" data-msg-idx="${i}">
+      <span class="topbar-dropdown__item-icon"><i class="fas ${e.icon}"></i></span>
+      <span>
+        <span class="topbar-dropdown__item-title">${esc(e.title)}</span>
+        <span class="topbar-dropdown__item-sub">${esc(e.sub)}</span>
+      </span>
+    </button>`).join('');
+
+  list.querySelectorAll('[data-msg-idx]').forEach((el) => {
+    el.addEventListener('click', () => events[parseInt(el.dataset.msgIdx, 10)]?.action?.());
+  });
+}
+
+async function pollForAdminUpdates() {
+  const prev = lastDataFingerprint || dataFingerprint();
+  await Promise.allSettled([loadBookings(true), loadCargo(true)]);
+  const next = dataFingerprint();
+  if (prev && next !== prev) {
+    const unread = getUnreadUpdates();
+    renderUserMessages();
+    if (unread.length) {
+      showToast(unread[0].title, 'fa-bell');
+    }
+  } else {
+    renderUserMessages();
+  }
+  lastDataFingerprint = next;
+}
+
+document.getElementById('btnMessages')?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleMessagesDropdown();
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.topbar-dropdown-wrap')) closeTopbarDropdowns();
+});
 
 /* ── Navigation ── */
 const pageMeta = {
@@ -587,7 +770,7 @@ function showToast(msg, icon = 'fa-check-circle') {
 }
 
 /* ── Badge helpers ── */
-const bookingBadge = s => { const m={Pending:'pending',Reject:'reject',Completed:'completed',Cancelled:'cancelled',Delay:'delay'}; return `<span class="badge-status badge-${m[s]||'pending'}">${s}</span>`; };
+const bookingBadge = s => { const m={Pending:'pending',Reject:'reject',Completed:'completed',Cancelled:'cancelled',Delay:'delay',Expired:'expired'}; return `<span class="badge-status badge-${m[s]||'pending'}">${s}</span>`; };
 const cargoBadge = s => window.CargoStatus?.renderCargoStatusBadge(s) || `<span class="badge-status badge-cargo-pending">${s}</span>`;
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '–';
 const esc = s => s == null ? '–' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -621,6 +804,7 @@ async function loadBookings(silent = true) {
     document.getElementById('bookings-count').textContent = `${count} total`;
     renderBookings(allBookings);
     renderDashBookings(allBookings.slice(0, 3));
+    renderUserMessages();
     writeCache({ ...cache, bookings });
   } catch(e) {
     if (!silent) {
@@ -668,6 +852,7 @@ async function loadCargo(silent = true) {
     document.getElementById('cargo-count').textContent = `${count} total`;
     renderCargo(allCargo);
     renderDashCargo(allCargo.slice(0, 3));
+    renderUserMessages();
     writeCache({ ...cache, cargo: shipments });
   } catch(e) {
     if (!silent) {
@@ -789,6 +974,9 @@ window.showToast = showToast;
 applyCachedDashboard(readCache());
 (async () => {
   await Promise.allSettled([loadStats(true), loadBookings(true), loadCargo(true)]);
+  lastDataFingerprint = dataFingerprint();
+  renderUserMessages();
+  setInterval(pollForAdminUpdates, UPDATE_POLL_MS);
 })();
 </script>
 </body>

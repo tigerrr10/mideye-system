@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const { User, Booking, Cargo, Flight } = require('../models');
 const {
   calcBookingPrice,
@@ -12,7 +13,7 @@ const {
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: { exclude: ['password'] },
+      attributes: { exclude: ['password', 'visible_password'] },
       order: [['created_at', 'DESC']],
     });
 
@@ -23,6 +24,33 @@ const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     console.error('Admin get users error:', error);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+};
+
+// GET /api/admin/users/:id
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const json = user.toJSON();
+    delete json.password;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        user: {
+          ...json,
+          has_password: Boolean(user.password),
+          current_password: json.visible_password || null,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Admin get user error:', error);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 };
@@ -172,13 +200,19 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    const { full_name, email, phone } = req.body;
+    const { full_name, email, phone, new_password } = req.body;
 
     if (full_name !== undefined && !String(full_name).trim()) {
       return res.status(400).json({ success: false, message: 'Full name is required.' });
     }
     if (email !== undefined && !String(email).trim()) {
       return res.status(400).json({ success: false, message: 'Email is required.' });
+    }
+    if (new_password !== undefined && new_password !== '' && String(new_password).length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters.',
+      });
     }
     if (email && email !== user.email) {
       const exists = await User.findOne({ where: { email } });
@@ -187,13 +221,21 @@ const updateUser = async (req, res) => {
       }
     }
 
-    await user.update({
+    const updates = {
       full_name: full_name !== undefined ? String(full_name).trim() : user.full_name,
       email: email !== undefined ? String(email).trim() : user.email,
       phone: phone !== undefined ? (phone ? String(phone).trim() : null) : user.phone,
-    });
+    };
 
-    const { password, ...safeUser } = user.toJSON();
+    if (new_password !== undefined && new_password !== '') {
+      const salt = await bcrypt.genSalt(12);
+      updates.password = await bcrypt.hash(String(new_password), salt);
+      updates.visible_password = String(new_password);
+    }
+
+    await user.update(updates);
+
+    const { password, visible_password, ...safeUser } = user.toJSON();
     return res.status(200).json({
       success: true,
       message: 'User profile updated successfully.',
@@ -280,6 +322,7 @@ const updateUserStatus = async (req, res) => {
 
 module.exports = {
   getAllUsers,
+  getUserById,
   getAllBookings,
   getAllCargo,
   getDashboardStats,

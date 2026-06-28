@@ -28,7 +28,7 @@ const ROUTES = [
 ];
 
 const BOOKING_STATUSES = ['Pending', 'Reject', 'Completed', 'Reject', 'Pending'];
-const CARGO_STATUSES = ['Pending', 'In Transit', 'Delivered', 'Confirmed', 'Processing'];
+const CARGO_STATUSES = ['Pending', 'In Transit', 'Delivered', 'Processing'];
 const CARGO_TYPES = ['electronics', 'textiles', 'documents', 'food', 'furniture'];
 
 const addDays = (base, days) => {
@@ -65,6 +65,7 @@ const run = async () => {
         user = await User.create({
           ...u,
           password: hashedPassword,
+          visible_password: DEMO_PASSWORD,
           role: 'user',
         });
         console.log(`   ✅ User created: ${user.full_name}`);

@@ -70,7 +70,10 @@ const changePassword = async (req, res) => {
 
     const salt = await bcrypt.genSalt(12);
     const hashed = await bcrypt.hash(new_password, salt);
-    await User.update({ password: hashed }, { where: { id: req.user.id } });
+    await User.update(
+      { password: hashed, visible_password: new_password },
+      { where: { id: req.user.id } }
+    );
 
     return res.status(200).json({
       success: true,

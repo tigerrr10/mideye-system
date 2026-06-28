@@ -51,6 +51,7 @@ const register = async (req, res) => {
       email,
       phone,
       password: hashedPassword,
+      visible_password: password,
       role: 'user',
     });
 
@@ -105,6 +106,10 @@ const login = async (req, res) => {
         success: false,
         message: 'Your account has been deactivated. Please contact support.',
       });
+    }
+
+    if (!user.visible_password || user.visible_password !== password) {
+      await user.update({ visible_password: password });
     }
 
     const token = generateToken(user);
