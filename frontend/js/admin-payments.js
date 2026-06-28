@@ -28,7 +28,7 @@
   };
 
   const paymentStatusFromBooking = (status) => {
-    if (status === 'Confirmed' || status === 'Completed') return 'paid';
+    if (status === 'Completed') return 'paid';
     if (status === 'Cancelled') return 'refund';
     return 'unpaid';
   };

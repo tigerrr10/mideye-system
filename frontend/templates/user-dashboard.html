@@ -136,6 +136,7 @@
     .badge-pending   {background:rgba(255,193,7,.15);color:#a07200;}
     .badge-confirmed {background:rgba(25,135,84,.12);color:#0d6640;}
     .badge-completed {background:rgba(13,110,253,.12);color:#084fc7;}
+    .badge-reject    {background:rgba(220,53,69,.12);color:#b02a37;}
     .badge-delay {background:rgba(255,152,0,.15);color:#c65a00;}
     .badge-cancelled {background:rgba(220,53,69,.12);color:#b02a37;}
     .badge-received  {background:rgba(108,117,125,.12);color:#495057;}
@@ -585,7 +586,7 @@ function showToast(msg, icon = 'fa-check-circle') {
 }
 
 /* ── Badge helpers ── */
-const bookingBadge = s => { const m={Pending:'pending',Confirmed:'confirmed',Completed:'completed',Cancelled:'cancelled',Delay:'delay'}; return `<span class="badge-status badge-${m[s]||'pending'}">${s}</span>`; };
+const bookingBadge = s => { const m={Pending:'pending',Reject:'reject',Completed:'completed',Cancelled:'cancelled',Delay:'delay'}; return `<span class="badge-status badge-${m[s]||'pending'}">${s}</span>`; };
 const cargoBadge = s => window.CargoStatus?.renderCargoStatusBadge(s) || `<span class="badge-status badge-cargo-pending">${s}</span>`;
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '–';
 const esc = s => s == null ? '–' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

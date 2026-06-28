@@ -114,7 +114,7 @@ function showToast(msg, icon = 'fa-check-circle') {
 
 /* â”€â”€â”€ Badge helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function bookingBadge(status) {
-  const map = { Pending: 'pending', Confirmed: 'confirmed', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
+  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
   return `<span class="badge-status badge-${(map[status] || 'pending')}">${status}</span>`;
 }
 function cargoBadge(status) {
@@ -422,7 +422,7 @@ function renderDashCargo(shipments) {
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STATUS MODAL
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-const bookingStatuses = ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Delay'];
+const bookingStatuses = ['Pending', 'Reject', 'Completed', 'Cancelled', 'Delay'];
 const cargoStatuses   = ['Received', 'In Transit', 'Arrived', 'Cancelled'];
 
 function openStatusModal(type, id, currentStatus) {

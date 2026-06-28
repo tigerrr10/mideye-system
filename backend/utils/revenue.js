@@ -11,7 +11,7 @@ const calcCargoPrice = (c) => {
   return w * 1.5 + 5;
 };
 
-const isBookingPaid = (status) => ['Confirmed', 'Completed'].includes(status);
+const isBookingPaid = (status) => status === 'Completed';
 const isCargoPaid = (status) => ['Arrived', 'Ready for Pickup', 'Delivered'].includes(status);
 const isBookingPendingPayment = (status) => status === 'Pending';
 const isCargoPendingPayment = (status) =>

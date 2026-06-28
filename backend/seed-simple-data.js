@@ -37,7 +37,7 @@ const ROUTES = [
   ['GLK', 'BDI'],
 ];
 
-const BOOKING_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+const BOOKING_STATUSES = ['Pending', 'Reject', 'Completed', 'Cancelled'];
 const CARGO_STATUSES = [
   'Pending', 'Confirmed', 'Received', 'Processing',
   'In Transit', 'Arrived', 'Ready for Pickup', 'Delivered', 'Cancelled',

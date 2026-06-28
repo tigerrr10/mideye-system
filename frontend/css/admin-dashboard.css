@@ -1072,6 +1072,7 @@ table.admin-table td {
 .badge-pending    { background: rgba(255, 193, 7, 0.15); color: #a07200; }
 .badge-confirmed  { background: rgba(25, 135, 84, 0.12); color: #0d6640; }
 .badge-completed  { background: rgba(13, 110, 253, 0.12); color: #084fc7; }
+.badge-reject     { background: rgba(220, 53, 69, 0.12); color: #b02a37; }
 .badge-delay      { background: rgba(255, 152, 0, 0.15); color: #c65a00; }
 .badge-cancelled  { background: rgba(220, 53, 69, 0.12); color: #b02a37; }
 .badge-received   { background: rgba(108, 117, 125, 0.12); color: #495057; }

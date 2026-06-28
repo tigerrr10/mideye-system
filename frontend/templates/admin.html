@@ -1279,7 +1279,7 @@ function showToast(msg, icon = 'fa-check-circle') {
 
 /* ─── Badge helpers ──────────────────────────────── */
 function bookingBadge(status) {
-  const map = { Pending: 'pending', Confirmed: 'confirmed', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
+  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
   return `<span class="badge-status badge-${(map[status] || 'pending')}">${status}</span>`;
 }
 function cargoBadge(status) {
@@ -1604,7 +1604,7 @@ function renderDashCargo(shipments) {
 /* ═══════════════════════════════════════════════
    STATUS MODAL
 ═══════════════════════════════════════════════ */
-const bookingStatuses = ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Delay'];
+const bookingStatuses = ['Pending', 'Reject', 'Completed', 'Cancelled', 'Delay'];
 const cargoStatuses   = window.CargoStatus?.CARGO_STATUSES || [
   'Pending', 'Confirmed', 'Received', 'Processing',
   'In Transit', 'Arrived', 'Ready for Pickup', 'Delivered', 'Cancelled',

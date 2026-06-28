@@ -210,6 +210,21 @@ const connectDB = async () => {
       console.log('✅ Added staff role to users table');
     }
 
+    const [bookingStatusCol] = await sequelize.query("SHOW COLUMNS FROM bookings LIKE 'status'");
+    if (bookingStatusCol.length) {
+      const type = bookingStatusCol[0].Type || '';
+      if (type.includes('Confirmed') && !type.includes('Reject')) {
+        await sequelize.query(`UPDATE bookings SET status = 'Completed' WHERE status = 'Confirmed'`);
+        await sequelize.query(`
+          ALTER TABLE bookings
+          MODIFY COLUMN status ENUM(
+            'Pending','Reject','Completed','Cancelled','Delay'
+          ) NOT NULL DEFAULT 'Pending'
+        `);
+        console.log('✅ Replaced Confirmed with Reject in booking status ENUM');
+      }
+    }
+
     const [ticketDownloadCol] = await sequelize.query("SHOW COLUMNS FROM bookings LIKE 'ticket_downloaded_at'");
     if (!ticketDownloadCol.length) {
       await sequelize.query(

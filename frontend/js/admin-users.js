@@ -162,7 +162,7 @@ const statusBadge = (status) => {
 };
 
 const bookingStatusMini = (s) => {
-  const map = { Pending: 'pending', Confirmed: 'confirmed', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
+  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay' };
   return `<span class="badge-status badge-${map[s] || 'pending'}" style="font-size:0.65rem;padding:0.2rem 0.5rem;">${s}</span>`;
 };
 

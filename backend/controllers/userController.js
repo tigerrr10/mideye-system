@@ -138,10 +138,10 @@ const getUserStats = async (req, res) => {
       Booking.count({
         where: {
           user_id: req.user.id,
-          status: { [Op.in]: ['Pending', 'Confirmed'] },
+          status: 'Pending',
         },
       }),
-      Booking.count({ where: { user_id: req.user.id, status: 'Confirmed' } }),
+      Booking.count({ where: { user_id: req.user.id, status: 'Completed' } }),
       Cargo.count({ where: { user_id: req.user.id, status: 'In Transit' } }),
       Cargo.count({
         where: {
@@ -157,7 +157,7 @@ const getUserStats = async (req, res) => {
         stats: {
           total_bookings: totalBookings,
           total_cargo: totalCargo,
-          pending_bookings: pendingBookings, // Pending + Confirmed (awaiting travel)
+          pending_bookings: pendingBookings,
           confirmed_bookings: confirmedBookings,
           cargo_in_transit: inTransitCargo,
           cargo_arrived: arrivedCargo,

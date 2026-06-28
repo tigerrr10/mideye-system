@@ -27,7 +27,7 @@ const ROUTES = [
   ['HGA', 'KSM'],
 ];
 
-const BOOKING_STATUSES = ['Pending', 'Confirmed', 'Completed', 'Confirmed', 'Pending'];
+const BOOKING_STATUSES = ['Pending', 'Reject', 'Completed', 'Reject', 'Pending'];
 const CARGO_STATUSES = ['Pending', 'In Transit', 'Delivered', 'Confirmed', 'Processing'];
 const CARGO_TYPES = ['electronics', 'textiles', 'documents', 'food', 'furniture'];
 

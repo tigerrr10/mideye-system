@@ -29,7 +29,7 @@ const calcBookingPrice = (b) => {
 };
 
 const paymentStatusFromBooking = (status) => {
-  if (status === 'Confirmed' || status === 'Completed') return { label: 'Paid', confirmed: true };
+  if (status === 'Completed') return { label: 'Paid', confirmed: true };
   if (status === 'Cancelled') return { label: 'Refunded', confirmed: false };
   return { label: 'Pending', confirmed: false };
 };
