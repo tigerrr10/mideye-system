@@ -94,41 +94,82 @@
 
 .payment-methods-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
 }
 
 .payment-method-card {
+  position: relative;
+  overflow: hidden;
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: 1.15rem;
+  padding: 1.25rem 1.15rem 1.15rem;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.payment-method-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--pm-accent, var(--brown));
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+
+.payment-method-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(68, 19, 6, 0.12);
 }
 
 .payment-method-card__icon {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--r-sm);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(68, 19, 6, 0.08);
-  color: var(--brown);
-  font-size: 1.1rem;
-  margin-bottom: 0.75rem;
+  background: color-mix(in srgb, var(--pm-accent, var(--brown)) 12%, transparent);
+  color: var(--pm-accent, var(--brown));
+  font-size: 1.05rem;
+  margin-bottom: 0.85rem;
 }
 
 .payment-method-card__name {
   font-weight: 700;
+  font-size: 0.95rem;
   color: var(--brown);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.01em;
 }
 
 .payment-method-card__meta {
-  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.payment-method-card__stat {
+  font-size: 0.78rem;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.4;
+}
+
+.payment-method-card__amount {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--brown);
+  line-height: 1.2;
+}
+
+.payment-method-card__amount small {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .badge-payment-paid { background: rgba(13, 102, 64, 0.12); color: #0d6640; }
@@ -202,7 +243,7 @@
 @media (max-width: 1200px) {
   .finance-stats-row,
   .report-summary-grid { grid-template-columns: repeat(2, 1fr); }
-  .payment-methods-grid { grid-template-columns: repeat(2, 1fr); }
+  .payment-methods-grid { grid-template-columns: repeat(3, 1fr); }
   .report-panel-grid { grid-template-columns: 1fr; }
 }
 

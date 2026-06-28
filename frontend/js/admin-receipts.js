@@ -16,7 +16,7 @@ const BOOKING_RECEIPT_EXTRAS = {
 const CARGO_RECEIPT_EXTRAS = {
   default: {
     description: 'General cargo shipment',
-    payment_method: 'Hormuud Pay',
+    payment_method: 'E-dahab',
     payment_status: 'Paid',
   },
 };

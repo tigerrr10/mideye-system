@@ -28,7 +28,7 @@ const DEMO_USER_EXTRAS = {
     address: 'Hodan District, Mogadishu',
     status: 'Active',
     last_login: 'Jun 8, 2026 · 9:15 AM',
-    payment_method: 'Hormuud Pay',
+    payment_method: 'E-dahab',
     bookings_total: 195,
     cargo_count: 2,
     recent_bookings: [

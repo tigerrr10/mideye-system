@@ -6,12 +6,11 @@
   'use strict';
 
   const PAYMENT_METHODS = [
-    { id: 'evc', name: 'EVC Plus', icon: 'fa-mobile-alt' },
-    { id: 'hormuud', name: 'Hormuud Pay', icon: 'fa-wallet' },
-    { id: 'zaad', name: 'Zaad', icon: 'fa-sim-card' },
-    { id: 'sahal', name: 'Sahal', icon: 'fa-credit-card' },
-    { id: 'cash', name: 'Cash', icon: 'fa-money-bill-wave' },
-    { id: 'bank', name: 'Bank Transfer', icon: 'fa-university' },
+    { id: 'evc', name: 'EVC Plus', icon: 'fa-mobile-alt', accent: '#1565c0' },
+    { id: 'edahab', name: 'E-dahab', icon: 'fa-gem', accent: '#c9a227' },
+    { id: 'zaad', name: 'Zaad', icon: 'fa-sim-card', accent: '#0d6640' },
+    { id: 'sahal', name: 'Sahal', icon: 'fa-credit-card', accent: '#6a1b9a' },
+    { id: 'cash', name: 'Cash', icon: 'fa-money-bill-wave', accent: '#441306' },
   ];
 
   const calcBookingPrice = (b) => {
@@ -198,12 +197,12 @@
     });
 
     grid.innerHTML = stats.map((m) => `
-      <div class="payment-method-card">
+      <div class="payment-method-card" style="--pm-accent:${m.accent}">
         <div class="payment-method-card__icon"><i class="fas ${m.icon}"></i></div>
         <div class="payment-method-card__name">${m.name}</div>
         <div class="payment-method-card__meta">
-          <div>${m.count} invoice${m.count !== 1 ? 's' : ''} · ${m.paid} paid</div>
-          <div><strong>${fmtMoney(m.amount)}</strong> received</div>
+          <span class="payment-method-card__stat">${m.count} invoice${m.count !== 1 ? 's' : ''} · ${m.paid} paid</span>
+          <span class="payment-method-card__amount">${fmtMoney(m.amount)} <small>received</small></span>
         </div>
       </div>`).join('');
   };
