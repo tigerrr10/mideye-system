@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
@@ -7,42 +8,52 @@ const dbHost = !process.env.DB_HOST || process.env.DB_HOST === 'localhost'
   : process.env.DB_HOST;
 
 const FALLBACK_PORTS = [3306, 3307];
+const SOCKET_PATHS = [
+  process.env.DB_SOCKET,
+  '/var/run/mysqld/mysqld.sock',
+].filter(Boolean);
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 2000;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const buildSequelize = (port) => new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: dbHost,
-    port,
-    dialect: 'mysql',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
-    pool: {
-      max: 10,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-    define: {
-      timestamps: true,
-      underscored: true,
-    },
+const baseConfig = {
+  dialect: 'mysql',
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+  define: {
+    timestamps: true,
+    underscored: true,
+  },
+};
+
+const buildSequelize = ({ port, socketPath, database } = {}) => {
+  const config = { ...baseConfig };
+
+  if (socketPath) {
+    config.dialectOptions = { socketPath };
+  } else {
+    config.host = dbHost;
+    config.port = port || Number(process.env.DB_PORT) || 3306;
   }
-);
 
-let sequelize = buildSequelize(Number(process.env.DB_PORT) || 3306);
+  return new Sequelize(
+    database ?? process.env.DB_NAME,
+    process.env.DB_USER,
+    process.env.DB_PASSWORD,
+    config
+  );
+};
 
-const ensureDatabaseExists = async (port) => {
-  const admin = new Sequelize('', process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: dbHost,
-    port,
-    dialect: 'mysql',
-    logging: false,
-  });
+let sequelize = buildSequelize({ port: Number(process.env.DB_PORT) || 3306 });
+
+const ensureDatabaseExists = async ({ port, socketPath } = {}) => {
+  const admin = buildSequelize({ port, socketPath, database: '' });
 
   try {
     await admin.authenticate();
@@ -59,6 +70,56 @@ const getPortsToTry = () => {
   return [...new Set([configured, ...FALLBACK_PORTS])];
 };
 
+const getSocketsToTry = () => SOCKET_PATHS.filter((socketPath) => fs.existsSync(socketPath));
+
+const applyConnectionTarget = ({ port, socketPath }) => {
+  if (socketPath) {
+    sequelize.options.host = undefined;
+    sequelize.options.port = undefined;
+    sequelize.options.dialectOptions = { socketPath };
+    if (sequelize.connectionManager.config) {
+      delete sequelize.connectionManager.config.host;
+      delete sequelize.connectionManager.config.port;
+      sequelize.connectionManager.config.dialectOptions = { socketPath };
+    }
+    return;
+  }
+
+  sequelize.options.host = dbHost;
+  sequelize.options.port = port;
+  delete sequelize.options.dialectOptions;
+  if (sequelize.connectionManager.config) {
+    sequelize.connectionManager.config.host = dbHost;
+    sequelize.connectionManager.config.port = port;
+    delete sequelize.connectionManager.config.dialectOptions;
+  }
+};
+
+const tryEndpoint = async ({ port, socketPath }) => {
+  await ensureDatabaseExists({ port, socketPath });
+  applyConnectionTarget({ port, socketPath });
+  await sequelize.authenticate();
+
+  if (socketPath) {
+    console.log(`ℹ️  MySQL connected via socket: ${socketPath}`);
+    return { socketPath };
+  }
+
+  if (port !== Number(process.env.DB_PORT)) {
+    console.log(`ℹ️  MySQL found on port ${port} (DB_PORT in .env was ${process.env.DB_PORT || 'unset'})`);
+  }
+
+  return { port };
+};
+
+const closeConnectionManager = async () => {
+  try {
+    await sequelize.connectionManager.close();
+  } catch (_) {
+    // ignore close errors while probing endpoints
+  }
+};
+
 const tryConnect = async () => {
   const ports = getPortsToTry();
   let lastError = null;
@@ -66,21 +127,19 @@ const tryConnect = async () => {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     for (const port of ports) {
       try {
-        await ensureDatabaseExists(port);
-        sequelize.options.port = port;
-        if (sequelize.connectionManager.config) {
-          sequelize.connectionManager.config.port = port;
-        }
-        await sequelize.authenticate();
-
-        if (port !== Number(process.env.DB_PORT)) {
-          console.log(`ℹ️  MySQL found on port ${port} (DB_PORT in .env was ${process.env.DB_PORT || 'unset'})`);
-        }
-
-        return port;
+        return await tryEndpoint({ port });
       } catch (error) {
         lastError = error;
-        await sequelize.connectionManager.close();
+        await closeConnectionManager();
+      }
+    }
+
+    for (const socketPath of getSocketsToTry()) {
+      try {
+        return await tryEndpoint({ socketPath });
+      } catch (error) {
+        lastError = error;
+        await closeConnectionManager();
       }
     }
 
@@ -95,8 +154,11 @@ const tryConnect = async () => {
 
 const connectDB = async () => {
   try {
-    const port = await tryConnect();
-    console.log(`✅ MySQL connected successfully via Sequelize (${dbHost}:${port})`);
+    const endpoint = await tryConnect();
+    const label = endpoint.socketPath
+      ? endpoint.socketPath
+      : `${dbHost}:${endpoint.port}`;
+    console.log(`✅ MySQL connected successfully via Sequelize (${label})`);
 
     await sequelize.sync({ alter: false });
 
@@ -161,9 +223,11 @@ const connectDB = async () => {
     console.error('❌ Database connection failed:', error.message);
     console.error('');
     console.error('   Fix checklist:');
-    console.error('   1. Start MySQL:  sudo systemctl start mysql');
+    console.error('   1. Start MySQL (pick one):');
+    console.error('        sudo systemctl start mysql');
+    console.error('        sudo /opt/lampp/lampp startmysql   # if using XAMPP');
     console.error('   2. Check port:   ss -tlnp | grep 3306');
-    console.error('   3. Update .env:  DB_PORT=3306 (Linux) or DB_PORT=3307 (XAMPP)');
+    console.error('   3. Update .env:  DB_PORT=3306 (Linux) or DB_PORT=3307 (XAMPP on Windows)');
     console.error(`   4. Create DB:    mysql -u root -e "CREATE DATABASE ${process.env.DB_NAME};"`);
     process.exit(1);
   }
