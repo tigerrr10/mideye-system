@@ -45,26 +45,125 @@ const formatDisplayDate = (dateStr) => {
   }
 };
 
-const buildWhatsAppMessage = (data) => {
-  const payment = PAYMENT_OPTIONS[data.paymentMethod];
+const TRIP_TYPE_WA = {
+  oneway: { label: 'One Way', badge: '→ ONE WAY' },
+  roundtrip: { label: 'Round Trip', badge: '⟳ ROUND TRIP' },
+};
+
+const formatTripTypeWA = (tripType) => {
+  const key = String(tripType || 'oneway').toLowerCase();
+  return TRIP_TYPE_WA[key] || TRIP_TYPE_WA.oneway;
+};
+
+const buildTravelWhatsAppMessage = (data, payment) => {
+  const trip = formatTripTypeWA(data.tripType);
   const lines = [
+    '✈️ *MidEye Travel — Payment Confirmation*',
+    '',
     'Hello,',
     '',
     'I would like to confirm my booking.',
     '',
-    `Booking Reference: ${data.reference}`,
-    `Customer Name: ${data.customerName}`,
-    `Phone Number: ${data.phone}`,
-    `Service Type: ${data.serviceType}`,
-    `Destination: ${data.destination}`,
-    `Amount: ${data.amount}`,
-    `Payment Method: ${payment?.waLabel || data.paymentMethod}`,
+    '━━━━━━━━━━━━━━━━━━━━',
+    `*${trip.badge}*`,
+    '━━━━━━━━━━━━━━━━━━━━',
+    '',
+    `📋 *Reference:* ${data.reference}`,
+    `👤 *Customer:* ${data.customerName}`,
+    `📞 *Phone:* ${data.phone}`,
+    '',
+    `🌍 *Route:* ${data.destination}`,
+    `🔁 *Trip Type:* ${trip.label}`,
+  ];
+
+  if (data.tripType === 'roundtrip' && data.returnDate) {
+    lines.push(`📅 *Return Date:* ${data.returnDate}`);
+  }
+
+  lines.push(
+    `💰 *Amount:* ${data.amount}`,
+    '',
+    '━━━━━━━━━━━━━━━━━━━━',
+    '*PAYMENT*',
+    '━━━━━━━━━━━━━━━━━━━━',
+    '',
+    `💳 *Method:* ${payment?.waLabel || data.paymentMethod}`,
     '',
     payment?.waNote || '',
     '',
     'Please assist me with payment confirmation.',
+    '',
+    'Thank you! 🙏',
+  );
+
+  return lines.join('\n');
+};
+
+const buildCargoWhatsAppMessage = (data, payment) => {
+  const lines = [
+    '📦 *MidEye Cargo — Payment Confirmation*',
+    '',
+    'Hello,',
+    '',
+    'I would like to confirm my shipment.',
+    '',
+    '━━━━━━━━━━━━━━━━━━━━',
+    '*SHIPMENT DETAILS*',
+    '━━━━━━━━━━━━━━━━━━━━',
+    '',
+    `📋 *Reference:* ${data.reference}`,
+    `👤 *Sender:* ${data.customerName}`,
+    `📞 *Phone:* ${data.phone}`,
+    `🌍 *Destination:* ${data.destination}`,
+    `💰 *Amount:* ${data.amount}`,
+    '',
+    '━━━━━━━━━━━━━━━━━━━━',
+    '*PAYMENT*',
+    '━━━━━━━━━━━━━━━━━━━━',
+    '',
+    `💳 *Method:* ${payment?.waLabel || data.paymentMethod}`,
+    '',
+    payment?.waNote || '',
+    '',
+    'Please assist me with payment confirmation.',
+    '',
+    'Thank you! 🙏',
   ];
-  return lines.filter((l, i, arr) => !(l === '' && arr[i + 1] === '')).join('\n');
+
+  return lines.join('\n');
+};
+
+const buildWhatsAppMessage = (data) => {
+  const payment = PAYMENT_OPTIONS[data.paymentMethod];
+
+  if (data.serviceType === 'Travel') {
+    return buildTravelWhatsAppMessage(data, payment);
+  }
+  if (data.serviceType === 'Cargo') {
+    return buildCargoWhatsAppMessage(data, payment);
+  }
+
+  const lines = [
+    '*MidEye — Payment Confirmation*',
+    '',
+    'Hello,',
+    '',
+    'I would like to confirm my booking.',
+    '',
+    `📋 *Reference:* ${data.reference}`,
+    `👤 *Customer:* ${data.customerName}`,
+    `📞 *Phone:* ${data.phone}`,
+    `🌍 *Destination:* ${data.destination}`,
+    `💰 *Amount:* ${data.amount}`,
+    `💳 *Method:* ${payment?.waLabel || data.paymentMethod}`,
+    '',
+    payment?.waNote || '',
+    '',
+    'Please assist me with payment confirmation.',
+    '',
+    'Thank you! 🙏',
+  ];
+  return lines.join('\n');
 };
 
 const redirectToWhatsApp = (message) => {
@@ -167,62 +266,88 @@ const closeConfirmPayModal = () => {
   activeSession = null;
 };
 
-const handlePayNow = async () => {
-  if (!activeSession) return;
+const executeBookingPayment = async (session, options = {}) => {
+  if (!session) return null;
 
-  const paymentInput = document.querySelector('input[name="confirmPayMethod"]:checked');
-  const { confirmCheck, payBtn } = getModalEls();
+  const paymentMethod = options.paymentMethod
+    || document.querySelector('input[name="confirmPayMethod"]:checked')?.value
+    || document.querySelector('input[name="wizardPayMethod"]:checked')?.value;
 
-  hideError();
+  const isConfirmed = options.skipConfirmCheck
+    || document.getElementById('confirmPayCheckbox')?.checked
+    || document.getElementById('wizardPayConfirm')?.checked;
 
-  if (!paymentInput) {
-    showError('Please select a payment method.');
-    return;
+  const onError = options.onError || showError;
+
+  if (!paymentMethod) {
+    onError('Please select a payment method.');
+    options.onPayButtonRestore?.();
+    return null;
   }
-  if (!confirmCheck?.checked) {
-    showError('Please confirm that all booking information is correct.');
-    return;
+  if (!isConfirmed) {
+    onError('Please confirm that all booking information is correct.');
+    options.onPayButtonRestore?.();
+    return null;
   }
 
-  const paymentMethod = paymentInput.value;
-  const originalHtml = payBtn.innerHTML;
-  payBtn.disabled = true;
-  payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing…';
-
-  let finalRef = activeSession.reference;
+  let finalRef = session.reference;
 
   try {
-    if (typeof activeSession.submitFn === 'function') {
-      const result = await activeSession.submitFn();
+    if (typeof session.submitFn === 'function') {
+      const result = await session.submitFn();
       if (result == null) {
         throw new Error('Your request could not be saved. Please log in and try again.');
       }
       if (result?.reference) finalRef = result.reference;
     }
   } catch (err) {
-    showError(err.message || 'Could not save your request. Please try again.');
-    payBtn.innerHTML = originalHtml;
-    updatePayButtonState();
-    return;
+    onError(err.message || 'Could not save your request. Please try again.');
+    options.onPayButtonRestore?.();
+    return null;
   }
 
   const waMessage = buildWhatsAppMessage({
     reference: finalRef,
-    customerName: activeSession.customerName,
-    phone: activeSession.phone,
-    serviceType: activeSession.serviceType,
-    destination: activeSession.destination,
-    amount: activeSession.amountFormatted,
+    customerName: session.customerName,
+    phone: session.phone,
+    serviceType: session.serviceType,
+    destination: session.destination,
+    amount: session.amountFormatted,
     paymentMethod,
+    tripType: session.tripType,
+    returnDate: session.returnDate,
   });
 
-  showSuccess(activeSession, finalRef);
+  return { finalRef, waMessage, paymentMethod };
+};
+
+const handlePayNow = async () => {
+  if (!activeSession) return;
+
+  const { payBtn } = getModalEls();
+  hideError();
+
+  const originalHtml = payBtn.innerHTML;
+  payBtn.disabled = true;
+  payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing…';
+
+  const result = await executeBookingPayment(activeSession, {
+    onError: showError,
+    onPayButtonRestore: () => {
+      payBtn.innerHTML = originalHtml;
+      updatePayButtonState();
+    },
+  });
+
+  if (!result) return;
+
+  showSuccess(activeSession, result.finalRef);
 
   if (typeof activeSession.onSuccess === 'function') {
-    activeSession.onSuccess({ reference: finalRef, paymentMethod });
+    activeSession.onSuccess({ reference: result.finalRef, paymentMethod: result.paymentMethod });
   }
 
-  setTimeout(() => redirectToWhatsApp(waMessage), 600);
+  setTimeout(() => redirectToWhatsApp(result.waMessage), 600);
 };
 
 const injectModal = () => {
@@ -352,5 +477,6 @@ window.openConfirmPayModal = openConfirmPayModal;
 window.closeConfirmPayModal = closeConfirmPayModal;
 window.generateBookingRef = generateBookingRef;
 window.formatDisplayDate = formatDisplayDate;
+window.executeBookingPayment = executeBookingPayment;
 
 document.addEventListener('DOMContentLoaded', injectModal);

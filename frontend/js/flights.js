@@ -118,6 +118,402 @@ let els = {};
 let selectedFlight = null;
 let searchParams = {};
 let currentFlights = [];
+let currentWizardStep = 1;
+let pendingBookingSession = null;
+
+const WIZARD_STEPS = [1, 2, 3, 4, 6, 7, 8, 9];
+
+const getWizardStepIndex = (step) => WIZARD_STEPS.indexOf(step);
+
+const goToWizardStep = (step) => {
+  if (!WIZARD_STEPS.includes(step)) return;
+  currentWizardStep = step;
+
+  document.querySelectorAll('.booking-step').forEach((el) => {
+    el.classList.toggle('is-active', Number(el.dataset.step) === step);
+  });
+
+  document.querySelectorAll('.booking-wizard__progress li').forEach((li) => {
+    const s = Number(li.dataset.step);
+    li.classList.remove('is-active', 'is-done');
+    if (s === step) li.classList.add('is-active');
+    else if (getWizardStepIndex(s) < getWizardStepIndex(step)) li.classList.add('is-done');
+  });
+
+  const backBtn = document.getElementById('wizardBackBtn');
+  const nextBtn = document.getElementById('wizardNextBtn');
+  const payBtn = document.getElementById('wizardPayBtn');
+  const nav = document.getElementById('wizardNav');
+
+  if (backBtn) backBtn.disabled = step === 1;
+  if (nextBtn) {
+    nextBtn.hidden = step === 8 || step === 9;
+    const labels = {
+      2: 'Search Flights <i class="fas fa-search"></i>',
+      7: 'Continue to Payment <i class="fas fa-arrow-right"></i>',
+    };
+    nextBtn.innerHTML = labels[step] || 'Next <i class="fas fa-arrow-right"></i>';
+  }
+  if (payBtn) payBtn.hidden = step !== 8;
+  if (nav) nav.style.display = step === 9 ? 'none' : 'flex';
+
+  if (step === 4) renderSelectedFlightReview();
+  if (step === 7) renderBookingReview();
+  if (step === 8) populatePaymentStep();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const validateWizardStep = (step) => {
+  if (step === 1) {
+    [els.from, els.to].forEach((el) => el?.classList.remove('is-invalid'));
+    if (!els.from?.value) { els.from?.classList.add('is-invalid'); return false; }
+    if (!els.to?.value) { els.to?.classList.add('is-invalid'); return false; }
+    if (els.from?.value === els.to?.value) { els.to?.classList.add('is-invalid'); return false; }
+    return true;
+  }
+  if (step === 2) {
+    if (!validateSearchForm()) return false;
+    const tripType = getTripType();
+    if (tripType === 'roundtrip' && !els.returnDate?.value) {
+      els.returnDate?.classList.add('is-invalid');
+      showToast('<strong>Return date required</strong> for round trip bookings.', true);
+      return false;
+    }
+    return true;
+  }
+  if (step === 3) {
+    if (!selectedFlight) {
+      showToast('<strong>Select a flight</strong> before continuing.', true);
+      return false;
+    }
+    return true;
+  }
+  if (step === 4) return !!selectedFlight;
+  if (step === 6) return validatePassengerForm({ skipFlightCheck: true });
+  return true;
+};
+
+const renderSelectedFlightReview = () => {
+  const container = document.getElementById('selectedFlightReview');
+  const flight = selectedFlight;
+  const params = getSearchParams();
+  if (!container || !flight) {
+    if (container) container.innerHTML = '<p>No flight selected.</p>';
+    return;
+  }
+
+  const fromLabel = getCityName(params.from);
+  const toLabel = getCityName(params.to);
+  const total = getTotalPrice(flight, params, params.class);
+  const tripLabel = params.tripType === 'roundtrip' ? 'Round Trip' : 'One Way';
+
+  container.innerHTML = `
+    <div class="selected-flight-card">
+      <h3 class="selected-flight-card__route">
+        <i class="fas fa-plane"></i>
+        ${fromLabel} → ${toLabel}
+      </h3>
+      <div class="selected-flight-card__grid">
+        <div class="selected-flight-card__item"><span>Airline</span><strong>${flight.airline}</strong></div>
+        <div class="selected-flight-card__item"><span>Departure</span><strong>${flight.departureTime}</strong></div>
+        <div class="selected-flight-card__item"><span>Duration</span><strong>${flight.duration}</strong></div>
+        <div class="selected-flight-card__item"><span>Class</span><strong>${CLASS_LABELS[params.class] || params.class}</strong></div>
+        <div class="selected-flight-card__item"><span>Trip Type</span><strong>${tripLabel}</strong></div>
+        <div class="selected-flight-card__item"><span>Date</span><strong>${window.formatDisplayDate?.(params.depart) || params.depart}</strong></div>
+        ${params.tripType === 'roundtrip' && params.returnDate ? `
+        <div class="selected-flight-card__item"><span>Return</span><strong>${window.formatDisplayDate?.(params.returnDate) || params.returnDate}</strong></div>` : ''}
+        <div class="selected-flight-card__item"><span>Passengers</span><strong>${params.passengers} pax</strong></div>
+      </div>
+      <div class="selected-flight-card__price">
+        <span>Total price</span>
+        <strong>${formatPrice(total)}</strong>
+      </div>
+    </div>`;
+};
+
+const buildBookingSession = () => {
+  const params = getSearchParams();
+  const flight = selectedFlight || currentFlights[0];
+  if (!flight) return null;
+
+  const passengers = collectPassengerData();
+  const lead = passengers.find((p) => p.type === 'adult') || passengers[0];
+  const fullName = lead?.fullName || '';
+  const email = lead?.email || '';
+  const phone = lead?.phone || '';
+  const gender = lead?.gender || '';
+  const genderLabel = gender === 'male' ? 'Male' : gender === 'female' ? 'Female' : '';
+  const dob = lead?.dob || '';
+  const total = getTotalPrice(flight, params, params.class);
+  const fromLabel = getCityName(params.from);
+  const toLabel = getCityName(params.to);
+  const tripLabel = params.tripType === 'roundtrip' ? 'Round Trip' : 'One Way';
+  const returnDateFormatted = params.returnDate
+    ? (window.formatDisplayDate?.(params.returnDate) || params.returnDate)
+    : '';
+  const reference = window.generateBookingRef?.('ME-FL') || `ME-FL-${Date.now()}`;
+  const nameParts = fullName.split(/\s+/).filter(Boolean);
+  const first_name = nameParts[0] || '';
+  const last_name = nameParts.slice(1).join(' ') || first_name;
+
+  const apiBase = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:5000/api';
+  const token = localStorage.getItem('mideye_token');
+  const authHeaders = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+
+  return {
+    serviceType: 'Travel',
+    reference,
+    customerName: fullName,
+    phone,
+    email,
+    destination: `${fromLabel.toUpperCase()} → ${toLabel.toUpperCase()}`,
+    date: window.formatDisplayDate?.(params.depart) || params.depart,
+    tripType: params.tripType,
+    returnDate: returnDateFormatted,
+    amount: total,
+    amountFormatted: formatPrice(total),
+    summary: [
+      { label: 'Trip Type', value: tripLabel },
+      { label: 'Airline', value: flight.airline },
+      { label: 'Route', value: `${fromLabel} (${params.from}) → ${toLabel} (${params.to})` },
+      { label: 'Departure', value: `${window.formatDisplayDate?.(params.depart) || params.depart} at ${flight.departureTime}` },
+      ...(params.tripType === 'roundtrip' && returnDateFormatted
+        ? [{ label: 'Return', value: returnDateFormatted }]
+        : []),
+      { label: 'Class', value: CLASS_LABELS[params.class] || params.class },
+      { label: 'Passengers', value: `${params.adults} Adult(s), ${params.children} Child(ren), ${params.infants} Infant(s)` },
+      { label: 'Gender', value: genderLabel },
+      { label: 'Date of Birth', value: window.formatDisplayDate?.(dob) || dob },
+      { label: 'Email', value: email || '—' },
+      { label: 'Phone', value: phone },
+    ],
+    submitFn: async () => {
+      const cabin = params.class === 'first' ? 'business' : params.class;
+      const res = await fetch(`${apiBase}/bookings`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          trip_type: params.tripType === 'roundtrip' ? 'roundtrip' : 'oneway',
+          first_name,
+          last_name,
+          email,
+          phone,
+          origin: params.from,
+          destination: params.to,
+          travel_date: params.depart,
+          return_date: params.returnDate || null,
+          adults: params.adults,
+          children: params.children,
+          infants: params.infants,
+          cabin_class: cabin,
+          special_requests: '',
+        }),
+      });
+      if (res.status === 401) throw new Error('Session expired. Please log in again.');
+      const data = await res.json();
+      if (!data.success) {
+        const msg = data.errors ? data.errors.map((er) => er.message).join(', ') : data.message;
+        throw new Error(msg || 'Booking could not be saved.');
+      }
+      const id = data.data.booking.id;
+      return { reference: `BK-${String(id).padStart(5, '0')}`, booking: data.data.booking };
+    },
+    onSuccess: () => {
+      window.clearDashboardCache?.();
+      document.getElementById('flightBookingForm')?.reset();
+      renderPassengerSections();
+      resetFlow();
+    },
+  };
+};
+
+const renderBookingReview = () => {
+  const container = document.getElementById('bookingReviewSummary');
+  const session = buildBookingSession();
+  if (!container || !session) return;
+
+  pendingBookingSession = session;
+  container.innerHTML = session.summary.map(({ label, value }) => `
+    <div class="booking-review-row">
+      <span>${label}</span>
+      <span>${value || '—'}</span>
+    </div>`).join('') + `
+    <div class="booking-review-row booking-review-row--total">
+      <span>Total Amount</span>
+      <span>${session.amountFormatted}</span>
+    </div>`;
+};
+
+const populatePaymentStep = () => {
+  const session = pendingBookingSession || buildBookingSession();
+  if (!session) return;
+  pendingBookingSession = session;
+
+  const refEl = document.getElementById('wizardPayRef');
+  const highlights = document.getElementById('wizardPayHighlights');
+  if (refEl) refEl.innerHTML = `<i class="fas fa-hashtag"></i> ${session.reference}`;
+  if (highlights) {
+    highlights.innerHTML = `
+      <div class="confirm-pay-highlight">
+        <div class="confirm-pay-highlight__label">Customer</div>
+        <div class="confirm-pay-highlight__value">${session.customerName}</div>
+      </div>
+      <div class="confirm-pay-highlight">
+        <div class="confirm-pay-highlight__label">Destination</div>
+        <div class="confirm-pay-highlight__value">${session.destination}</div>
+      </div>
+      <div class="confirm-pay-highlight">
+        <div class="confirm-pay-highlight__label">Date</div>
+        <div class="confirm-pay-highlight__value">${session.date}</div>
+      </div>
+      <div class="confirm-pay-highlight confirm-pay-highlight--full confirm-pay-highlight--amount">
+        <div class="confirm-pay-highlight__label">Total Amount</div>
+        <div class="confirm-pay-highlight__value">${session.amountFormatted}</div>
+      </div>`;
+  }
+
+  document.querySelectorAll('input[name="wizardPayMethod"]').forEach((r) => { r.checked = false; });
+  const confirm = document.getElementById('wizardPayConfirm');
+  if (confirm) confirm.checked = false;
+  document.getElementById('wizardPayError')?.classList.remove('is-visible');
+  updateWizardPayButton();
+};
+
+const updateWizardPayButton = () => {
+  const payBtn = document.getElementById('wizardPayBtn');
+  if (!payBtn) return;
+  const payment = document.querySelector('input[name="wizardPayMethod"]:checked');
+  const confirmed = document.getElementById('wizardPayConfirm')?.checked;
+  payBtn.disabled = !(payment && confirmed);
+};
+
+const showWizardPayError = (msg) => {
+  const error = document.getElementById('wizardPayError');
+  if (!error) return;
+  error.textContent = msg;
+  error.classList.add('is-visible');
+};
+
+const handleWizardPayNow = async () => {
+  if (!pendingBookingSession) {
+    pendingBookingSession = buildBookingSession();
+  }
+  if (!pendingBookingSession) return;
+
+  const payBtn = document.getElementById('wizardPayBtn');
+  const paymentMethod = document.querySelector('input[name="wizardPayMethod"]:checked')?.value;
+  const confirmed = document.getElementById('wizardPayConfirm')?.checked;
+
+  document.getElementById('wizardPayError')?.classList.remove('is-visible');
+
+  if (!paymentMethod) {
+    showWizardPayError('Please select a payment method.');
+    return;
+  }
+  if (!confirmed) {
+    showWizardPayError('Please confirm that all booking information is correct.');
+    return;
+  }
+
+  const originalHtml = payBtn.innerHTML;
+  payBtn.disabled = true;
+  payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing…';
+
+  const result = await window.executeBookingPayment?.(pendingBookingSession, {
+    paymentMethod,
+    onError: showWizardPayError,
+    onPayButtonRestore: () => {
+      payBtn.innerHTML = originalHtml;
+      updateWizardPayButton();
+    },
+  });
+
+  if (!result) {
+    payBtn.innerHTML = originalHtml;
+    updateWizardPayButton();
+    return;
+  }
+
+  const { finalRef } = result;
+  pendingBookingSession.onSuccess?.({ reference: finalRef, paymentMethod: result.paymentMethod });
+
+  const msgEl = document.getElementById('bookingConfirmedMsg');
+  const refDisplay = document.getElementById('bookingConfirmedRef');
+  if (msgEl) {
+    msgEl.textContent = 'Your booking has been recorded. You are being redirected to WhatsApp to complete payment confirmation.';
+  }
+  if (refDisplay) refDisplay.textContent = `Reference: ${finalRef}`;
+
+  goToWizardStep(9);
+
+  if (result.waMessage) {
+    setTimeout(() => {
+      const url = `https://wa.me/${typeof MIDEYE_WHATSAPP_NUMBER !== 'undefined' ? MIDEYE_WHATSAPP_NUMBER : '252907816567'}?text=${encodeURIComponent(result.waMessage)}`;
+      window.location.href = url;
+    }, 1200);
+  }
+};
+
+const handleWizardNext = () => {
+  if (!validateWizardStep(currentWizardStep)) return;
+
+  const idx = getWizardStepIndex(currentWizardStep);
+  if (idx < 0 || idx >= WIZARD_STEPS.length - 1) return;
+
+  if (currentWizardStep === 2) {
+    searchParams = getSearchParams();
+    renderPassengerSections();
+    updateSummary(searchParams);
+    runFlightSearch(false);
+  }
+
+  if (currentWizardStep === 6) {
+    if (!localStorage.getItem('mideye_token') || !localStorage.getItem('mideye_user')) {
+      window.AuthGuard?.redirectToLogin?.() || window.location.replace('login.html');
+      return;
+    }
+    pendingBookingSession = buildBookingSession();
+  }
+
+  goToWizardStep(WIZARD_STEPS[idx + 1]);
+};
+
+const handleWizardBack = () => {
+  const idx = getWizardStepIndex(currentWizardStep);
+  if (idx <= 0) return;
+  goToWizardStep(WIZARD_STEPS[idx - 1]);
+};
+
+const resetWizard = () => {
+  pendingBookingSession = null;
+  selectedFlight = null;
+  setDefaults();
+  syncTripTypeUI();
+  searchParams = getSearchParams();
+  renderPassengerSections();
+  updateSummary(searchParams);
+  if (els.list) els.list.innerHTML = '';
+  if (els.count) els.count.textContent = '';
+  els.empty?.classList.remove('is-visible');
+  goToWizardStep(1);
+};
+
+const bindWizardNav = () => {
+  document.getElementById('wizardNextBtn')?.addEventListener('click', handleWizardNext);
+  document.getElementById('wizardBackBtn')?.addEventListener('click', handleWizardBack);
+  document.getElementById('wizardPayBtn')?.addEventListener('click', handleWizardPayNow);
+  document.getElementById('wizardNewBookingBtn')?.addEventListener('click', resetWizard);
+
+  document.querySelectorAll('input[name="wizardPayMethod"]').forEach((r) => {
+    r.addEventListener('change', updateWizardPayButton);
+  });
+  document.getElementById('wizardPayConfirm')?.addEventListener('change', updateWizardPayButton);
+};
+
 
 const formatPrice = (amount) => `$${amount.toFixed(2)}`;
 
@@ -479,7 +875,7 @@ const collectPassengerData = () => {
   return passengers;
 };
 
-const validatePassengerForm = () => {
+const validatePassengerForm = (options = {}) => {
   let ok = true;
   const today = new Date().toISOString().split('T')[0];
   const blocks = document.querySelectorAll('.passenger-block');
@@ -514,7 +910,7 @@ const validatePassengerForm = () => {
     });
   });
 
-  if (!selectedFlight) {
+  if (!options.skipFlightCheck && !selectedFlight) {
     showToast('<strong>Select a flight</strong> before proceeding to payment.', true);
     ok = false;
   }
@@ -561,20 +957,14 @@ const syncAdultsFromDependents = () => {
 };
 
 const bindSearchForm = () => {
-  els.searchForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!validateSearchForm()) return;
-    runFlightSearch();
-  });
-
   [els.from, els.to].forEach((el) => {
     el?.addEventListener('change', () => {
       if (els.from?.value && els.to?.value && els.from.value === els.to.value) {
         const alt = [...els.to?.options || []].map((o) => o.value).find((code) => code && code !== els.from?.value);
         if (alt && els.to) els.to.value = alt;
       }
-      if (!validateSearchForm()) return;
-      runFlightSearch();
+      searchParams = getSearchParams();
+      updateSummary(searchParams);
     });
   });
 
@@ -593,8 +983,8 @@ const bindSearchForm = () => {
   });
 
   els.depart?.addEventListener('change', () => {
-    if (!validateSearchForm()) return;
-    runFlightSearch(false);
+    searchParams = getSearchParams();
+    updateSummary(searchParams);
   });
 };
 
@@ -650,103 +1040,6 @@ const bindPassengerFieldValidation = () => {
 const bindPassengerForm = () => {
   document.getElementById('flightBookingForm')?.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!localStorage.getItem('mideye_token') || !localStorage.getItem('mideye_user')) {
-      window.AuthGuard?.redirectToLogin?.() || (window.location.replace('login.html'));
-      return;
-    }
-    if (!validatePassengerForm()) return;
-    if (typeof window.openConfirmPayModal !== 'function') {
-      showToast('<strong>Payment module unavailable.</strong> Please refresh the page.', true);
-      return;
-    }
-
-    const params = getSearchParams();
-    const flight = selectedFlight || currentFlights[0];
-    const passengers = collectPassengerData();
-    const lead = passengers.find((p) => p.type === 'adult') || passengers[0];
-    const fullName = lead?.fullName || '';
-    const email = lead?.email || '';
-    const phone = lead?.phone || '';
-    const gender = lead?.gender || '';
-    const genderLabel = gender === 'male' ? 'Male' : gender === 'female' ? 'Female' : '';
-    const dob = lead?.dob || '';
-    const total = getTotalPrice(flight, params, params.class);
-    const fromLabel = getCityName(params.from);
-    const toLabel = getCityName(params.to);
-    const reference = window.generateBookingRef?.('ME-FL') || `ME-FL-${Date.now()}`;
-    const nameParts = fullName.split(/\s+/).filter(Boolean);
-    const first_name = nameParts[0] || '';
-    const last_name = nameParts.slice(1).join(' ') || first_name;
-
-    const apiBase = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:5000/api';
-    const token = localStorage.getItem('mideye_token');
-    const authHeaders = {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    window.openConfirmPayModal({
-      serviceType: 'Travel',
-      reference,
-      customerName: fullName,
-      phone,
-      email,
-      destination: `${fromLabel} → ${toLabel}`,
-      date: window.formatDisplayDate?.(params.depart) || params.depart,
-      amount: total,
-      amountFormatted: formatPrice(total),
-      summary: [
-        { label: 'Airline', value: flight.airline },
-        { label: 'Route', value: `${fromLabel} (${params.from}) → ${toLabel} (${params.to})` },
-        { label: 'Departure', value: `${window.formatDisplayDate?.(params.depart) || params.depart} at ${flight.departureTime}` },
-        { label: 'Class', value: CLASS_LABELS[params.class] || params.class },
-        { label: 'Passengers', value: `${params.adults} Adult(s), ${params.children} Child(ren), ${params.infants} Infant(s)` },
-        { label: 'Gender', value: genderLabel },
-        { label: 'Date of Birth', value: window.formatDisplayDate?.(dob) || dob },
-        { label: 'Email', value: email || '—' },
-        { label: 'Phone', value: phone },
-      ],
-      submitFn: async () => {
-        const cabin = params.class === 'first' ? 'business' : params.class;
-        const res = await fetch(`${apiBase}/bookings`, {
-          method: 'POST',
-          headers: authHeaders,
-          body: JSON.stringify({
-            trip_type: params.tripType === 'roundtrip' ? 'roundtrip' : 'oneway',
-            first_name,
-            last_name,
-            email,
-            phone,
-            origin: params.from,
-            destination: params.to,
-            travel_date: params.depart,
-            return_date: params.returnDate || null,
-            adults: params.adults,
-            children: params.children,
-            infants: params.infants,
-            cabin_class: cabin,
-            special_requests: '',
-          }),
-        });
-        if (res.status === 401) {
-          throw new Error('Session expired. Please log in again.');
-        }
-        const data = await res.json();
-        if (!data.success) {
-          const msg = data.errors ? data.errors.map((er) => er.message).join(', ') : data.message;
-          throw new Error(msg || 'Booking could not be saved.');
-        }
-        const id = data.data.booking.id;
-        return { reference: `BK-${String(id).padStart(5, '0')}`, booking: data.data.booking };
-      },
-      onSuccess: () => {
-        window.clearDashboardCache?.();
-        document.getElementById('flightBookingForm')?.reset();
-        renderPassengerSections();
-        resetFlow();
-        showToast(`<strong>Booking request saved!</strong><br>${fullName}, complete payment via WhatsApp to confirm.`);
-      },
-    });
   });
 };
 
@@ -824,6 +1117,7 @@ const initFlightsSearch = () => {
   bindSearchForm();
   bindPassengerForm();
   bindPassengerFieldValidation();
+  bindWizardNav();
   populatePassengerFromUser();
 
   els.depart?.addEventListener('change', () => {
@@ -846,31 +1140,31 @@ const initFlightsSearch = () => {
   syncTripTypeUI();
   searchParams = getSearchParams();
   renderPassengerSections();
+  updateSummary(searchParams);
+  goToWizardStep(1);
 
-  const startSearch = () => {
+  const initFromUrl = () => {
     applyUrlSearchParams();
     searchParams = getSearchParams();
     renderPassengerSections();
-    runFlightSearch(false);
     updateSummary(searchParams);
   };
 
   let started = false;
-  const safeStartSearch = () => {
+  const safeInit = () => {
     if (started) return;
     started = true;
-    startSearch();
+    initFromUrl();
   };
 
-  document.addEventListener('mideye:cities-loaded', safeStartSearch, { once: true });
+  document.addEventListener('mideye:cities-loaded', safeInit, { once: true });
   if (window.CitiesLoader) {
-    CitiesLoader.initPageSelects().then(safeStartSearch).catch(safeStartSearch);
+    CitiesLoader.initPageSelects().then(safeInit).catch(safeInit);
   } else {
-    safeStartSearch();
+    safeInit();
   }
 
-  // Last-resort fallback: never keep user stuck on "Loading cities..."
-  setTimeout(safeStartSearch, 1200);
+  setTimeout(safeInit, 1200);
 
   window.validateBookingPassengerForm = validatePassengerForm;
   window.resetBookingFlow = resetFlow;

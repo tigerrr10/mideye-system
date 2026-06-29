@@ -53,167 +53,282 @@
     <p class="section-desc mx-auto">Book your domestic flight across Somalia with MidEye Travel Agency.</p>
   </div>
 
-  <div class="booking-dashboard__inner">
+  <div class="booking-wizard" id="bookingWizard">
 
-    <!-- LEFT: Search Flights -->
-    <aside class="booking-panel booking-panel--sidebar" id="searchFlightsCard">
-      <div class="booking-panel__head">
-        <i class="fas fa-search booking-panel__icon"></i>
-        <h2>Search Flights</h2>
-      </div>
-      <form id="flightSearchForm" class="booking-panel__body" novalidate>
-        <div class="search-form-stack">
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 0">
-            <label for="searchFrom">From City</label>
-            <select id="searchFrom" required>
-              <option value="">Loading cities…</option>
-            </select>
-          </div>
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 1">
-            <label for="searchTo">To City</label>
-            <select id="searchTo" required>
-              <option value="">Loading cities…</option>
-            </select>
-          </div>
+    <ol class="booking-wizard__progress" id="wizardProgress" aria-label="Booking progress">
+      <li class="is-active" data-step="1"><span>1</span></li>
+      <li data-step="2"><span>2</span></li>
+      <li data-step="3"><span>3</span></li>
+      <li data-step="4"><span>4</span></li>
+      <li data-step="6"><span>6</span></li>
+      <li data-step="7"><span>7</span></li>
+      <li data-step="8"><span>8</span></li>
+      <li data-step="9"><span>9</span></li>
+    </ol>
 
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 2">
-            <label for="searchTripType">Trip Type</label>
-            <select id="searchTripType" required>
-              <option value="oneway" selected>One Way</option>
-              <option value="roundtrip">Round Trip</option>
-            </select>
-          </div>
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 3">
-            <label for="searchDepart">Departure Date</label>
-            <input type="date" id="searchDepart" required/>
-          </div>
-          <div class="search-form-field search-form-field--reveal search-form-field--return" id="returnDateField" style="--reveal-i: 4">
-            <label for="searchReturn">Return Date <span class="label-opt">(Optional)</span></label>
-            <input type="date" id="searchReturn" disabled aria-hidden="true" tabindex="-1"/>
-          </div>
-          <p class="search-field-hint search-field-hint--return" id="returnDateHint">Select Round Trip to add a return date.</p>
+    <div class="booking-wizard__stage" id="wizardStage">
 
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 5">
-            <label for="searchAdults">Adults</label>
-            <input type="number" id="searchAdults" min="1" max="10" value="1" required/>
+      <!-- STEP 1: Route & Trip Type -->
+      <section class="booking-step is-active" id="bookingStep1" data-step="1">
+        <div class="booking-panel">
+          <div class="booking-panel__head">
+            <i class="fas fa-plane-departure booking-panel__icon"></i>
+            <h2>Where are you flying?</h2>
           </div>
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 6">
-            <label for="searchChildren">Children</label>
-            <input type="number" id="searchChildren" min="0" max="10" value="0"/>
-          </div>
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 7">
-            <label for="searchInfants">Infants</label>
-            <input type="number" id="searchInfants" min="0" max="10" value="0"/>
-            <p class="search-field-hint">Marka children ama infants la beddelo, tirada adults waxay la mid noqonaysaa.</p>
-          </div>
-          <div class="search-form-field search-form-field--reveal" style="--reveal-i: 8">
-            <label for="searchClass">Class</label>
-            <select id="searchClass" required>
-              <option value="economy">Economy</option>
-              <option value="business">Business</option>
-              <option value="first">First Class</option>
-            </select>
-          </div>
-          <button type="submit" class="btn-search-flights search-form-field--reveal" id="searchFlightsBtn" style="--reveal-i: 9">
-            <i class="fas fa-search"></i> Search Flights
-          </button>
-        </div>
-      </form>
-    </aside>
-
-    <!-- RIGHT: Results + Passenger -->
-    <div class="booking-dashboard__main">
-
-      <!-- Summary chips -->
-      <div class="booking-summary" id="bookingSummary">
-        <div class="booking-summary__chip">
-          <span class="booking-summary__label">Route</span>
-          <span class="booking-summary__value" id="summaryRoute">Select route</span>
-        </div>
-        <div class="booking-summary__chip">
-          <span class="booking-summary__label">Passengers</span>
-          <span class="booking-summary__value" id="summaryPassengers">1</span>
-        </div>
-        <div class="booking-summary__chip">
-          <span class="booking-summary__label">Class</span>
-          <span class="booking-summary__value" id="summaryClass">Economy</span>
-        </div>
-        <div class="booking-summary__chip">
-          <span class="booking-summary__label">Estimated</span>
-          <span class="booking-summary__value" id="summaryEstimated">1 pax</span>
-        </div>
-      </div>
-
-      <!-- Available Flights -->
-      <section class="booking-panel" id="availableFlightsCard">
-        <div class="booking-panel__head">
-          <i class="fas fa-plane booking-panel__icon"></i>
-          <h2>Available Flights</h2>
-          <span class="booking-panel__meta" id="flightsCount"></span>
-        </div>
-        <div class="booking-panel__body">
-          <div id="flightsLoader" class="flights-loader">
-            <div class="flights-loader__spinner"></div>
-            <p>Searching flights…</p>
-          </div>
-          <div id="flightsList" class="flights-grid" aria-live="polite"></div>
-          <div id="flightsEmpty" class="flights-empty">
-            <i class="fas fa-plane-slash"></i>
-            <h3>No flights found</h3>
-            <p>Try different cities or dates.</p>
+          <div class="booking-panel__body">
+            <form id="flightSearchForm" novalidate>
+              <div class="search-form-stack">
+                <div class="search-form-field search-form-field--reveal" style="--reveal-i: 0">
+                  <label for="searchFrom">From City</label>
+                  <select id="searchFrom" required>
+                    <option value="">Loading cities…</option>
+                  </select>
+                </div>
+                <div class="search-form-field search-form-field--reveal" style="--reveal-i: 1">
+                  <label for="searchTo">To City</label>
+                  <select id="searchTo" required>
+                    <option value="">Loading cities…</option>
+                  </select>
+                </div>
+                <div class="search-form-field search-form-field--reveal" style="--reveal-i: 2">
+                  <label for="searchTripType">Trip Type</label>
+                  <select id="searchTripType" required>
+                    <option value="oneway" selected>One Way</option>
+                    <option value="roundtrip">Round Trip</option>
+                  </select>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </section>
 
-      <!-- Passenger Details -->
-      <section class="booking-panel" id="passengerDetailsCard">
-        <div class="booking-panel__head">
-          <i class="fas fa-user booking-panel__icon"></i>
-          <h2>Passenger Details</h2>
+      <!-- STEP 2: Dates & Passengers -->
+      <section class="booking-step" id="bookingStep2" data-step="2">
+        <div class="booking-panel">
+          <div class="booking-panel__head">
+            <i class="fas fa-calendar-alt booking-panel__icon"></i>
+            <h2>Enter your trip details</h2>
+          </div>
+          <div class="booking-panel__body">
+            <div class="search-form-stack">
+              <div class="search-form-field search-form-field--reveal" style="--reveal-i: 0">
+                <label for="searchDepart">Departure Date</label>
+                <input type="date" id="searchDepart" required form="flightSearchForm"/>
+              </div>
+              <div class="search-form-field search-form-field--reveal search-form-field--return" id="returnDateField" style="--reveal-i: 1">
+                <label for="searchReturn">Return Date <span class="label-opt">(Optional)</span></label>
+                <input type="date" id="searchReturn" disabled aria-hidden="true" tabindex="-1" form="flightSearchForm"/>
+              </div>
+              <p class="search-field-hint search-field-hint--return" id="returnDateHint">Select Round Trip to add a return date.</p>
+
+              <div class="search-form-field search-form-field--reveal" style="--reveal-i: 2">
+                <label for="searchAdults">Adults</label>
+                <input type="number" id="searchAdults" min="1" max="10" value="1" required form="flightSearchForm"/>
+              </div>
+              <div class="search-form-field search-form-field--reveal" style="--reveal-i: 3">
+                <label for="searchChildren">Children</label>
+                <input type="number" id="searchChildren" min="0" max="10" value="0" form="flightSearchForm"/>
+              </div>
+              <div class="search-form-field search-form-field--reveal" style="--reveal-i: 4">
+                <label for="searchInfants">Infants</label>
+                <input type="number" id="searchInfants" min="0" max="10" value="0" form="flightSearchForm"/>
+                <p class="search-field-hint">Marka children ama infants la beddelo, tirada adults waxay la mid noqonaysaa.</p>
+              </div>
+              <div class="search-form-field search-form-field--reveal" style="--reveal-i: 5">
+                <label for="searchClass">Class</label>
+                <select id="searchClass" required form="flightSearchForm">
+                  <option value="economy">Economy</option>
+                  <option value="business">Business</option>
+                  <option value="first">First Class</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="booking-panel__body">
-          <form id="flightBookingForm" novalidate>
-            <div class="sr-only-api" aria-hidden="true">
-              <select id="formOrigin"><option value="MGQ">MGQ</option><option value="HGA">HGA</option><option value="GLK">GLK</option><option value="KSM">KSM</option><option value="BDI">BDI</option></select>
-              <select id="formDestination"><option value="MGQ">MGQ</option><option value="HGA">HGA</option><option value="KSM">KSM</option><option value="GLK">GLK</option><option value="BDI">BDI</option></select>
-              <input type="date" id="formTravelDate"/>
-              <input type="date" id="formReturnDate"/>
-              <select id="formAdults"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>
-              <select id="formChildren"><option value="0">0</option></select>
-              <select id="formInfants"><option value="0">0</option></select>
-              <input type="radio" name="tripType" id="tripOneWay" value="oneway" checked/>
-              <input type="radio" name="tripType" id="tripRoundtrip" value="roundtrip"/>
-              <input type="radio" name="cabinClass" id="classEconomy" value="economy" checked/>
-              <input type="radio" name="cabinClass" id="classBusiness" value="business"/>
+      </section>
+
+      <!-- STEP 3: Choose Flight -->
+      <section class="booking-step" id="bookingStep3" data-step="3">
+        <div class="booking-panel" id="availableFlightsCard">
+          <div class="booking-panel__head">
+            <i class="fas fa-plane booking-panel__icon"></i>
+            <h2>Choose your flight</h2>
+            <span class="booking-panel__meta" id="flightsCount"></span>
+          </div>
+          <div class="booking-panel__body">
+            <div class="booking-summary booking-summary--inline" id="bookingSummary">
+              <div class="booking-summary__chip">
+                <span class="booking-summary__label">Route</span>
+                <span class="booking-summary__value" id="summaryRoute">Select route</span>
+              </div>
+              <div class="booking-summary__chip">
+                <span class="booking-summary__label">Passengers</span>
+                <span class="booking-summary__value" id="summaryPassengers">1</span>
+              </div>
+              <div class="booking-summary__chip">
+                <span class="booking-summary__label">Class</span>
+                <span class="booking-summary__value" id="summaryClass">Economy</span>
+              </div>
+              <div class="booking-summary__chip">
+                <span class="booking-summary__label">Estimated</span>
+                <span class="booking-summary__value" id="summaryEstimated">1 pax</span>
+              </div>
             </div>
-
-            <div id="passengerSections">
-              <div class="passenger-category" id="adultsSection">
-                <h3 class="passenger-category__title"><i class="fas fa-user"></i> Adults</h3>
-                <div id="adultsForms" class="passenger-category__forms"></div>
-              </div>
-              <div class="passenger-category" id="childrenSection">
-                <h3 class="passenger-category__title"><i class="fas fa-child"></i> Children</h3>
-                <div id="childrenForms" class="passenger-category__forms"></div>
-              </div>
-              <div class="passenger-category" id="infantsSection">
-                <h3 class="passenger-category__title"><i class="fas fa-baby"></i> Infants</h3>
-                <div id="infantsForms" class="passenger-category__forms"></div>
-              </div>
+            <div id="flightsLoader" class="flights-loader">
+              <div class="flights-loader__spinner"></div>
+              <p>Searching flights…</p>
             </div>
+            <div id="flightsList" class="flights-grid" aria-live="polite"></div>
+            <div id="flightsEmpty" class="flights-empty">
+              <i class="fas fa-plane-slash"></i>
+              <h3>No flights found</h3>
+              <p>Try different cities or dates.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <p class="total-price-line">
-              Total Price: <strong id="totalPriceValue">$90.00</strong>
-            </p>
+      <!-- STEP 4: Review Selected Flight -->
+      <section class="booking-step" id="bookingStep4" data-step="4">
+        <div class="booking-panel">
+          <div class="booking-panel__head">
+            <i class="fas fa-clipboard-check booking-panel__icon"></i>
+            <h2>Review your trip</h2>
+          </div>
+          <div class="booking-panel__body">
+            <div id="selectedFlightReview" class="selected-flight-review"></div>
+          </div>
+        </div>
+      </section>
 
-            <button type="submit" class="btn-book-now" id="bookNowBtn">
-              Proceed to Payment
-            </button>
-          </form>
+      <!-- STEP 6: Passenger Details -->
+      <section class="booking-step" id="bookingStep6" data-step="6">
+        <div class="booking-panel" id="passengerDetailsCard">
+          <div class="booking-panel__head">
+            <i class="fas fa-user booking-panel__icon"></i>
+            <h2>Passenger Details</h2>
+          </div>
+          <div class="booking-panel__body">
+            <form id="flightBookingForm" novalidate>
+              <div class="sr-only-api" aria-hidden="true">
+                <select id="formOrigin"><option value="MGQ">MGQ</option><option value="HGA">HGA</option><option value="GLK">GLK</option><option value="KSM">KSM</option><option value="BDI">BDI</option></select>
+                <select id="formDestination"><option value="MGQ">MGQ</option><option value="HGA">HGA</option><option value="KSM">KSM</option><option value="GLK">GLK</option><option value="BDI">BDI</option></select>
+                <input type="date" id="formTravelDate"/>
+                <input type="date" id="formReturnDate"/>
+                <select id="formAdults"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select>
+                <select id="formChildren"><option value="0">0</option></select>
+                <select id="formInfants"><option value="0">0</option></select>
+                <input type="radio" name="tripType" id="tripOneWay" value="oneway" checked/>
+                <input type="radio" name="tripType" id="tripRoundtrip" value="roundtrip"/>
+                <input type="radio" name="cabinClass" id="classEconomy" value="economy" checked/>
+                <input type="radio" name="cabinClass" id="classBusiness" value="business"/>
+              </div>
+
+              <div id="passengerSections">
+                <div class="passenger-category" id="adultsSection">
+                  <h3 class="passenger-category__title"><i class="fas fa-user"></i> Adults</h3>
+                  <div id="adultsForms" class="passenger-category__forms"></div>
+                </div>
+                <div class="passenger-category" id="childrenSection">
+                  <h3 class="passenger-category__title"><i class="fas fa-child"></i> Children</h3>
+                  <div id="childrenForms" class="passenger-category__forms"></div>
+                </div>
+                <div class="passenger-category" id="infantsSection">
+                  <h3 class="passenger-category__title"><i class="fas fa-baby"></i> Infants</h3>
+                  <div id="infantsForms" class="passenger-category__forms"></div>
+                </div>
+              </div>
+
+              <p class="total-price-line">
+                Total Price: <strong id="totalPriceValue">$90.00</strong>
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 7: Review Booking -->
+      <section class="booking-step" id="bookingStep7" data-step="7">
+        <div class="booking-panel">
+          <div class="booking-panel__head">
+            <i class="fas fa-list-alt booking-panel__icon"></i>
+            <h2>Review your booking</h2>
+          </div>
+          <div class="booking-panel__body">
+            <div id="bookingReviewSummary" class="booking-review-summary"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 8: Payment -->
+      <section class="booking-step" id="bookingStep8" data-step="8">
+        <div class="booking-panel booking-panel--payment">
+          <div class="booking-panel__head">
+            <i class="fas fa-wallet booking-panel__icon"></i>
+            <h2>Payment details</h2>
+          </div>
+          <div class="booking-panel__body confirm-pay-body confirm-pay-body--inline">
+            <div class="confirm-pay-ref" id="wizardPayRef"></div>
+            <div class="confirm-pay-highlights" id="wizardPayHighlights"></div>
+            <p class="confirm-pay-section-title">Payment Method</p>
+            <div class="confirm-pay-methods">
+              <label class="confirm-pay-method">
+                <input type="radio" name="wizardPayMethod" value="mobile_money"/>
+                <div class="confirm-pay-method__card">
+                  <div class="confirm-pay-method__icon"><i class="fas fa-mobile-alt"></i></div>
+                  <div class="confirm-pay-method__label">Mobile Money</div>
+                  <div class="confirm-pay-method__hint">EVC Plus, Zaad, or Sahal</div>
+                </div>
+              </label>
+              <label class="confirm-pay-method">
+                <input type="radio" name="wizardPayMethod" value="cash_office"/>
+                <div class="confirm-pay-method__card">
+                  <div class="confirm-pay-method__icon"><i class="fas fa-building"></i></div>
+                  <div class="confirm-pay-method__label">Cash on Office</div>
+                  <div class="confirm-pay-method__hint">Pay at our Galkacyo office</div>
+                </div>
+              </label>
+            </div>
+            <label class="confirm-pay-confirm">
+              <input type="checkbox" id="wizardPayConfirm"/>
+              <span>I confirm that all booking information is correct.</span>
+            </label>
+            <div class="confirm-pay-error" id="wizardPayError"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 9: Confirmed -->
+      <section class="booking-step" id="bookingStep9" data-step="9">
+        <div class="booking-panel booking-panel--success">
+          <div class="booking-panel__body booking-confirmed">
+            <div class="booking-confirmed__icon"><i class="fas fa-check"></i></div>
+            <h2 class="booking-confirmed__title">Booking confirmed!</h2>
+            <p class="booking-confirmed__msg" id="bookingConfirmedMsg">Your booking has been recorded. You are being redirected to WhatsApp to complete payment confirmation.</p>
+            <p class="booking-confirmed__ref" id="bookingConfirmedRef"></p>
+            <div class="booking-confirmed__actions">
+              <a href="user-dashboard.html" class="btn-book-now">View My Bookings</a>
+              <button type="button" class="btn-wizard-back" id="wizardNewBookingBtn">Book Another Flight</button>
+            </div>
+          </div>
         </div>
       </section>
 
     </div>
+
+    <div class="booking-wizard__nav" id="wizardNav">
+      <button type="button" class="btn-wizard-back" id="wizardBackBtn">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+      <button type="button" class="btn-wizard-next" id="wizardNextBtn">
+        Next <i class="fas fa-arrow-right"></i>
+      </button>
+      <button type="button" class="btn-pay-now btn-pay-now--wizard" id="wizardPayBtn" hidden disabled>
+        <i class="fab fa-whatsapp"></i> Pay Now
+      </button>
+    </div>
+
   </div>
 </main>
 
@@ -229,7 +344,7 @@
 <script src="/js/cities.js?v=20260625e"></script>
 <script src="/js/confirm-pay.js?v=816567"></script>
 <script src="/js/api.js?v=20260626a"></script>
-<script src="/js/flights.js?v=20260626a"></script>
+<script src="/js/flights.js?v=20260629a"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';

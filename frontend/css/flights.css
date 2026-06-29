@@ -1394,3 +1394,358 @@
   color: rgba(74, 29, 13, 0.6);
   margin-bottom: 0.75rem;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Booking Wizard — step-by-step flow
+   ═══════════════════════════════════════════════════════════════ */
+
+.booking-wizard {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 1.25rem 2.5rem;
+}
+
+.booking-wizard__progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+.booking-wizard__progress li {
+  display: flex;
+  align-items: center;
+}
+
+.booking-wizard__progress li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: rgba(74, 29, 13, 0.45);
+  background: var(--box-white);
+  border: 2px solid rgba(93, 33, 16, 0.15);
+  transition: all 0.25s ease;
+}
+
+.booking-wizard__progress li.is-active span {
+  color: #fff;
+  background: var(--box-brown-d);
+  border-color: var(--box-brown-d);
+  box-shadow: 0 4px 14px rgba(74, 29, 13, 0.25);
+}
+
+.booking-wizard__progress li.is-done span {
+  color: var(--box-brown-d);
+  background: rgba(197, 160, 89, 0.2);
+  border-color: var(--box-gold);
+}
+
+.booking-wizard__progress li:not(:last-child)::after {
+  content: '';
+  display: block;
+  width: 1.25rem;
+  height: 2px;
+  background: rgba(93, 33, 16, 0.12);
+  margin: 0 0.15rem;
+}
+
+.booking-wizard__stage {
+  min-height: 52vh;
+}
+
+.booking-step {
+  display: none;
+  animation: wizardStepIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.booking-step.is-active {
+  display: block;
+}
+
+@keyframes wizardStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .booking-step { animation: none; }
+}
+
+.booking-wizard__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--box-border);
+}
+
+.btn-wizard-back,
+.btn-wizard-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.75rem 1.35rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(93, 33, 16, 0.2);
+  background: var(--box-white);
+  color: var(--box-brown-d);
+}
+
+.btn-wizard-back:hover {
+  background: var(--box-cream);
+  border-color: var(--box-gold);
+}
+
+.btn-wizard-next {
+  margin-left: auto;
+  background: var(--box-brown-d);
+  color: #fff;
+  border-color: var(--box-brown-d);
+}
+
+.btn-wizard-next:hover {
+  background: var(--box-brown);
+  border-color: var(--box-brown);
+}
+
+.btn-wizard-back:disabled,
+.btn-wizard-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-pay-now--wizard {
+  margin-left: auto;
+  width: auto;
+  min-width: 180px;
+}
+
+.booking-summary--inline {
+  margin-bottom: 1.25rem;
+}
+
+.selected-flight-review {
+  max-width: 100%;
+}
+
+.selected-flight-card {
+  background: var(--box-cream);
+  border: 2px solid var(--box-gold);
+  border-radius: 14px;
+  padding: 1.35rem;
+}
+
+.selected-flight-card__route {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--box-brown-d);
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.selected-flight-card__route i {
+  color: var(--box-gold);
+  font-size: 1rem;
+}
+
+.selected-flight-card__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.selected-flight-card__item {
+  background: var(--box-white);
+  border: 1px solid var(--box-border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+
+.selected-flight-card__item span {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(74, 29, 13, 0.55);
+  margin-bottom: 0.25rem;
+}
+
+.selected-flight-card__item strong {
+  font-size: 0.95rem;
+  color: var(--box-brown-d);
+}
+
+.selected-flight-card__price {
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--box-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-flight-card__price span {
+  font-size: 0.85rem;
+  color: rgba(74, 29, 13, 0.65);
+}
+
+.selected-flight-card__price strong {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  color: var(--box-brown-d);
+}
+
+.booking-review-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.booking-review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--box-border);
+  font-size: 0.92rem;
+}
+
+.booking-review-row:last-child {
+  border-bottom: none;
+}
+
+.booking-review-row span:first-child {
+  color: rgba(74, 29, 13, 0.6);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.booking-review-row span:last-child {
+  color: var(--box-brown-d);
+  font-weight: 700;
+  text-align: right;
+}
+
+.booking-review-row--total {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--box-gold);
+  border-bottom: none;
+}
+
+.booking-review-row--total span:last-child {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--box-brown-d);
+}
+
+.confirm-pay-body--inline {
+  padding: 0;
+}
+
+.booking-panel--payment .confirm-pay-body--inline {
+  padding: 0;
+}
+
+.booking-confirmed {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.booking-confirmed__icon {
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d8a4e, #3cb371);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 8px 28px rgba(45, 138, 78, 0.35);
+}
+
+.booking-confirmed__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 800;
+  color: var(--box-brown-d);
+  margin: 0 0 0.75rem;
+}
+
+.booking-confirmed__msg {
+  color: rgba(74, 29, 13, 0.7);
+  font-size: 0.95rem;
+  max-width: 420px;
+  margin: 0 auto 0.75rem;
+  line-height: 1.55;
+}
+
+.booking-confirmed__ref {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--box-brown-d);
+  margin: 0 0 1.5rem;
+}
+
+.booking-confirmed__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.booking-confirmed__actions .btn-book-now {
+  min-width: 220px;
+}
+
+@media (max-width: 576px) {
+  .booking-wizard__progress li span {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.75rem;
+  }
+
+  .booking-wizard__progress li:not(:last-child)::after {
+    width: 0.65rem;
+  }
+
+  .selected-flight-card__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-wizard__nav {
+    flex-wrap: wrap;
+  }
+
+  .btn-pay-now--wizard {
+    width: 100%;
+  }
+}
