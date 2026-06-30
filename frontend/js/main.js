@@ -876,6 +876,47 @@ function initHomeSearchStrip() {
 
 initHomeSearchStrip();
 
+function initPopularDestinationCards() {
+  const cards = document.querySelectorAll('.popular-destination-card[data-from][data-to]');
+  if (!cards.length) return;
+  const apiBase = typeof API_BASE_URL !== 'undefined'
+    ? API_BASE_URL
+    : `${window.location.origin}/api`;
+
+  cards.forEach((card) => {
+    card.addEventListener('click', async () => {
+      const from = card.dataset.from;
+      const to = card.dataset.to;
+      if (!from || !to) return;
+
+      try {
+        const qs = new URLSearchParams({ from, to });
+        const res = await fetch(`${apiBase}/flights?${qs.toString()}`);
+        if (res.ok) {
+          const json = await res.json();
+          const first = json?.data?.flights?.[0];
+          if (first?.flight_id) {
+            window.location.href = `booking.html?flight_id=${encodeURIComponent(first.flight_id)}`;
+            return;
+          }
+        }
+      } catch {}
+
+      const today = new Date().toISOString().split('T')[0];
+      const params = new URLSearchParams({
+        from,
+        to,
+        depart: today,
+        passengers: '1',
+        trip: 'oneway',
+      });
+      window.location.href = `booking.html?${params.toString()}`;
+    });
+  });
+}
+
+initPopularDestinationCards();
+
 /* ─────────────────────────────────────────────
    16. MISC INTERACTIONS
 ───────────────────────────────────────────── */

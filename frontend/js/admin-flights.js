@@ -74,6 +74,7 @@ const getFlightFormValues = () => ({
 
 const setFlightFormValues = (flight = {}) => {
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+  set('flightIdDisplay', flight.flight_id || '');
   set('flightCode', flight.flight_code || '');
   set('flightAirline', flight.airline || '');
   set('flightOrigin', flight.origin || '');
@@ -200,12 +201,13 @@ window.renderFlights = function (flights) {
   if (!tbody) return;
 
   if (!flights.length) {
-    tbody.innerHTML = `<tr><td colspan="11"><div class="table-empty"><i class="fas fa-plane"></i>No flights found. Click "Add Flight" to create one.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12"><div class="table-empty"><i class="fas fa-plane"></i>No flights found. Click "Add Flight" to create one.</div></td></tr>`;
     return;
   }
 
   tbody.innerHTML = flights.map((f, i) => `
     <tr>
+      <td class="td-mono">${esc(f.flight_id)}</td>
       <td class="td-mono">${esc(f.flight_code)}</td>
       <td class="td-bold">${esc(f.airline)}</td>
       <td class="td-muted">${esc(f.origin)} → ${esc(f.destination)}</td>
@@ -247,7 +249,7 @@ window.loadFlights = async function () {
     window.renderReportsSection?.();
   } catch {
     if (tbody) {
-      tbody.innerHTML = `<tr><td colspan="11"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load flights.</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load flights.</div></td></tr>`;
     }
   }
 };

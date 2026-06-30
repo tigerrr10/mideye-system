@@ -79,10 +79,12 @@ const CLASS_MULTIPLIER = { economy: 1, business: 1.8, first: 2.5 };
 
 const mapApiFlight = (f) => ({
   id: String(f.id),
+  flightId: f.flight_id,
   airline: f.airline,
   from: f.origin,
   to: f.destination,
   departureTime: f.departure_time,
+  arrival_time: f.arrival_time,
   duration: f.duration,
   price: parseFloat(f.price_economy),
   priceBusiness: f.price_business != null ? parseFloat(f.price_business) : null,
@@ -114,12 +116,33 @@ const fetchFlightsFromAPI = async (params) => {
   }
 };
 
+const fetchFlightByIdFromAPI = async (flightId) => {
+  try {
+    const token = localStorage.getItem('mideye_token');
+    if (!token || !flightId) return null;
+    const base = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:5000/api';
+    const qs = new URLSearchParams({ flight_id: String(flightId).trim().toUpperCase() });
+    const res = await fetch(`${base}/flights?${qs}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json.success) return null;
+    const row = json.data?.flights?.[0];
+    return row ? mapApiFlight(row) : null;
+  } catch {
+    return null;
+  }
+};
+
 let els = {};
 let selectedFlight = null;
 let searchParams = {};
 let currentFlights = [];
 let currentWizardStep = 1;
 let pendingBookingSession = null;
+let preferredFlightId = '';
+let prefilledFlight = null;
 
 const WIZARD_STEPS = [1, 2, 3, 4, 6, 7, 8, 9];
 
@@ -215,8 +238,10 @@ const renderSelectedFlightReview = () => {
         ${fromLabel} → ${toLabel}
       </h3>
       <div class="selected-flight-card__grid">
+        <div class="selected-flight-card__item"><span>Flight ID</span><strong>${flight.flightId || '—'}</strong></div>
         <div class="selected-flight-card__item"><span>Airline</span><strong>${flight.airline}</strong></div>
         <div class="selected-flight-card__item"><span>Departure</span><strong>${flight.departureTime}</strong></div>
+        <div class="selected-flight-card__item"><span>Arrival</span><strong>${flight.arrival_time || '—'}</strong></div>
         <div class="selected-flight-card__item"><span>Duration</span><strong>${flight.duration}</strong></div>
         <div class="selected-flight-card__item"><span>Class</span><strong>${CLASS_LABELS[params.class] || params.class}</strong></div>
         <div class="selected-flight-card__item"><span>Trip Type</span><strong>${tripLabel}</strong></div>
@@ -278,6 +303,7 @@ const buildBookingSession = () => {
     amountFormatted: formatPrice(total),
     summary: [
       { label: 'Trip Type', value: tripLabel },
+      { label: 'Flight ID', value: flight.flightId || '—' },
       { label: 'Airline', value: flight.airline },
       { label: 'Route', value: `${fromLabel} (${params.from}) → ${toLabel} (${params.to})` },
       { label: 'Departure', value: `${window.formatDisplayDate?.(params.depart) || params.depart} at ${flight.departureTime}` },
@@ -298,6 +324,8 @@ const buildBookingSession = () => {
         headers: authHeaders,
         body: JSON.stringify({
           trip_type: params.tripType === 'roundtrip' ? 'roundtrip' : 'oneway',
+          flight_id: flight.flightId || null,
+          flight_record_id: flight.id ? parseInt(flight.id, 10) : null,
           first_name,
           last_name,
           email,
@@ -443,8 +471,11 @@ const handleWizardPayNow = async () => {
 
   const msgEl = document.getElementById('bookingConfirmedMsg');
   const refDisplay = document.getElementById('bookingConfirmedRef');
+  const flightRow = pendingBookingSession?.summary?.find((x) => x.label === 'Flight ID');
   if (msgEl) {
-    msgEl.textContent = 'Your booking has been recorded. You are being redirected to WhatsApp to complete payment confirmation.';
+    msgEl.textContent = flightRow?.value && flightRow.value !== '—'
+      ? `Your booking has been recorded for Flight ${flightRow.value}. You are being redirected to WhatsApp to complete payment confirmation.`
+      : 'Your booking has been recorded. You are being redirected to WhatsApp to complete payment confirmation.';
   }
   if (refDisplay) refDisplay.textContent = `Reference: ${finalRef}`;
 
@@ -623,8 +654,16 @@ const buildFlightCard = (flight, index) => {
         <span>${flight.departureTime}</span>
       </div>
       <div class="flight-card__detail">
+        <i class="fas fa-hourglass-end"></i>
+        <span>Arrival: ${flight.arrival_time || '—'}</span>
+      </div>
+      <div class="flight-card__detail">
         <i class="fas fa-hourglass-half"></i>
         <span>Duration: ${flight.duration}</span>
+      </div>
+      <div class="flight-card__detail">
+        <i class="fas fa-hashtag"></i>
+        <span>Flight ID: ${flight.flightId || '—'}</span>
       </div>
       ${seatsLabel ? `
       <div class="flight-card__detail flight-card__seats${seatsClass}">
@@ -684,7 +723,13 @@ const renderFlights = (params, withDelay = true) => {
     els.list.innerHTML = matched.map(buildFlightCard).join('');
     bindSelectButtons();
 
-    if (!selectedFlight || !matched.find((f) => f.id === selectedFlight.id)) {
+    const preferred = preferredFlightId
+      ? matched.find((f) => f.flightId === preferredFlightId)
+      : null;
+    if (preferred) {
+      selectFlight(preferred);
+      preferredFlightId = '';
+    } else if (!selectedFlight || !matched.find((f) => f.id === selectedFlight.id)) {
       selectFlight(matched[0]);
     } else {
       updateTotalPrice();
@@ -925,6 +970,17 @@ const resetFlow = () => {
 
 const runFlightSearch = (withDelay = true) => {
   searchParams = getSearchParams();
+  if (prefilledFlight && prefilledFlight.flightId && prefilledFlight.flightId === preferredFlightId) {
+    currentFlights = [prefilledFlight];
+    if (els.count) els.count.textContent = '1 flight';
+    els.empty?.classList.remove('is-visible');
+    if (els.list) {
+      els.list.innerHTML = [prefilledFlight].map(buildFlightCard).join('');
+      bindSelectButtons();
+    }
+    selectFlight(prefilledFlight);
+    return;
+  }
   if (!searchParams.from || !searchParams.to || searchParams.from === searchParams.to) {
     if (els.list) els.list.innerHTML = '';
     if (els.count) els.count.textContent = '';
@@ -1043,14 +1099,31 @@ const bindPassengerForm = () => {
   });
 };
 
-const applyUrlSearchParams = () => {
+const applyUrlSearchParams = async () => {
   const params = new URLSearchParams(window.location.search);
+  const flightId = params.get('flight_id');
   const from = params.get('from');
   const to = params.get('to');
   const depart = params.get('depart');
   const returnDate = params.get('return');
   const passengers = params.get('passengers');
   const trip = params.get('trip');
+
+  if (flightId) {
+    const flight = await fetchFlightByIdFromAPI(flightId);
+    if (flight) {
+      if (els.from?.querySelector(`option[value="${flight.from}"]`)) els.from.value = flight.from;
+      if (els.to?.querySelector(`option[value="${flight.to}"]`)) els.to.value = flight.to;
+      preferredFlightId = flight.flightId || '';
+      prefilledFlight = flight;
+      return;
+    }
+    showToast('<strong>Selected flight is no longer available.</strong> Redirecting to destinations...', true);
+    setTimeout(() => {
+      window.location.href = 'index.html#destinations';
+    }, 1500);
+    return;
+  }
 
   if (from && els.from?.querySelector(`option[value="${from}"]`)) els.from.value = from;
   if (to && els.to?.querySelector(`option[value="${to}"]`)) els.to.value = to;
@@ -1143,18 +1216,18 @@ const initFlightsSearch = () => {
   updateSummary(searchParams);
   goToWizardStep(1);
 
-  const initFromUrl = () => {
-    applyUrlSearchParams();
+  const initFromUrl = async () => {
+    await applyUrlSearchParams();
     searchParams = getSearchParams();
     renderPassengerSections();
     updateSummary(searchParams);
   };
 
   let started = false;
-  const safeInit = () => {
+  const safeInit = async () => {
     if (started) return;
     started = true;
-    initFromUrl();
+    await initFromUrl();
   };
 
   document.addEventListener('mideye:cities-loaded', safeInit, { once: true });

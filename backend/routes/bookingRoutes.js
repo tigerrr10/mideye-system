@@ -19,6 +19,10 @@ const bookingValidation = [
   body('origin').trim().notEmpty().withMessage('Departure city is required.'),
   body('destination').trim().notEmpty().withMessage('Arrival city is required.'),
   body('travel_date').isDate().withMessage('Valid travel date is required.'),
+  body('flight_id').optional().isString().isLength({ min: 3, max: 20 })
+    .withMessage('Flight ID must be a valid string.'),
+  body('flight_record_id').optional().isInt({ min: 1 })
+    .withMessage('Flight record ID must be a positive integer.'),
 ];
 
 // POST /api/bookings  — authenticated users only

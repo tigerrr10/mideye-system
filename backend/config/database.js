@@ -263,6 +263,49 @@ const connectDB = async () => {
       console.log('✅ Added ticket_downloaded_at column to bookings table');
     }
 
+    const [flightIdCol] = await sequelize.query("SHOW COLUMNS FROM flights LIKE 'flight_id'");
+    if (!flightIdCol.length) {
+      await sequelize.query(
+        "ALTER TABLE flights ADD COLUMN flight_id VARCHAR(20) DEFAULT NULL AFTER id"
+      );
+      await sequelize.query(
+        "UPDATE flights SET flight_id = CONCAT('FL-', LPAD(id, 4, '0')) WHERE flight_id IS NULL OR flight_id = ''"
+      );
+      await sequelize.query(
+        'ALTER TABLE flights MODIFY COLUMN flight_id VARCHAR(20) NOT NULL'
+      );
+      await sequelize.query(
+        'ALTER TABLE flights ADD UNIQUE KEY uq_flights_flight_id (flight_id)'
+      );
+      console.log('✅ Added and backfilled flight_id column in flights table');
+    } else {
+      await sequelize.query(
+        "UPDATE flights SET flight_id = CONCAT('FL-', LPAD(id, 4, '0')) WHERE flight_id IS NULL OR flight_id = ''"
+      );
+      const [flightIdIdx] = await sequelize.query("SHOW INDEX FROM flights WHERE Key_name = 'uq_flights_flight_id'");
+      if (!flightIdIdx.length) {
+        await sequelize.query(
+          'ALTER TABLE flights ADD UNIQUE KEY uq_flights_flight_id (flight_id)'
+        );
+      }
+    }
+
+    const [bookingFlightIdCol] = await sequelize.query("SHOW COLUMNS FROM bookings LIKE 'flight_id'");
+    if (!bookingFlightIdCol.length) {
+      await sequelize.query(
+        'ALTER TABLE bookings ADD COLUMN flight_id VARCHAR(20) DEFAULT NULL AFTER user_id'
+      );
+      console.log('✅ Added flight_id column to bookings table');
+    }
+
+    const [bookingFlightRecordCol] = await sequelize.query("SHOW COLUMNS FROM bookings LIKE 'flight_record_id'");
+    if (!bookingFlightRecordCol.length) {
+      await sequelize.query(
+        'ALTER TABLE bookings ADD COLUMN flight_record_id INT DEFAULT NULL AFTER user_id'
+      );
+      console.log('✅ Added flight_record_id column to bookings table');
+    }
+
     console.log('✅ Database tables synced');
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);

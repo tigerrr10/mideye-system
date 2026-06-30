@@ -19,6 +19,7 @@ const buildDemoRows = () => {
   return DEMO_FLIGHTS.map((f, i) => {
     const basePrice = f.price;
     return {
+      flight_id: `FL-${String(i + 1).padStart(4, '0')}`,
       flight_code: `MDY-FL-${String(i + 1).padStart(4, '0')}`,
       airline: f.airline,
       origin: f.origin,

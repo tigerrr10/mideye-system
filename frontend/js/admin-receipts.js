@@ -150,6 +150,10 @@ const cabinClassCode = (cls) => {
 const resolveBookingFlight = (b) => {
   const flights = window.allFlights || [];
   if (!flights.length) return null;
+  if (b.flight_id) {
+    const byFlightId = flights.find((f) => f.flight_id === b.flight_id);
+    if (byFlightId) return byFlightId;
+  }
   const travelDate = b.travel_date ? String(b.travel_date).slice(0, 10) : null;
   let matches = flights.filter((f) => f.origin === b.origin && f.destination === b.destination);
   if (travelDate) {
@@ -315,6 +319,7 @@ const buildBookingReceiptHTML = (b) => {
   const pay = paymentStatusFromBooking(b.status);
   const ref = `BK-${new Date(b.created_at || Date.now()).getFullYear()}-${String(b.id).padStart(5, '0')}`;
   const flight = resolveBookingFlight(b);
+  const persistentFlightId = b.flight_id || flight?.flight_id || '—';
   const airline = flight?.airline || 'Mideye Travel';
   const brand = splitAirlineName(airline);
   const pricing = calcBookingPricing(b, flight);
@@ -353,6 +358,7 @@ const buildBookingReceiptHTML = (b) => {
 
       <div class="et-meta">
         <span>Booking Reference : <strong>${ref}</strong></span>
+        <span>Flight ID : <strong>${persistentFlightId}</strong></span>
         <span>Date of Issue : <strong>${fmtUSDate(b.created_at)}</strong></span>
       </div>
 

@@ -1,4 +1,4 @@
-const { Booking, User } = require('../models');
+const { Booking, User, Flight } = require('../models');
 const { Op } = require('sequelize');
 
 // POST /api/bookings
@@ -20,19 +20,38 @@ const createBooking = async (req, res) => {
       cabin_class,
       seat_preference,
       special_requests,
+      flight_id,
+      flight_record_id,
     } = req.body;
 
     const passenger_name = `${first_name} ${last_name}`.trim();
+    let selectedFlight = null;
+    const providedFlightId = flight_id ? String(flight_id).trim().toUpperCase() : '';
+    const providedRecordId = flight_record_id ? parseInt(flight_record_id, 10) : null;
+
+    if (providedFlightId) {
+      selectedFlight = await Flight.findOne({ where: { flight_id: providedFlightId } });
+      if (!selectedFlight) {
+        return res.status(404).json({ success: false, message: 'Selected flight not found.' });
+      }
+    } else if (Number.isInteger(providedRecordId) && providedRecordId > 0) {
+      selectedFlight = await Flight.findByPk(providedRecordId);
+      if (!selectedFlight) {
+        return res.status(404).json({ success: false, message: 'Selected flight not found.' });
+      }
+    }
 
     const booking = await Booking.create({
       user_id: req.user ? req.user.id : null,
+      flight_record_id: selectedFlight ? selectedFlight.id : null,
+      flight_id: selectedFlight ? selectedFlight.flight_id : null,
       trip_type: trip_type || 'oneway',
       passenger_name,
       phone,
       email,
-      origin,
-      destination,
-      travel_date,
+      origin: selectedFlight ? selectedFlight.origin : origin,
+      destination: selectedFlight ? selectedFlight.destination : destination,
+      travel_date: selectedFlight ? selectedFlight.schedule_date : travel_date,
       return_date: return_date || null,
       adults: adults || 1,
       children: children || 0,

@@ -2,7 +2,7 @@
 
 > **Project documentation and technical report**  
 > Based on full codebase analysis (frontend, backend, database, API, and workflows).  
-> Last updated: **28 June 2026**
+> Last updated: **30 June 2026**
 
 ---
 
@@ -60,6 +60,7 @@ The admin panel (`frontend/templates/admin.html`) has **10 sections** (Notificat
 | Feature | Files | Description |
 |---------|-------|-------------|
 | **Database-backed flight search** | `frontend/js/flights.js`, `GET /api/flights` | Booking page loads flights from MySQL; admin manages inventory via Flights section |
+| **Flight ID & destination pre-fill** | `frontend/js/flights.js`, `frontend/js/main.js`, `GET /api/flights?flight_id=` | Unique `FL-xxxx` IDs; homepage destination cards open booking with auto-filled flight details |
 | **E-Ticket page** | `frontend/templates/ticket.html`, `frontend/js/user-ticket.js`, `frontend/css/user-ticket-page.css` | Printable / PDF boarding pass for **Completed** bookings (`/ticket.html?id=`) |
 | **Circular brand logo** | `frontend/images/mideye-logo.png`, `frontend/css/brand-logo.css` | Logo on admin, user dashboard, index, login, register, booking, cargo, tracking, ticket |
 | **Homepage WhatsApp button** | `frontend/templates/index.html`, `frontend/css/style1.css` | Floating green WhatsApp button (`+252907816567`) |
@@ -106,6 +107,30 @@ The following requested updates were implemented across backend and frontend:
 | **Cargo statuses `Confirmed` & `Received`** | Removed from dropdown, API enum, tracking pipeline | DB migration: `Confirmed` → `Pending`, `Received` → `Processing` |
 | **Payment labels** | **Hormuud Pay** → **E-dahab**; **Bank Transfer** removed | UI labels only |
 | **Cargo form field** | **Postal code** removed | `cargo.html` |
+
+## June 30, 2026 — Session Updates (Flight ID & Booking Pre-fill)
+
+### Added
+
+| Area | Change | Files / notes |
+|------|--------|----------------|
+| **Flight ID system** | Unique `flight_id` on every flight (`FL-0001`, `FL-0002`, …); auto-generated on create; immutable on edit | `Flight.js`, `flightController.js`, `database.js`, `mideye_schema.sql`, `seed-flights.js` |
+| **Flight ID backfill** | Existing rows migrated on startup (`FL-` + zero-padded `id`); unique index enforced | `backend/config/database.js` |
+| **Booking ↔ flight link** | Bookings store `flight_id` and `flight_record_id` when user books a specific flight | `Booking.js`, `bookingController.js`, `bookingRoutes.js` |
+| **Admin Flights table** | Flight ID shown as **first column**; read-only display in edit modal (no manual entry on add) | `admin.html`, `admin-flights.js` |
+| **Admin flight search** | Search by Flight ID, departure, or destination via `?flight_id=` query param | `flightController.js`, `flightRoutes.js` |
+| **Public flight lookup** | `GET /api/flights?flight_id=FL-xxxx` is **public** (no JWT) for destination cards and booking pre-fill | `flightRoutes.js` |
+| **Destination card → booking** | Homepage popular destinations resolve route → first matching flight → `booking.html?flight_id=FL-xxxx` | `main.js`, `index.html` (`#destinations` anchor) |
+| **Booking auto pre-fill** | From `?flight_id=`: auto-fills route, Flight ID, departure/arrival time, duration, price, seats — **not** passenger name, phone, email, travel date, or passenger counts | `flights.js` |
+| **Invalid Flight ID handling** | Friendly toast + redirect to `index.html#destinations` when ID missing or flight unavailable | `flights.js` |
+| **Flight ID on receipts & tickets** | Shown on booking confirmation, user dashboard, admin booking details, admin receipts, and e-ticket | `flights.js`, `user-dashboard.html`, `admin.html`, `admin-receipts.js`, `user-ticket.js` |
+| **Project `.gitignore`** | Tailored ignore rules for this repo only: `node_modules/`, `.env`, logs, `.vscode/`, temp files, `mideye_db.sql` (schema files kept tracked) | `.gitignore` |
+
+### Technical notes
+
+- **`flight_id` vs `flight_code`:** `flight_id` is the customer-facing ID (`FL-0001`); `flight_code` remains the internal airline code (e.g. `MDY-FL-0001`).
+- **Backward compatibility:** Bookings without a linked flight still work; search-by-route booking flow unchanged.
+- **No UI redesign:** Layout, colors, typography, spacing, and animations were not changed — only data fields and routing logic.
 
 ## WhatsApp Integration (Office: +252 907 816567)
 
@@ -286,6 +311,7 @@ The system demonstrates that meaningful digitization does not always require exp
 | In-app activity badges (user + admin topbar) | Yes |
 | Admin full user profile view & edit | Yes |
 | Database-backed flight search on booking page | Yes |
+| Flight ID system with destination-card pre-fill | Yes |
 | Public support ticket submission (homepage WhatsApp flow) | Yes |
 | E-ticket page (print/PDF for **Completed** bookings) | Yes |
 | Cargo status workflow (7 statuses) | Yes |
@@ -670,6 +696,8 @@ erDiagram
     BOOKINGS {
         int id PK
         int user_id FK
+        int flight_record_id FK
+        varchar flight_id
         enum trip_type "oneway | roundtrip"
         varchar passenger_name
         varchar phone
@@ -723,6 +751,7 @@ erDiagram
 
     FLIGHTS {
         int id PK
+        varchar flight_id UK
         varchar flight_code UK
         varchar airline
         varchar origin
@@ -775,13 +804,14 @@ The repository dump `mideye_db.sql` may contain additional columns (`city`, `sta
 
 | Step | Description |
 |------|-------------|
-| 1 | User searches flights via `GET /api/flights?from=&to=&date=` (MySQL `flights` table) |
-| 2 | Admin seeds or manages flights via **Flights** section (`npm run seed:flights` for demo data) |
-| 3 | User selects a flight card and completes passenger details form (auto-filled from profile) |
-| 4 | `openConfirmPayModal()` displays summary and payment method choice |
-| 5 | `POST /api/bookings` saves request with `status: Pending` |
-| 6 | User redirected to WhatsApp for payment coordination |
-| 7 | **Completed** bookings can open **E-Ticket** at `ticket.html?id=<bookingId>` |
+| 1 | User searches flights via `GET /api/flights?from=&to=&date=` (authenticated) or arrives from homepage with `?flight_id=FL-xxxx` (public lookup) |
+| 2 | Admin seeds or manages flights via **Flights** section; each flight gets auto-generated `flight_id` (`FL-0001`, …) |
+| 3 | Destination cards on homepage link directly to `booking.html?flight_id=` with route, schedule, and pricing pre-filled |
+| 4 | User selects a flight card and completes passenger details form (profile auto-fill for contact fields only) |
+| 5 | `openConfirmPayModal()` displays summary and payment method choice |
+| 6 | `POST /api/bookings` saves request with `status: Pending` and linked `flight_id` / `flight_record_id` |
+| 7 | User redirected to WhatsApp for payment coordination |
+| 8 | **Completed** bookings can open **E-Ticket** at `ticket.html?id=<bookingId>` |
 
 **Booking statuses (admin-managed):** `Pending` → `Reject` / `Completed` / `Cancelled` / `Delay` / `Expired`
 
@@ -854,7 +884,9 @@ Shared modal used by booking and cargo pages:
 ### Module 9: Flight Inventory (`backend/models/Flight.js`, `frontend/js/admin-flights.js`)
 
 - Admin creates/edits/deletes scheduled flights with pricing (economy/business/first), seats, and status
-- Customer booking page queries `GET /api/flights` by origin, destination, and date
+- Each flight has a unique auto-generated **`flight_id`** (`FL-0001`, `FL-0002`, …) — read-only after creation
+- Customer booking page queries `GET /api/flights` by origin/destination/date (authenticated) or by `flight_id` (public)
+- Homepage destination cards pass `flight_id` to booking page for automatic pre-fill
 - Demo data: `npm run seed:flights` (7 airlines, MGQ → HGA)
 
 ### Module 10: Payment Management (`frontend/js/admin-payments.js`, `backend/utils/revenue.js`)
@@ -1234,7 +1266,7 @@ npm run seed:simple     # Sample users, bookings, cargo
 | GET | `/api/cargo/:id` | JWT | Get cargo |
 | PUT | `/api/cargo/:id` | Admin | Update status |
 | GET | `/api/track/:tracking_id` | JWT | Track cargo |
-| GET | `/api/flights` | JWT | Search flights (`?from=&to=&date=`) |
+| GET | `/api/flights` | JWT / Public | Search flights (`?from=&to=&date=` requires JWT; `?flight_id=FL-xxxx` is public) |
 | POST | `/api/support` | Public | Create support ticket (homepage WhatsApp flow) |
 | GET | `/api/admin/stats` | Admin | Dashboard stats (incl. payments & revenue) |
 | GET | `/api/admin/users` | Admin | All users |
@@ -1262,4 +1294,4 @@ This project was developed as an academic and practical software engineering exe
 
 ---
 
-*This document was generated from comprehensive codebase analysis of all frontend templates, JavaScript modules, backend routes, controllers, models, middleware, database schema, and deployment configuration files. See **SYSTEM UPDATES & CHANGELOG** and **June 28, 2026 — Session Updates** at the top for the full feature list. Features not present in the code are explicitly marked as not implemented.*
+*This document was generated from comprehensive codebase analysis of all frontend templates, JavaScript modules, backend routes, controllers, models, middleware, database schema, and deployment configuration files. See **SYSTEM UPDATES & CHANGELOG**, **June 28, 2026 — Session Updates**, and **June 30, 2026 — Session Updates** at the top for the full feature list. Features not present in the code are explicitly marked as not implemented.*

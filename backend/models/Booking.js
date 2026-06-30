@@ -13,6 +13,14 @@ const Booking = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    flight_record_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    flight_id: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
     trip_type: {
       type: DataTypes.ENUM('oneway', 'roundtrip'),
       defaultValue: 'oneway',

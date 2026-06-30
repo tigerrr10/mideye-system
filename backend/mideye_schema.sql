@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS bookings (
   id               INT AUTO_INCREMENT PRIMARY KEY,
   user_id          INT           DEFAULT NULL,
+  flight_record_id INT           DEFAULT NULL,
+  flight_id        VARCHAR(20)   DEFAULT NULL,
   trip_type        ENUM('oneway','roundtrip') NOT NULL DEFAULT 'oneway',
   passenger_name   VARCHAR(150)  NOT NULL,
   phone            VARCHAR(20)   NOT NULL,
@@ -87,6 +89,7 @@ CREATE TABLE IF NOT EXISTS cargo (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS flights (
   id              INT AUTO_INCREMENT PRIMARY KEY,
+  flight_id       VARCHAR(20)   NOT NULL UNIQUE,
   flight_code     VARCHAR(30)   NOT NULL UNIQUE,
   airline         VARCHAR(100)  NOT NULL,
   origin          VARCHAR(10)   NOT NULL,

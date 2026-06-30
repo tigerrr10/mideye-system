@@ -10,6 +10,11 @@ const Flight = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    flight_id: {
+      type: DataTypes.STRING(20),
+      unique: true,
+      allowNull: false,
+    },
     flight_code: {
       type: DataTypes.STRING(30),
       unique: true,

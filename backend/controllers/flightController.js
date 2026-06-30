@@ -2,6 +2,16 @@ const { Op } = require('sequelize');
 const { Flight } = require('../models');
 const { FLIGHT_STATUSES } = require('../utils/flightStatuses');
 
+const nextFlightId = async () => {
+  const last = await Flight.findOne({
+    where: { flight_id: { [Op.like]: 'FL-%' } },
+    order: [['id', 'DESC']],
+  });
+  const lastNumber = parseInt((last?.flight_id || '').replace('FL-', ''), 10);
+  const next = Number.isFinite(lastNumber) ? lastNumber + 1 : 1;
+  return `FL-${String(next).padStart(4, '0')}`;
+};
+
 const parseFlight = (f) => {
   const row = f.toJSON ? f.toJSON() : f;
   return {
@@ -76,7 +86,21 @@ const buildFlightPayload = (body) => {
 // GET /api/flights?from=&to=&date=
 const searchFlights = async (req, res) => {
   try {
-    const { from, to, date } = req.query;
+    const { from, to, date, flight_id } = req.query;
+    if (flight_id) {
+      const flight = await Flight.findOne({
+        where: { flight_id: String(flight_id).trim().toUpperCase() },
+      });
+      if (!flight) {
+        return res.status(404).json({ success: false, message: 'Flight not found.' });
+      }
+      return res.status(200).json({
+        success: true,
+        count: 1,
+        data: { flights: [parseFlight(flight)] },
+      });
+    }
+
     if (!from || !to) {
       return res.status(400).json({ success: false, message: 'Origin and destination are required.' });
     }
@@ -151,6 +175,8 @@ const createFlight = async (req, res) => {
       return res.status(409).json({ success: false, message: 'Flight code already exists.' });
     }
 
+    payload.flight_id = await nextFlightId();
+
     if (payload.available_seats === 0) payload.status = 'Full';
 
     const flight = await Flight.create(payload);
@@ -178,6 +204,7 @@ const updateFlight = async (req, res) => {
     if (error) return res.status(400).json({ success: false, message: error });
 
     const payload = buildFlightPayload({ ...flight.toJSON(), ...req.body });
+    payload.flight_id = flight.flight_id;
 
     if (payload.flight_code !== flight.flight_code) {
       const exists = await Flight.findOne({ where: { flight_code: payload.flight_code } });

@@ -282,35 +282,39 @@
 
       <!-- Quick view mini tables -->
       <div class="dash-grid">
-        <div class="data-card">
-          <div class="data-card-header">
+        <div class="data-card data-card--recent">
+          <div class="data-card-header data-card-header--recent">
             <div class="data-card-title"><i class="fas fa-plane-departure"></i> Recent Bookings</div>
-            <a class="btn-action btn-action-brown" onclick="navigate('bookings', document.querySelector('[data-section=bookings]'))">View all</a>
+            <button type="button" class="recent-card-menu" title="View all bookings" onclick="navigate('bookings', document.querySelector('[data-section=bookings]'))">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
           </div>
-          <div class="table-wrap">
-            <table class="admin-table">
+          <div class="table-wrap table-wrap--recent">
+            <table class="admin-table admin-table--recent admin-table--recent-bookings">
               <thead>
-                <tr><th>Passenger</th><th>Route</th><th>Status</th></tr>
+                <tr><th class="col-icon" aria-hidden="true"></th><th>Passenger</th><th>Route</th><th class="col-status">Status</th></tr>
               </thead>
               <tbody id="dash-bookings-body">
-                <tr><td colspan="3"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+                <tr><td colspan="4"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <div class="data-card">
-          <div class="data-card-header">
+        <div class="data-card data-card--recent">
+          <div class="data-card-header data-card-header--recent">
             <div class="data-card-title"><i class="fas fa-box"></i> Recent Cargo</div>
-            <a class="btn-action btn-action-brown" onclick="navigate('cargo', document.querySelector('[data-section=cargo]'))">View all</a>
+            <button type="button" class="recent-card-menu" title="View all cargo" onclick="navigate('cargo', document.querySelector('[data-section=cargo]'))">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
           </div>
-          <div class="table-wrap">
-            <table class="admin-table">
+          <div class="table-wrap table-wrap--recent">
+            <table class="admin-table admin-table--recent admin-table--recent-cargo">
               <thead>
-                <tr><th>Tracking ID</th><th>Destination</th><th>Status</th></tr>
+                <tr><th class="col-icon">ID</th><th>Tracking ID</th><th>Destination</th><th class="col-status">Status</th></tr>
               </thead>
               <tbody id="dash-cargo-body">
-                <tr><td colspan="3"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
+                <tr><td colspan="4"><div class="table-loading"><div class="spinner"></div>Loading…</div></td></tr>
               </tbody>
             </table>
           </div>
@@ -404,6 +408,7 @@
           <table class="admin-table">
             <thead>
               <tr>
+                <th>Flight ID</th>
                 <th>Code</th>
                 <th>Airline</th>
                 <th>Route</th>
@@ -418,7 +423,7 @@
               </tr>
             </thead>
             <tbody id="flights-body">
-              <tr><td colspan="11"><div class="table-loading"><div class="spinner"></div>Loading flights…</div></td></tr>
+              <tr><td colspan="12"><div class="table-loading"><div class="spinner"></div>Loading flights…</div></td></tr>
             </tbody>
           </table>
         </div>
@@ -855,6 +860,10 @@
     <div class="flight-modal__body">
       <div class="flight-form-grid">
         <div class="flight-form-group">
+          <label for="flightIdDisplay">Flight ID</label>
+          <input type="text" id="flightIdDisplay" placeholder="Auto-generated on save" readonly />
+        </div>
+        <div class="flight-form-group">
           <label for="flightCode">Flight Code</label>
           <input type="text" id="flightCode" placeholder="Auto-generated if empty" />
         </div>
@@ -1199,6 +1208,23 @@ function showToast(msg, icon = 'fa-check-circle') {
 }
 
 /* ─── Badge helpers ──────────────────────────────── */
+function recentRowAvatar(name) {
+  const initials = String(name || '?').trim().split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase() || '?';
+  return `<span class="recent-row-avatar" aria-hidden="true">${esc(initials)}</span>`;
+}
+function recentCargoIcon() {
+  return `<span class="recent-row-icon" aria-hidden="true"><i class="fas fa-box"></i></span>`;
+}
+function recentBookingBadge(status) {
+  const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay', Expired: 'expired' };
+  const label = String(status || 'Pending').toUpperCase();
+  return `<span class="badge-status badge-${map[status] || 'pending'}">${esc(label)}</span>`;
+}
+function recentCargoBadge(status) {
+  const cls = window.CargoStatus?.cargoStatusBadgeClass(status) || 'cargo-pending';
+  const label = String(status || 'Pending').toUpperCase();
+  return `<span class="badge-status badge-${cls}">${esc(label)}</span>`;
+}
 function bookingBadge(status) {
   const map = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay', Expired: 'expired' };
   return `<span class="badge-status badge-${(map[status] || 'pending')}">${status}</span>`;
@@ -1354,7 +1380,7 @@ async function loadBookings() {
     renderAdminActivity();
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load bookings.</div></td></tr>`;
-    document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+    document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
   }
 }
 
@@ -1373,6 +1399,7 @@ function renderBookings(bookings) {
       </td>
       <td>
         <div class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</div>
+        <div class="td-muted" style="font-size:var(--fs-base)">Flight ID: ${esc(b.flight_id || '—')}</div>
         <div class="td-muted" style="font-size:var(--fs-base);text-transform:capitalize;">${b.trip_type || 'oneway'}</div>
       </td>
       <td class="td-muted">${fmtDate(b.travel_date)}</td>
@@ -1395,14 +1422,15 @@ function renderBookings(bookings) {
 function renderDashBookings(bookings) {
   const tbody = document.getElementById('dash-bookings-body');
   if (!bookings.length) {
-    tbody.innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`;
     return;
   }
   tbody.innerHTML = bookings.map(b => `
     <tr>
+      <td class="col-icon">${recentRowAvatar(b.passenger_name)}</td>
       <td class="td-bold">${esc(b.passenger_name)}</td>
       <td class="td-muted">${esc(b.origin)} → ${esc(b.destination)}</td>
-      <td>${bookingBadge(b.status)}</td>
+      <td class="col-status">${recentBookingBadge(b.status)}</td>
     </tr>`).join('');
 }
 
@@ -1429,7 +1457,7 @@ async function loadCargo() {
     renderAdminActivity();
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load cargo.</div></td></tr>`;
-    document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+    document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
   }
 }
 
@@ -1509,14 +1537,15 @@ function clearCargoUserFilter(rerender = true) {
 function renderDashCargo(shipments) {
   const tbody = document.getElementById('dash-cargo-body');
   if (!shipments.length) {
-    tbody.innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`;
     return;
   }
   tbody.innerHTML = shipments.map(c => `
     <tr>
+      <td class="col-icon">${recentCargoIcon()}</td>
       <td class="td-mono">${esc(c.tracking_id)}</td>
       <td class="td-muted">${esc(c.destination)}</td>
-      <td>${cargoBadge(c.status)}</td>
+      <td class="col-status">${recentCargoBadge(c.status)}</td>
     </tr>`).join('');
 }
 

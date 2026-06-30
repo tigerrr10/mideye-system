@@ -180,6 +180,38 @@
     .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
     @media(max-width:900px){.dash-grid{grid-template-columns:1fr;}}
 
+    /* ── Recent panels (bookings + cargo) ── */
+    .data-card--recent{border-radius:var(--r-lg);box-shadow:0 4px 22px rgba(68,19,6,.07);position:relative;}
+    .data-card--recent::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 12% 88%,rgba(68,19,6,.03) 0%,transparent 42%),radial-gradient(circle at 88% 12%,rgba(68,19,6,.025) 0%,transparent 38%);}
+    .data-card--recent .data-card-header--recent{background:var(--white);padding:1rem 1.25rem .9rem;border-bottom:1px solid var(--border);position:relative;z-index:1;}
+    .data-card--recent .data-card-title{font-size:.95rem;font-weight:700;color:var(--brown);}
+    .recent-card-menu{width:32px;height:32px;border:none;background:transparent;color:rgba(68,19,6,.42);border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0;}
+    .recent-card-menu:hover{background:rgba(68,19,6,.06);color:var(--brown);}
+    .table-wrap--recent{position:relative;z-index:1;}
+    table.admin-table--recent thead th{background:var(--white);color:rgba(68,19,6,.42);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;padding:.8rem 1rem .6rem;border-bottom:1px solid var(--border);}
+    table.admin-table--recent tbody td{padding:.7rem 1rem;font-size:.82rem;vertical-align:middle;}
+    table.admin-table--recent tbody tr{border-bottom:1px solid rgba(68,19,6,.06);transition:background .15s,box-shadow .15s;}
+    table.admin-table--recent tbody tr:last-child{border-bottom:none;}
+    table.admin-table--recent tbody tr:hover{background:rgba(253,247,237,.9);box-shadow:inset 0 0 0 1px rgba(68,19,6,.07);}
+    table.admin-table--recent .col-status{text-align:right;width:1%;white-space:nowrap;}
+    table.admin-table--recent .col-icon{width:52px;padding-right:.35rem;}
+    .recent-row-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(68,19,6,.11),rgba(140,53,32,.07));color:var(--brown-mid);font-size:.68rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+    .recent-row-icon{width:34px;height:34px;border-radius:10px;background:rgba(68,19,6,.06);color:rgba(68,19,6,.38);font-size:.82rem;display:inline-flex;align-items:center;justify-content:center;}
+    table.admin-table--recent .badge-status::before{display:none;}
+    table.admin-table--recent .badge-status{padding:.38rem .9rem;font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;gap:0;line-height:1.25;}
+    table.admin-table--recent-bookings .badge-pending{background:#ffedd5;color:#c2410c;}
+    table.admin-table--recent-bookings .badge-completed{background:#dcfce7;color:#15803d;}
+    table.admin-table--recent-bookings .badge-reject,table.admin-table--recent-bookings .badge-cancelled{background:#fee2e2;color:#b91c1c;}
+    table.admin-table--recent-bookings .badge-delay{background:#fef3c7;color:#b45309;}
+    table.admin-table--recent-bookings .badge-expired{background:#f3f4f6;color:#6b7280;}
+    table.admin-table--recent-cargo .badge-cargo-pending{background:#f97316;color:#fff;}
+    table.admin-table--recent-cargo .badge-cargo-processing{background:#ea580c;color:#fff;}
+    table.admin-table--recent-cargo .badge-cargo-in-transit{background:#2563eb;color:#fff;}
+    table.admin-table--recent-cargo .badge-cargo-arrived{background:#0d9488;color:#fff;}
+    table.admin-table--recent-cargo .badge-cargo-ready{background:#d97706;color:#fff;}
+    table.admin-table--recent-cargo .badge-cargo-delivered{background:#16a34a;color:#fff;}
+    table.admin-table--recent-cargo .badge-cargo-cancelled{background:#dc2626;color:#fff;}
+
     /* ── QUICK LINKS CARDS ── */
     .quick-link-card{background:var(--white);border-radius:var(--r-lg);padding:1.5rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;text-decoration:none;}
     .quick-link-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
@@ -336,26 +368,30 @@
       </div>
 
       <div class="dash-grid">
-        <div class="data-card">
-          <div class="data-card-header">
+        <div class="data-card data-card--recent">
+          <div class="data-card-header data-card-header--recent">
             <div class="data-card-title"><i class="fas fa-plane-departure"></i> Recent Bookings</div>
-            <a class="btn-outline-brown-sm" onclick="navigate('bookings',document.querySelector('[onclick*=bookings]'))">View all</a>
+            <button type="button" class="recent-card-menu" title="View all bookings" onclick="navigate('bookings',document.querySelector('[onclick*=bookings]'))">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
           </div>
-          <div class="table-wrap">
-            <table class="admin-table">
-              <thead><tr><th>Route</th><th>Date</th><th>Status</th></tr></thead>
+          <div class="table-wrap table-wrap--recent">
+            <table class="admin-table admin-table--recent admin-table--recent-bookings">
+              <thead><tr><th class="col-icon" aria-hidden="true"></th><th>Route</th><th>Date</th><th class="col-status">Status</th></tr></thead>
               <tbody id="dash-bookings-body"></tbody>
             </table>
           </div>
         </div>
-        <div class="data-card">
-          <div class="data-card-header">
+        <div class="data-card data-card--recent">
+          <div class="data-card-header data-card-header--recent">
             <div class="data-card-title"><i class="fas fa-box"></i> Recent Cargo</div>
-            <a class="btn-outline-brown-sm" onclick="navigate('cargo',document.querySelector('[onclick*=cargo]'))">View all</a>
+            <button type="button" class="recent-card-menu" title="View all cargo" onclick="navigate('cargo',document.querySelector('[onclick*=cargo]'))">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
           </div>
-          <div class="table-wrap">
-            <table class="admin-table">
-              <thead><tr><th>Tracking ID</th><th>Destination</th><th>Status</th></tr></thead>
+          <div class="table-wrap table-wrap--recent">
+            <table class="admin-table admin-table--recent admin-table--recent-cargo">
+              <thead><tr><th class="col-icon">ID</th><th>Tracking ID</th><th>Destination</th><th class="col-status">Status</th></tr></thead>
               <tbody id="dash-cargo-body"></tbody>
             </table>
           </div>
@@ -377,7 +413,7 @@
         <div class="table-wrap">
           <table class="admin-table">
             <thead>
-              <tr><th>#</th><th>Route</th><th>Travel Date</th><th>Class</th><th>Passengers</th><th>Trip Type</th><th>Status</th><th>Submitted</th><th>Ticket</th></tr>
+              <tr><th>#</th><th>Flight ID</th><th>Route</th><th>Travel Date</th><th>Class</th><th>Passengers</th><th>Trip Type</th><th>Status</th><th>Submitted</th><th>Ticket</th></tr>
             </thead>
             <tbody id="bookings-body"></tbody>
           </table>
@@ -772,6 +808,21 @@ function showToast(msg, icon = 'fa-check-circle') {
 /* ── Badge helpers ── */
 const bookingBadge = s => { const m={Pending:'pending',Reject:'reject',Completed:'completed',Cancelled:'cancelled',Delay:'delay',Expired:'expired'}; return `<span class="badge-status badge-${m[s]||'pending'}">${s}</span>`; };
 const cargoBadge = s => window.CargoStatus?.renderCargoStatusBadge(s) || `<span class="badge-status badge-cargo-pending">${s}</span>`;
+const recentBookingBadge = (status) => {
+  const m = { Pending: 'pending', Reject: 'reject', Completed: 'completed', Cancelled: 'cancelled', Delay: 'delay', Expired: 'expired' };
+  const label = String(status || 'Pending').toUpperCase();
+  return `<span class="badge-status badge-${m[status] || 'pending'}">${esc(label)}</span>`;
+};
+const recentCargoBadge = (status) => {
+  const cls = window.CargoStatus?.cargoStatusBadgeClass(status) || 'cargo-pending';
+  const label = String(status || 'Pending').toUpperCase();
+  return `<span class="badge-status badge-${cls}">${esc(label)}</span>`;
+};
+const recentRowAvatar = (name) => {
+  const initials = String(name || '?').trim().split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase() || '?';
+  return `<span class="recent-row-avatar" aria-hidden="true">${esc(initials)}</span>`;
+};
+const recentCargoIcon = () => `<span class="recent-row-icon" aria-hidden="true"><i class="fas fa-box"></i></span>`;
 const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '–';
 const esc = s => s == null ? '–' : String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -809,17 +860,18 @@ async function loadBookings(silent = true) {
   } catch(e) {
     if (!silent) {
       document.getElementById('bookings-body').innerHTML = `<tr><td colspan="9"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load bookings.</div></td></tr>`;
-      document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+      document.getElementById('dash-bookings-body').innerHTML = `<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
     }
   }
 }
 
 function renderBookings(list) {
   const tbody = document.getElementById('bookings-body');
-  if (!list.length) { tbody.innerHTML=`<tr><td colspan="9"><div class="table-empty"><i class="fas fa-plane"></i>No bookings yet. <a href="booking.html" style="color:var(--brown);font-weight:600;">Book your first flight →</a></div></td></tr>`; return; }
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="10"><div class="table-empty"><i class="fas fa-plane"></i>No bookings yet. <a href="booking.html" style="color:var(--brown);font-weight:600;">Book your first flight →</a></div></td></tr>`; return; }
   tbody.innerHTML = list.map((b,i) => `
     <tr>
       <td class="td-muted">${i+1}</td>
+      <td class="td-mono">${esc(b.flight_id || '—')}</td>
       <td><div class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</div></td>
       <td class="td-muted">${fmtDate(b.travel_date)}</td>
       <td class="td-muted" style="text-transform:capitalize;">${b.cabin_class||'economy'}</td>
@@ -838,8 +890,14 @@ function renderBookings(list) {
 
 function renderDashBookings(list) {
   const tbody = document.getElementById('dash-bookings-body');
-  if (!list.length) { tbody.innerHTML=`<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`; return; }
-  tbody.innerHTML = list.map(b => `<tr><td class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</td><td class="td-muted">${fmtDate(b.travel_date)}</td><td>${bookingBadge(b.status)}</td></tr>`).join('');
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-plane"></i>No bookings yet.</div></td></tr>`; return; }
+  tbody.innerHTML = list.map(b => `
+    <tr>
+      <td class="col-icon">${recentRowAvatar(b.passenger_name)}</td>
+      <td class="td-bold">${esc(b.origin)} → ${esc(b.destination)}</td>
+      <td class="td-muted">${fmtDate(b.travel_date)}</td>
+      <td class="col-status">${recentBookingBadge(b.status)}</td>
+    </tr>`).join('');
 }
 
 /* ═══════════════ LOAD CARGO ═══════════════ */
@@ -857,7 +915,7 @@ async function loadCargo(silent = true) {
   } catch(e) {
     if (!silent) {
       document.getElementById('cargo-body').innerHTML = `<tr><td colspan="8"><div class="table-empty"><i class="fas fa-exclamation-circle"></i>Failed to load cargo.</div></td></tr>`;
-      document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
+      document.getElementById('dash-cargo-body').innerHTML = `<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-exclamation-circle"></i>Error</div></td></tr>`;
     }
   }
 }
@@ -880,8 +938,14 @@ function renderCargo(list) {
 
 function renderDashCargo(list) {
   const tbody = document.getElementById('dash-cargo-body');
-  if (!list.length) { tbody.innerHTML=`<tr><td colspan="3"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`; return; }
-  tbody.innerHTML = list.map(c => `<tr><td class="td-mono">${esc(c.tracking_id)}</td><td class="td-muted">${esc(c.destination)}</td><td>${cargoBadge(c.status)}</td></tr>`).join('');
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="4"><div class="table-empty" style="padding:1.5rem"><i class="fas fa-box"></i>No cargo yet.</div></td></tr>`; return; }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td class="col-icon">${recentCargoIcon()}</td>
+      <td class="td-mono">${esc(c.tracking_id)}</td>
+      <td class="td-muted">${esc(c.destination)}</td>
+      <td class="col-status">${recentCargoBadge(c.status)}</td>
+    </tr>`).join('');
 }
 
 /* ═══════════════ PROFILE ═══════════════ */
