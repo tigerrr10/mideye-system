@@ -1421,11 +1421,15 @@ table.admin-table--recent .col-icon {
 }
 
 /* Recent panel status pills */
-table.admin-table--recent .badge-status::before {
+table.admin-table--recent .badge-status::before,
+table.admin-table--bookings .badge-status::before,
+table.admin-table--flights .badge-status::before {
   display: none;
 }
 
-table.admin-table--recent .badge-status {
+table.admin-table--recent .badge-status,
+table.admin-table--bookings .badge-status,
+table.admin-table--flights .badge-status {
   padding: 0.38rem 0.9rem;
   font-size: 0.62rem;
   font-weight: 700;
@@ -1436,31 +1440,50 @@ table.admin-table--recent .badge-status {
   line-height: 1.25;
 }
 
-/* Bookings — soft pills */
-table.admin-table--recent-bookings .badge-pending {
-  background: #ffedd5;
-  color: #c2410c;
+/* Bookings / flights — solid pills (match cargo) */
+table.admin-table--recent-bookings .badge-pending,
+table.admin-table--bookings .badge-pending,
+table.admin-table--flights .badge-pending {
+  background: #f97316;
+  color: #fff;
 }
 
-table.admin-table--recent-bookings .badge-completed {
-  background: #dcfce7;
-  color: #15803d;
+table.admin-table--recent-bookings .badge-completed,
+table.admin-table--bookings .badge-completed,
+table.admin-table--flights .badge-completed {
+  background: #16a34a;
+  color: #fff;
+}
+
+table.admin-table--recent-bookings .badge-confirmed,
+table.admin-table--bookings .badge-confirmed,
+table.admin-table--flights .badge-confirmed {
+  background: #2563eb;
+  color: #fff;
 }
 
 table.admin-table--recent-bookings .badge-reject,
-table.admin-table--recent-bookings .badge-cancelled {
-  background: #fee2e2;
-  color: #b91c1c;
+table.admin-table--recent-bookings .badge-cancelled,
+table.admin-table--bookings .badge-reject,
+table.admin-table--bookings .badge-cancelled,
+table.admin-table--flights .badge-reject,
+table.admin-table--flights .badge-cancelled {
+  background: #dc2626;
+  color: #fff;
 }
 
-table.admin-table--recent-bookings .badge-delay {
-  background: #fef3c7;
-  color: #b45309;
+table.admin-table--recent-bookings .badge-delay,
+table.admin-table--bookings .badge-delay,
+table.admin-table--flights .badge-delay {
+  background: #d97706;
+  color: #fff;
 }
 
-table.admin-table--recent-bookings .badge-expired {
-  background: #f3f4f6;
-  color: #6b7280;
+table.admin-table--recent-bookings .badge-expired,
+table.admin-table--bookings .badge-expired,
+table.admin-table--flights .badge-expired {
+  background: #64748b;
+  color: #fff;
 }
 
 /* Cargo — solid pills */

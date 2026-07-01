@@ -197,13 +197,13 @@
     table.admin-table--recent .col-icon{width:52px;padding-right:.35rem;}
     .recent-row-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(68,19,6,.11),rgba(140,53,32,.07));color:var(--brown-mid);font-size:.68rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
     .recent-row-icon{width:34px;height:34px;border-radius:10px;background:rgba(68,19,6,.06);color:rgba(68,19,6,.38);font-size:.82rem;display:inline-flex;align-items:center;justify-content:center;}
-    table.admin-table--recent .badge-status::before{display:none;}
-    table.admin-table--recent .badge-status{padding:.38rem .9rem;font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;gap:0;line-height:1.25;}
-    table.admin-table--recent-bookings .badge-pending{background:#ffedd5;color:#c2410c;}
-    table.admin-table--recent-bookings .badge-completed{background:#dcfce7;color:#15803d;}
-    table.admin-table--recent-bookings .badge-reject,table.admin-table--recent-bookings .badge-cancelled{background:#fee2e2;color:#b91c1c;}
-    table.admin-table--recent-bookings .badge-delay{background:#fef3c7;color:#b45309;}
-    table.admin-table--recent-bookings .badge-expired{background:#f3f4f6;color:#6b7280;}
+    table.admin-table--recent .badge-status::before,table.admin-table--bookings .badge-status::before{display:none;}
+    table.admin-table--recent .badge-status,table.admin-table--bookings .badge-status{padding:.38rem .9rem;font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:999px;gap:0;line-height:1.25;}
+    table.admin-table--recent-bookings .badge-pending,table.admin-table--bookings .badge-pending{background:#f97316;color:#fff;}
+    table.admin-table--recent-bookings .badge-completed,table.admin-table--bookings .badge-completed{background:#16a34a;color:#fff;}
+    table.admin-table--recent-bookings .badge-reject,table.admin-table--recent-bookings .badge-cancelled,table.admin-table--bookings .badge-reject,table.admin-table--bookings .badge-cancelled{background:#dc2626;color:#fff;}
+    table.admin-table--recent-bookings .badge-delay,table.admin-table--bookings .badge-delay{background:#d97706;color:#fff;}
+    table.admin-table--recent-bookings .badge-expired,table.admin-table--bookings .badge-expired{background:#64748b;color:#fff;}
     table.admin-table--recent-cargo .badge-cargo-pending{background:#f97316;color:#fff;}
     table.admin-table--recent-cargo .badge-cargo-processing{background:#ea580c;color:#fff;}
     table.admin-table--recent-cargo .badge-cargo-in-transit{background:#2563eb;color:#fff;}
@@ -411,7 +411,7 @@
           <span class="td-muted" id="bookings-count"></span>
         </div>
         <div class="table-wrap">
-          <table class="admin-table">
+          <table class="admin-table admin-table--bookings">
             <thead>
               <tr><th>#</th><th>Flight ID</th><th>Route</th><th>Travel Date</th><th>Class</th><th>Passengers</th><th>Trip Type</th><th>Status</th><th>Submitted</th><th>Ticket</th></tr>
             </thead>

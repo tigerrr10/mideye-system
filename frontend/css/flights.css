@@ -1666,11 +1666,45 @@
 }
 
 .confirm-pay-body--inline {
-  padding: 0;
+  padding: 0.75rem 1.75rem 1.5rem;
 }
 
 .booking-panel--payment .confirm-pay-body--inline {
-  padding: 0;
+  padding: 0.75rem 1.75rem 1.5rem;
+}
+
+.booking-panel--payment .confirm-pay-ref {
+  margin-bottom: 1.25rem;
+}
+
+.booking-panel--payment .confirm-pay-highlights {
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+}
+
+.booking-panel--payment .confirm-pay-highlight {
+  padding: 1rem 1.15rem;
+}
+
+.booking-panel--payment .confirm-pay-section-title {
+  margin: 0.25rem 0 0.85rem;
+}
+
+.booking-panel--payment .confirm-pay-methods {
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.booking-panel--payment .confirm-pay-method__card {
+  padding: 1.15rem 1rem;
+}
+
+.booking-panel--payment .confirm-pay-confirm {
+  margin-bottom: 1rem;
+}
+
+.booking-panel--payment .confirm-pay-error {
+  margin-top: 0.25rem;
 }
 
 .booking-confirmed {
@@ -1747,5 +1781,13 @@
 
   .btn-pay-now--wizard {
     width: 100%;
+  }
+
+  .booking-panel--payment .confirm-pay-body--inline {
+    padding: 0.65rem 1.15rem 1.25rem;
+  }
+
+  .booking-panel--payment .confirm-pay-methods {
+    grid-template-columns: 1fr;
   }
 }

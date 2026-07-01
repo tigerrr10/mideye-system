@@ -271,11 +271,13 @@ const executeBookingPayment = async (session, options = {}) => {
 
   const paymentMethod = options.paymentMethod
     || document.querySelector('input[name="confirmPayMethod"]:checked')?.value
-    || document.querySelector('input[name="wizardPayMethod"]:checked')?.value;
+    || document.querySelector('input[name="wizardPayMethod"]:checked')?.value
+    || document.querySelector('input[name="cargoWizardPayMethod"]:checked')?.value;
 
   const isConfirmed = options.skipConfirmCheck
     || document.getElementById('confirmPayCheckbox')?.checked
-    || document.getElementById('wizardPayConfirm')?.checked;
+    || document.getElementById('wizardPayConfirm')?.checked
+    || document.getElementById('cargoWizardPayConfirm')?.checked;
 
   const onError = options.onError || showError;
 

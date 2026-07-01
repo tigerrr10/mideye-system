@@ -413,6 +413,7 @@ const CARGO_TYPE_LABELS = {
   textiles: 'Textiles & Clothing',
   machinery: 'Machinery & Parts',
   food: 'Food & Beverages',
+  medicine: 'Medicine / Dawo',
   furniture: 'Furniture',
   documents: 'Documents',
   other: 'Other',
@@ -445,6 +446,9 @@ const validateCargoPayload = (payload) => {
 const initCargoForm = () => {
   const form = document.getElementById('cargoRequestForm');
   if (!form) return;
+
+  // Wizard page handles submission inline
+  if (document.getElementById('cargoWizard')) return;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -616,6 +620,11 @@ const renderTrackingResult = ({ cargo, timeline }) => {
 };
 
 // ─── Boot ──────────────────────────────────────────────────────────────────────
+
+window.collectCargoPayload = collectCargoPayload;
+window.validateCargoPayload = validateCargoPayload;
+window.getCargoAmount = getCargoAmount;
+window.handleUnauthorized = handleUnauthorized;
 
 document.addEventListener('DOMContentLoaded', () => {
   updateNavbar();
